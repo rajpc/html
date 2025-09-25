@@ -1,1 +1,153 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Information Table Preview</title>
+    <style type="text/css">
+        body {
+            font-family: "Arial Unicode MS", Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            font-size: 11px;
+            color: #000000;
+            background-color: #ffffff;
+        }
+        
+        .rc-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 15px;
+        }
+        
+        .rc-section-header {
+            background-color: #f2f2f2;
+            padding: 6px;
+            border-left: 3px solid #c8102e;
+            margin: 8px 0 10px 0;
+        }
+        
+        .rc-section-header h1 {
+            margin: 0;
+            color: #001f4d;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .rc-section-header h2 {
+            margin: 0;
+            color: #001f4d;
+            font-size: 11px;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #001f4d;
+        }
+        
+        .header-title {
+            font-size: 14px;
+            color: #001f4d;
+            font-weight: bold;
+        }
+        
+        .rc-account-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            margin-top: 10px;
+        }
+        
+        .rc-account-table th, .rc-account-table td {
+            border: 1px solid #001f4d;
+            padding: 6px 8px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 11px;
+        }
+        
+        .rc-account-table th {
+            background-color: #001f4d;
+            color: white;
+            font-weight: bold;
+            text-align: left;
+        }
+        
+        /* Column width settings - equal spacing */
+        .rc-account-table th, .rc-account-table td {
+            width: 25%;
+        }
+        
+        /* Center alignment for column 2 */
+        .rc-account-table th:nth-child(2),
+        .rc-account-table td:nth-child(2) {
+            text-align: center;
+            background-color: white;
+            color: #000000;
+        }
+        
+        /* Left alignment and white background for column 4 */
+        .rc-account-table th:nth-child(4),
+        .rc-account-table td:nth-child(4) {
+            text-align: left;
+            background-color: white;
+            color: #000000;
+        }
+        
+        /* Styling for dark rows */
+        .rc-dark-row {
+            background-color: #001f4d;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Checkbox styling */
+        input[type="checkbox"] {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="rc-container">
+        <div class="header-container">
+            <span class="header-title">Account Information</span>
+        </div>
+        
+        <div class="rc-section-header">
+            <h2>Account Details</h2>
+        </div>
+        
+        <table class="rc-account-table">
+            <tr>
+                <th>Tier</th>
+                <th>1</th>
+                <th>Primary NAICS</th>
+                <th>713940</th>
+            </tr>
+            <tr>
+                <td class="rc-dark-row">VIP Client</td>
+                <td>
+                    <input type="checkbox">
+                </td>
+                <td class="rc-dark-row">Primary NAICS Description</td>
+                <td>Fitness and Recreational Sports</td>
+            </tr>
+            <tr>
+                <td class="rc-dark-row">VIP Prospect</td>
+                <td>
+                    <input type="checkbox">
+                </td>
+                <td class="rc-dark-row">ABL Account</td>
+                <td>
+                    <input type="checkbox">
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
