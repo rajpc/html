@@ -1,1 +1,1 @@
-Could not resolve the entity from <apex:inputField> value binding '{!item.DueDate}'.  <apex:inputField> can only be used with SObjects, or objects that are Visualforce field component resolvable.
+Could not resolve the entity from <apex:inputField> value binding '{!item.DueDate}'.  <apex:inputField> can only be used with SObjects, or objects that are Visualforce field component resolvable. 
