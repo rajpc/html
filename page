@@ -72,15 +72,6 @@
                 width: 100px;
                 height: auto;
                 }
-                table.two-column-table {
-                width: 100%;
-                table-layout: fixed;
-                }
-                td.column {
-                vertical-align: top;
-                padding-right: 10px;
-                width: 50%;
-                }
                 .section-header {
                 background-color: #f2f2f2;
                 padding: 6px;
@@ -92,176 +83,12 @@
                 color: #001f4d;
                 font-size: 10pt;
                 }
-                .company-desc .row {
-                margin: 10px 0;
-                position: relative;
-                }
-                .label-arrow {
-                display: inline-block;
-                background-color: #001f4d;
-                color: white !important;
-                font-weight: bold;
-                padding: 8px 10px 4px 8px;
-                margin-right: 15px;
-                position: relative;
-                font-size: 8pt;
-                line-height: 1.2;
-                }
-                .label-arrow:after {
-                content: "";
-                position: absolute;
-                right: -10px;
-                top: 0;
-                width: 0;
-                height: 0;
-                border-top: 12px solid transparent;
-                border-bottom: 12px solid transparent;
-                border-left: 10px solid #001f4d;
-                }
-                .value {
-                display: contents;
-                color: #001f4d;
-                font-size: 8pt;
-                margin-left: 6px;
-                vertical-align: middle;
-                }
-                .industry-value {
-                /* margin-left: 30px; */
-                }
-                .bullet {
-                margin: 10px 0 0 20px;
-                color: #001f4d;
-                font-size: 8pt;
-                }
-                .team-table {
-                width: 100%;
-                margin: 10px 0;
-                }
-                .team-row {
-                display: table-row;
-                }
-                .team-cell {
-                display: table-cell;
-                width: 50%;
-                padding: 4px 8px;
-                }
-                .role-label {
-                display: inline-block;
-                background-color: #001f4d;
-                color: white !important;
-                font-weight: bold;
-                padding: 8px 10px 4px 8px;
-                margin-right: 8px;
-                position: relative;
-                font-size: 8pt;
-                line-height: 1.2;
-                }
-                .role-label:after {
-                content: "";
-                position: absolute;
-                right: -10px;
-                top: 0;
-                width: 0;
-                height: 0;
-                border-top: 12px solid transparent;
-                border-bottom: 12px solid transparent;
-                border-left: 10px solid #001f4d;
-                }
-                .role-name {
-                display: inline-block;
-                color: #000000;
-                font-size: 7.5pt;
-                margin-left: 20px;
-                vertical-align: middle;
-                }
-                .team-cell.right-align {
-                padding-left: 30px;
-                }
                 @page {
                 size: A4;
                 margin: 8mm;
                 }
-                .table-container {
-                padding: 0.5rem;
-                background-color: white;
-                }
-                .styled-table {
-                width: 100%;
-                border-collapse: collapse;
-                background-color: white;
-                }
-                .styled-table th,
-                .styled-table td {
-                border: 1px solid #001f4d;
-                padding: 6px 8px;
-                text-align: left;
-                vertical-align: top;
-                font-size: 7pt;
-                }
-                .first-col {
-                background-color: #001f4d !important;
-                color: white !important;
-                font-weight: bold !important;
-                }
-                .opp-table,
-                .opportunities-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 15px;
-                }
-                .opp-table th,
-                .opportunities-table th {
-                background-color: #001f4d;
-                color: white;
-                font-weight: bold;
-                padding: 8px;
-                border: 1px solid #001f4d;
-                font-size: 7pt;
-                }
-                .opp-table td,
-                .opportunities-table td {
-                padding: 8px;
-                border: 1px solid #001f4d;
-                font-size: 7pt;
-                }
-                .category-label {
-                background-color: #001f4d;
-                color: white;
-                font-weight: bold;
-                padding: 6px 10px;
-                font-size: 7pt;
-                clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0% 100%);
-                margin-right: 8px;
-                }
-                .section-content {
-                padding: 0.5rem;
-                width: 100%;
-                }
-                .open-label {
-                writing-mode: vertical-rl;
-                transform: rotate(180deg);
-                font-weight: bold;
-                font-size: 10pt;
-                margin-right: 6px;
-                padding-top: 0.5rem;
-                }
-                .row-label {
-                font-weight: bold;
-                background-color: white;
-                text-align: left;
-                font-size: 7pt;
-                }
-                .container, .potentialcontainer {
-                display: flex;
-                align-items: flex-start;
-                width: 100%;
-                margin-bottom: 0.5rem;
-                }
-                .opportunities-header {
-                margin-top: 20px;
-                }
                 
-                /* Updated RC CSS */
+                /* Updated RC CSS with 5px padding and overflow control */
                 .rc-account-table {
                     width: 100%;
                     border-collapse: collapse;
@@ -269,20 +96,20 @@
                     margin-top: 10px;
                     margin-bottom: 15px;
                     border: 1px solid #d0d0d0;
-                    table-layout: fixed; /* This ensures fixed width columns */
+                    table-layout: fixed;
                 }
                 
                 .rc-account-table td {
                     border: 1px solid #d0d0d0;
-                    padding: 8px;
+                    padding: 5px;
                     text-align: left;
                     vertical-align: top;
                     font-size: 11px;
                     position: relative;
-                    word-wrap: break-word; /* Ensures text wraps within cell */
+                    word-wrap: break-word;
+                    overflow: hidden;
                 }
                 
-                /* Ensure all form elements within cells have proper padding and width */
                 .rc-account-table .form-control, 
                 .rc-account-table input, 
                 .rc-account-table textarea, 
@@ -297,39 +124,37 @@
                 
                 .rc-account-table textarea {
                     min-height: 60px;
-                    resize: vertical; /* Only allow vertical resizing */
+                    resize: vertical;
+                    overflow: hidden;
+                    max-width: 100%;
                 }
                 
-                /* Special treatment for checkboxes to center them */
                 .rc-account-table input[type="checkbox"] {
                     width: auto;
                     margin: 0 auto;
                     display: block;
                 }
                 
-                /* Center alignment and white background for column 2 */
                 .rc-account-table td:nth-child(2) {
                     text-align: center;
                     background-color: white;
                     color: #000000;
                 }
                 
-                /* Left alignment and white background for column 4 */
                 .rc-account-table td:nth-child(4) {
                     text-align: left;
                     background-color: white;
                     color: #000000;
                 }
                 
-                /* Styling for dark rows */
                 .rc-dark-row {
                     background-color: #001f4d;
                     color: white;
                     font-weight: bold;
-                    padding: 8px;
+                    padding: 5px;
                 }
                 
-                /* New layout styles for the second table */
+                /* Info layout table with proper padding and overflow control */
                 .rc-info-layout-table {
                     width: 100%;
                     border-collapse: collapse;
@@ -342,12 +167,26 @@
                 
                 .rc-info-layout-table td {
                     border: 1px solid #d0d0d0;
-                    padding: 8px;
+                    padding: 5px;
                     text-align: left;
                     vertical-align: top;
                     font-size: 11px;
                     position: relative;
                     word-wrap: break-word;
+                    overflow: hidden;
+                }
+                
+                .rc-info-layout-table textarea {
+                    box-sizing: border-box;
+                    width: 100%;
+                    padding: 5px;
+                    margin: 0;
+                    border: 1px solid #ccc;
+                    font-size: 10px;
+                    resize: vertical;
+                    overflow: hidden;
+                    min-height: 80px;
+                    max-width: 100%;
                 }
                 
                 .rc-cell-half {
@@ -358,7 +197,7 @@
                     width: 25%;
                 }
                 
-                /* Action Plan Table Styles */
+                /* Action Plan Table with fixed height rows and 255 char limit */
                 .rc-action-plan-table {
                     width: 100%;
                     border-collapse: collapse;
@@ -381,15 +220,26 @@
                 
                 .rc-action-plan-table td {
                     border: 1px solid #d0d0d0;
-                    padding: 8px;
+                    padding: 5px;
                     text-align: left;
                     vertical-align: top;
                     font-size: 11px;
                     position: relative;
                     word-wrap: break-word;
+                    overflow: hidden;
+                    height: 40px;
                 }
                 
-                .rc-action-plan-table input,
+                .rc-action-plan-table input {
+                    box-sizing: border-box;
+                    width: 100%;
+                    padding: 5px;
+                    margin: 0;
+                    border: 1px solid #ccc;
+                    font-size: 10px;
+                    height: 30px;
+                }
+                
                 .rc-action-plan-table textarea {
                     box-sizing: border-box;
                     width: 100%;
@@ -397,11 +247,11 @@
                     margin: 0;
                     border: 1px solid #ccc;
                     font-size: 10px;
-                }
-                
-                .rc-action-plan-table textarea {
-                    min-height: 60px;
                     resize: vertical;
+                    overflow: hidden;
+                    min-height: 30px;
+                    max-height: 120px;
+                    line-height: 1.2;
                 }
                 
                 .rc-subject-col {
@@ -502,7 +352,7 @@
                 </tr>
             </table>
 
-            <!-- Rearranged Info Table (Ownership, Business Description, Strategic Opportunity) -->
+            <!-- Info Table (Ownership, Business Description, Strategic Opportunity) -->
             <table class="rc-info-layout-table">
                 <tr>
                     <td class="rc-dark-row rc-cell-quarter">Ownership</td>
@@ -516,13 +366,13 @@
                 </tr>
                 <tr>
                     <td class="rc-dark-row rc-cell-quarter">Strategic Opportunity</td>
-                    <td class="rc-cell-quarter" colspan="3">
+                    <td colspan="3">
                         <apex:inputTextarea value="{!SOppValue}" styleClass="form-control" />
                     </td>
                 </tr>
             </table>
             
-            <!-- Next Steps/Action Plan Table -->
+            <!-- Next Steps/Action Plan Table with 5 rows -->
             <div class="section-header">
                 <h2>Next Steps/ Action Plan</h2>
             </div>
@@ -536,26 +386,28 @@
                     </tr>
                 </thead>
                 <tbody id="actionPlanTableBody">
-                    <!-- <apex:repeat value="{!actionPlanItems}" var="item" id="actionPlanRows">
+                    <apex:repeat value="{!actionPlanItems}" var="item" id="actionPlanRows">
                         <tr>
                             <td>
                                 <apex:inputText value="{!item.Subject}" styleClass="form-control" />
                             </td>
                             <td>
-                                <apex:inputTextarea value="{!item.Description}" styleClass="form-control" />
+                                <apex:inputTextarea value="{!item.Description}" styleClass="form-control" 
+                                                  html-maxlength="255" />
                             </td>
                             <td>
                                 <apex:input type="date" value="{!item.DueDate}" styleClass="form-control" />
                             </td>
                         </tr>
-                    </apex:repeat> -->
+                    </apex:repeat>
                 </tbody>
             </table>
             
-            <!-- Button container with Add Row, Save, and PDF buttons -->
+            <!-- Button container -->
             <div class="rc-button-container">
                 <div class="rc-left-buttons">
-                    <!-- <apex:commandButton value="Add New Row" action="{!addNewActionPlanItem}" styleClass="rc-button" reRender="actionPlanRows" /> -->
+                    <apex:commandButton value="Add New Row" action="{!addNewActionPlanItem}" 
+                                      styleClass="rc-button" reRender="actionPlanRows" />
                 </div>
                 <div class="rc-right-buttons">
                     <apex:outputPanel rendered="{!!isFormReadOnly}">
@@ -578,12 +430,11 @@
                 // Function called after save completes (when form is editable)
                 function openPDFAfterSave() {
                     var recId = '{!currentRecordId}';
-                    var apId = '{!apExist.Id}'; // Account Planning record ID
+                    var apId = '{!apExist.Id}';
                     var pageName = 'AccountPlanningPDF';
                     
                     console.log('Opening PDF after save for record: ' + recId);
                     
-                    // Build URL with multiple parameters
                     var url = '/apex/' + pageName + '?Id=' + recId + '&apId=' + apId + '&mode=edit';
                     window.open(url, '_blank');
                 }
@@ -591,19 +442,17 @@
                 // Function called directly when form is read-only
                 function openPDFDirectly() {
                     var recId = '{!currentRecordId}';
-                    var apId = '{!apExist.Id}'; // Account Planning record ID
+                    var apId = '{!apExist.Id}';
                     var pageName = 'AccountPlanningPDF';
                     
                     console.log('Opening PDF directly for record: ' + recId);
                     
-                    // Build URL with multiple parameters
                     var url = '/apex/' + pageName + '?Id=' + recId + '&apId=' + apId + '&mode=readonly';
                     window.open(url, '_blank');
                 }
                 
                 // Function called when saving and opening PDF
                 function saveAndOpenPDF() {
-                    // Call the action function defined below
                     saveAndCreatePDF();
                     return false;
                 }
