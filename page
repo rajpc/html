@@ -1,276 +1,291 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <style type="text/css">
-        body {
-            font-family: "Arial Unicode MS", Arial, sans-serif;
-            margin: 0;
-            padding: 10px;
-            font-size: 8pt;
-            color: #000000;
-            background-color: #ffffff;
-        }
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #001f4d;
-        }
-        .header-title {
-            font-size: 14pt;
-            color: #001f4d;
-            font-weight: bold;
-        }
-        .header-draft {
-            color: #c8102e;
-            font-weight: bold;
-            margin-left: 5px;
-        }
-        .header-logo {
-            height: 30px;
-            background: linear-gradient(135deg, #001f4d 0%, #003366 100%);
-            width: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 10px;
-            border-radius: 3px;
-        }
-        
-        .footer {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            margin-top: 20px;
-            padding: 0px 0;
-        }
-        .footer-logo {
-            width: 100px;
-            height: 30px;
-            background: linear-gradient(135deg, #001f4d 0%, #003366 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 8px;
-            border-radius: 3px;
-        }
-        .section-header {
-            background-color: #f2f2f2;
-            padding: 6px;
-            border-left: 3px solid #c8102e;
-            margin: 8px 0 10px 0;
-        }
-        .section-header h2 {
-            margin: 0;
-            color: #001f4d;
-            font-size: 10pt;
-        }
-        
-        /* Updated table styling for new layout */
-        .company-info-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            margin-top: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #d0d0d0;
-        }
-        
-        .company-info-table td {
-            border: 1px solid #d0d0d0;
-            padding: 8px;
-            text-align: left;
-            vertical-align: middle;
-            font-size: 11px;
-            position: relative;
-        }
-        
-        /* Dark header cells */
-        .dark-header {
-            background-color: #001f4d;
-            color: white;
-            font-weight: bold;
-            padding: 8px 12px;
-            white-space: nowrap;
-        }
-        
-        /* Input/value cells */
-        .value-cell {
-            background-color: white;
-            padding: 8px 12px;
-            min-width: 150px;
-        }
-        
-        /* Checkbox cells - centered */
-        .checkbox-cell {
-            text-align: center;
-            padding: 8px;
-            background-color: white;
-        }
-        
-        /* Form control styling */
-        .form-control, 
-        input[type="text"], 
-        textarea {
-            box-sizing: border-box;
-            width: 100%;
-            padding: 5px;
-            margin: 0;
-            border: 1px solid #ccc;
-            font-size: 11px;
-            background-color: white;
-        }
-        
-        textarea {
-            min-height: 50px;
-            resize: vertical;
-        }
-        
-        input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            margin: 0;
-        }
-        
-        /* Table for description fields */
-        .description-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            margin-top: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #d0d0d0;
-        }
-        
-        .description-table td {
-            border: 1px solid #d0d0d0;
-            padding: 8px;
-            vertical-align: top;
-            font-size: 11px;
-        }
-        
-        .description-table .dark-header {
-            width: 150px;
-            vertical-align: top;
-        }
-        
-        .description-table textarea {
-            width: 100%;
-            min-height: 60px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            font-size: 11px;
-            resize: vertical;
-            box-sizing: border-box;
-        }
-        
-        /* Button styling */
-        .pdfButton {
-            float: right;
-            margin-top: 15px;
-        }
-        
-        .pdfButton button,
-        .pdfButton input[type="submit"] {
-            margin-left: 10px;
-            padding: 8px 15px;
-            font-size: 11px;
-            background-color: #0070d2;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        
-        .pdfButton button:hover,
-        .pdfButton input[type="submit"]:hover {
-            background-color: #005fb2;
-        }
-    </style>
-</head>
-<body>
-    <!-- Header with title and top-right logo -->
-    <div class="header-container">
-        <div class="header-title">
-            Undefeated Tribe <span class="header-draft">|&nbsp;Central Texas</span>
-        </div>
-        <div class="header-logo">TEXAS CAPITAL</div>
-    </div>
-    
-    <!-- Company Description -->
-    <div class="section-header">
-        <h2>Company Description</h2>
-    </div>
-    
-    <!-- First table with tier and primary info -->
-    <table class="company-info-table">
-        <tr>
-            <td class="dark-header">Tier</td>
-            <td class="value-cell" style="width: 80px; text-align: center;">
-                1
-            </td>
-            <td class="dark-header">Primary NAICS</td>
-            <td class="value-cell">
-                <input type="text" class="form-control" value="713940" />
-            </td>
-        </tr>
-        <tr>
-            <td class="dark-header">VIP Client</td>
-            <td class="checkbox-cell">
-                <input type="checkbox" />
-            </td>
-            <td class="dark-header">Primary NAICS Description</td>
-            <td class="value-cell">
-                <input type="text" class="form-control" value="Fitness and Recreational Sports" />
-            </td>
-        </tr>
-        <tr>
-            <td class="dark-header">VIP Prospect</td>
-            <td class="checkbox-cell">
-                <input type="checkbox" />
-            </td>
-            <td class="dark-header">ABL Account</td>
-            <td class="checkbox-cell" style="text-align: right; padding-right: 20px;">
-                <input type="checkbox" />
-            </td>
-        </tr>
-    </table>
+<apex:page applyHtmlTag="false"
+           applyBodyTag="false"
+           showHeader="false"
+           sidebar="false"
+           standardStylesheets="false"
+           standardController="Account"
+           docType="html-5.0"
+           extensions="CompanyDescriptionController">
+    <apex:slds />
+    <apex:form >
+    <html>
+        <head>
+            <style type="text/css">
+                /* All of your existing CSS here */
+                body {
+                font-family: "Arial Unicode MS", Arial, sans-serif;
+                margin: 0;
+                padding: 10px;
+                font-size: 8pt;
+                color: #000000;
+                background-color: #ffffff;
+                }
+                
+                /* ... other styles ... */
+                
+                /* RC CSS */
+                .rc-account-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    background-color: white;
+                    margin-top: 10px;
+                    margin-bottom: 15px;
+                    border: 1px solid #d0d0d0;
+                    table-layout: fixed; /* This ensures fixed width columns */
+                }
+                
+                .rc-account-table td {
+                    border: 1px solid #d0d0d0;
+                    padding: 8px;
+                    text-align: left;
+                    vertical-align: top;
+                    font-size: 11px;
+                    position: relative;
+                    word-wrap: break-word; /* Ensures text wraps within cell */
+                }
+                
+                /* Ensure all form elements within cells have proper padding and width */
+                .rc-account-table .form-control, 
+                .rc-account-table input, 
+                .rc-account-table textarea, 
+                .rc-account-table select {
+                    box-sizing: border-box;
+                    width: 100%;
+                    padding: 5px;
+                    margin: 0;
+                    border: 1px solid #ccc;
+                    font-size: 10px;
+                }
+                
+                /* Action Plan Table Styles */
+                .rc-action-plan-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    background-color: white;
+                    margin-top: 10px;
+                    margin-bottom: 15px;
+                    border: 1px solid #d0d0d0;
+                    table-layout: fixed;
+                }
+                
+                .rc-action-plan-table th {
+                    background-color: #001f4d;
+                    color: white;
+                    font-weight: bold;
+                    padding: 8px;
+                    border: 1px solid #d0d0d0;
+                    text-align: left;
+                    font-size: 11px;
+                }
+                
+                .rc-action-plan-table td {
+                    border: 1px solid #d0d0d0;
+                    padding: 8px;
+                    text-align: left;
+                    vertical-align: top;
+                    font-size: 11px;
+                    position: relative;
+                    word-wrap: break-word;
+                }
+                
+                .rc-action-plan-table input,
+                .rc-action-plan-table textarea {
+                    box-sizing: border-box;
+                    width: 100%;
+                    padding: 5px;
+                    margin: 0;
+                    border: 1px solid #ccc;
+                    font-size: 10px;
+                }
+                
+                .rc-action-plan-table textarea {
+                    min-height: 60px;
+                    resize: vertical;
+                }
+                
+                .rc-subject-col {
+                    width: 20%;
+                }
+                
+                .rc-description-col {
+                    width: 60%;
+                }
+                
+                .rc-date-col {
+                    width: 20%;
+                }
+                
+                /* Button Container */
+                .rc-button-container {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 15px;
+                    margin-bottom: 20px;
+                }
+                
+                .rc-left-buttons {
+                    text-align: left;
+                }
+                
+                .rc-right-buttons {
+                    text-align: right;
+                }
+                
+                .rc-button {
+                    background-color: #001f4d;
+                    color: white;
+                    border: none;
+                    padding: 6px 12px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 11px;
+                    margin-left: 5px;
+                }
+                
+                .rc-button:hover {
+                    background-color: #00367a;
+                }
+            </style>
+        </head>
+        <body>
+            <!-- Read-only notice -->
+            <apex:outputPanel rendered="{!isFormReadOnly}">
+                <div class="read-only-notice">
+                    This form is currently read-only. Account Planning Period is not active for today's date.
+                </div>
+            </apex:outputPanel>
+            
+            <!-- Header with title and top-right logo -->
+            <div class="header-container">
+                <div class="header-title">
+                    {!RM.Name} <span class="header-draft">|&nbsp;{!RM.Region__c}</span>
+                </div>
+                <img src="{!URLFOR($Resource.TexasCapitalTopLogo)}" alt="Top Logo" class="header-logo"/>
+            </div>
+            
+            <!-- Company Description -->
+            <div class="section-header">
+                <h2>Company Description</h2>
+            </div>
+            
+            <table class="rc-account-table">
+                <tr>
+                    <td class="rc-dark-row">Tier</td>
+                    <td>
+                        <apex:outputField value="{!RM.Tier_Level__c}" />
+                    </td>
+                    <td class="rc-dark-row">Primary NAICS</td>
+                    <td>
+                        <apex:inputField value="{!RM.Primary_NAICS__c}" styleClass="form-control" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="rc-dark-row">VIP Client</td>
+                    <td>
+                        <apex:outputField value="{!RM.Top_Client__c}" />
+                    </td>
+                    <td class="rc-dark-row">Primary NAICS Description</td>
+                    <td>
+                        <apex:inputTextarea value="{!RM.Primary_NAICS_Description__c}" styleClass="form-control" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="rc-dark-row">VIP Prospect</td>
+                    <td>
+                        <apex:outputField value="{!RM.Top_Prospect__c}" />
+                    </td>
+                    <td class="rc-dark-row">ABL Account</td>
+                    <td>
+                        <apex:inputField value="{!RM.ABL__c}" styleClass="form-control" />
+                    </td>
+                </tr>
+            </table>
 
-    <!-- Second table with text area fields -->
-    <table class="description-table">
-        <tr>
-            <td class="dark-header">Ownership</td>
-            <td colspan="3">
-                <textarea class="form-control">Company is owned by family XYZ. Been in family for generations.</textarea>
-            </td>
-        </tr>
-        <tr>
-            <td class="dark-header">Business Description</td>
-            <td>
-                <textarea class="form-control">Undefeated Tribe is a franchisee of Crunch Fitness. They currently operate 6 Crunch Fitness clubs in Texas and have the rights to 22 more.</textarea>
-            </td>
-            <td class="dark-header">Strategic Opportunity</td>
-            <td>
-                <textarea class="form-control">Work with client around project x. With clients future needs, introduce y. Then in time, finish with Z.</textarea>
-            </td>
-        </tr>
-    </table>
-    
-    <!-- Button Section -->
-    <div class="pdfButton">
-        <button type="button">Save</button>
-        <button type="button">Open PDF</button>
-    </div>
-    
-    <div style="clear: both;"></div>
-    
-    <!-- Footer -->
-    <div class="footer">
-        <div class="footer-logo">TEXAS CAPITAL</div>
-    </div>
-</body>
-</html>
+            <!-- Rearranged Info Table (Ownership, Business Description, Strategic Opportunity) -->
+            <table class="rc-info-layout-table">
+                <tr>
+                    <td class="rc-dark-row rc-cell-quarter">Ownership</td>
+                    <td class="rc-cell-quarter">
+                        <apex:inputTextarea value="{!OwnershipValue}" styleClass="form-control" />
+                    </td>
+                    <td class="rc-dark-row rc-cell-quarter">Business Description</td>
+                    <td class="rc-cell-quarter">
+                        <apex:inputTextarea value="{!RM.Business_Description__c}" styleClass="form-control" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="rc-dark-row rc-cell-quarter">Strategic Opportunity</td>
+                    <td class="rc-cell-quarter" colspan="3">
+                        <apex:inputTextarea value="{!SOppValue}" styleClass="form-control" />
+                    </td>
+                </tr>
+            </table>
+            
+            <!-- Button container with Save and PDF buttons (removed Add Row button) -->
+            <div class="rc-button-container">
+                <div class="rc-left-buttons">
+                    <!-- "Add New Row" button removed from here -->
+                </div>
+                <div class="rc-right-buttons">
+                    <apex:outputPanel rendered="{!!isFormReadOnly}">
+                        <apex:commandButton value="Save" action="{!handleSave}" styleClass="rc-button" /> 
+                    </apex:outputPanel>
+                    
+                    <!-- When form is editable: Save first then open PDF -->
+                    <apex:outputPanel rendered="{!!isFormReadOnly}">
+                        <apex:commandButton value="Create PDF" onclick="saveAndOpenPDF(); return false;" styleClass="rc-button" />
+                    </apex:outputPanel>
+                    
+                    <!-- When form is read-only: Just open PDF without saving -->
+                    <apex:outputPanel rendered="{!isFormReadOnly}">
+                        <apex:commandButton value="Create PDF" onclick="openPDFDirectly(); return false;" styleClass="rc-button" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+            
+            <script>
+                // Function called after save completes (when form is editable)
+                function openPDFAfterSave() {
+                    var recId = '{!currentRecordId}';
+                    var apId = '{!apExist.Id}'; // Account Planning record ID
+                    var pageName = 'AccountPlanningPDF';
+                    
+                    console.log('Opening PDF after save for record: ' + recId);
+                    
+                    // Build URL with multiple parameters
+                    var url = '/apex/' + pageName + '?Id=' + recId + '&apId=' + apId + '&mode=edit';
+                    window.open(url, '_blank');
+                }
+                
+                // Function called directly when form is read-only
+                function openPDFDirectly() {
+                    var recId = '{!currentRecordId}';
+                    var apId = '{!apExist.Id}'; // Account Planning record ID
+                    var pageName = 'AccountPlanningPDF';
+                    
+                    console.log('Opening PDF directly for record: ' + recId);
+                    
+                    // Build URL with multiple parameters
+                    var url = '/apex/' + pageName + '?Id=' + recId + '&apId=' + apId + '&mode=readonly';
+                    window.open(url, '_blank');
+                }
+                
+                // Function called when saving and opening PDF
+                function saveAndOpenPDF() {
+                    // Call the action function defined below
+                    saveAndCreatePDF();
+                    return false;
+                }
+            </script>
+            
+            <!-- Action function for save and open PDF -->
+            <apex:actionFunction name="saveAndCreatePDF" action="{!handleSave}" oncomplete="openPDFAfterSave()" />
+            
+            <!-- Footer -->
+            <div class="footer">
+                <img src="{!URLFOR($Resource.TexasCapitalBottomLogo)}" alt="Bottom Logo" class="footer-logo"/>
+            </div>
+        </body>
+    </html>
+    </apex:form>
+</apex:page>
