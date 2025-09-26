@@ -539,13 +539,13 @@
                     <apex:repeat value="{!actionPlanItems}" var="item" id="actionPlanRows">
                         <tr>
                             <td>
-                                <apex:inputText value="{!item.Subject__c}" styleClass="form-control" />
+                                <apex:inputText value="{!item.Subject}" styleClass="form-control" />
                             </td>
                             <td>
-                                <apex:inputTextarea value="{!item.Description__c}" styleClass="form-control" />
+                                <apex:inputTextarea value="{!item.Description}" styleClass="form-control" />
                             </td>
                             <td>
-                                <apex:inputField value="{!item.Due_Date__c}" styleClass="form-control" />
+                                <apex:inputField value="{!item.DueDate}" styleClass="form-control" />
                             </td>
                         </tr>
                     </apex:repeat>
