@@ -1,562 +1,275 @@
-public with Sharing class CompanyDescriptionController {
+public with sharing class CompanyDescriptionController {
     
-    // Existing properties
-    public Map<Id,Integer> accountFacilityCount{get;set;}
-    public Map<Id,Decimal> accountWithCustomerCommitmentAmount {get; set;}
-    public Integer countOfFacilities{get;set;}
-    public Decimal revenueValue{get;set;}
-    public String revenueValueString{get;set;}
-    public Decimal pxvInputValue{get;set;}
-    public Decimal cardInputValue{get;set;}
-    public String notesInput_pxvCard{get;set;}
-    Public Decimal debtValue{get;set;}
-    Public Decimal ebidtdaValue{get;set;}
-    Public String notesInputValue{get;set;}
-    Public String IBNotes{get;set;}
-    Public String PWANotes{get;set;}
-    public Decimal commitmentAmount{get;set;}
-    Public String creditNotesValue{get;set;}
-    public Decimal TCBUsedBalance{get;set;}
-    public String currentRecordId {get;set;}
-    public string IBValue {get; set;}
-    public string PWAValue {get; set;}
-    Public Decimal DepositValue{get;set;}
-    Public String OwnershipValue{get;set;}
-    public String NextSteps_ActionPlan{get;set;}
-    Public String SOppValue{get;set;}
-    Public Decimal riskRatingAvg{get;set;}
-    public Account_Planning__c apExist{get; set;}
-    public List<Opportunity> oppsList {get;set;}
-    private Map<Id,Account> allCCNHierachyAccounts;
-    public Opportunity creditOpp{get;set;}
-    public Opportunity IBOpp{get;set;}
-    public Opportunity TSOpp{get;set;}
-    public Opportunity creditOpp_Potential{get;set;}
-    public Opportunity IBOpprtunity_Potential{get;set;}
-    public Opportunity TSOpp_Potential{get;set;}
-    public Decimal funded{get;set;}
-    public Decimal TSFees {get;set;}
-    public Decimal IBFees{get;set;}
-    public Decimal IbDeposit{get;set;}
-    public Decimal NibDeposit {get;set;}
-    public Decimal cardSpend{get;set;}
-    public Decimal commitment {get;set;}
-    public Account RM{get;set;}
-    public AccountTeamMember CSO{get;set;}
-    public AccountTeamMember TSO{get;set;}
-    public AccountTeamMember TSA{get;set;}
-    public AccountTeamMember IBTeamMember{get;set;}
-    public AccountTeamMember PWA{get;set;}
-    public Boolean isFormReadOnly{get;set;}
+    // Standard controller
+    private ApexPages.StandardController stdController;
     
-    // ACTION PLAN PROPERTIES
-    public List<ActionPlanItem> actionPlanItems {get; set;}
+    // Account record (from standard controller)
+    public Account RM {get; set;}
     
+    // Account Planning record
+    public Account_Planning__c apExist {get; set;}
+    
+    // Action Plan Items list for the repeater
+    public List<ActionPlanWrapper> actionPlanItems {get; set;}
+    
+    // Properties for Account_Planning__c fields
+    public String OwnershipValue {get; set;}
+    public String SOppValue {get; set;}
+    
+    // Form state properties
+    public Boolean isFormReadOnly {get; set;}
+    public String currentRecordId {get; set;}
+    
+    // Wrapper class for Action Plan Items
+    public class ActionPlanWrapper {
+        public String Subject {get; set;}
+        public String Description {get; set;}
+        public Date DueDate {get; set;}
+        public String Id {get; set;}
+        public Boolean isNew {get; set;}
+        
+        // Constructor for new items
+        public ActionPlanWrapper() {
+            this.Subject = '';
+            this.Description = '';
+            this.DueDate = null;
+            this.Id = null;
+            this.isNew = true;
+        }
+        
+        // Constructor for existing items
+        public ActionPlanWrapper(Action_Plan_Item__c item) {
+            this.Subject = item.Subject__c;
+            this.Description = item.Description__c;
+            this.DueDate = item.Due_Date__c;
+            this.Id = item.Id;
+            this.isNew = false;
+        }
+    }
+    
+    // Constructor
     public CompanyDescriptionController(ApexPages.StandardController controller) {
-        this.DepositValue = 0.00;
-        this.RM = new Account();
-        this.commitment = 0.00;
-        this.TCBUsedBalance = 0.00;
-        this.cardSpend = 0.00;
-        this.IbDeposit = 0.00;
-        this.NibDeposit = 0.00;
-        this.funded = 0.00;
-        this.TSFees = 0.00;
-        this.IBFees =0.00;
-        this.TSOpp = new Opportunity();
-        this.allCCNHierachyAccounts = new Map<ID,Account>();
-        this.accountFacilityCount = new Map<Id,Integer>();
-        this.accountWithCustomerCommitmentAmount = new Map<ID,Decimal>();
-        this.commitmentAmount = 0;
-        this.countOfFacilities = 0;
-        currentRecordId = ApexPages.CurrentPage().getparameters().get('Id');
-        String accountPlanningId = ApexPages.CurrentPage().getparameters().get('apId');
-        String mode = ApexPages.CurrentPage().getparameters().get('mode');
+        this.stdController = controller;
+        this.RM = (Account) controller.getRecord();
+        this.currentRecordId = this.RM.Id;
         
-        System.debug('Account ID : '+ currentRecordId);
-        System.debug('Account Planning ID : '+ accountPlanningId);
-        System.debug('Mode: '+ mode);
-        
-        // Check if form should be read-only based on Account Planning Period
-        AccountPlanning_Period__c validPeriod = validateAccountPlanningPeriod();
-        isFormReadOnly = (validPeriod == null);
-        
-        apExist = new Account_Planning__c();
-        try{
-            // Updated query to include new fields
-            if(String.isNotBlank(accountPlanningId)){
-                apExist = [Select Id,Account__c,IB__c,PWA__c,Ownership__c,TSNotes__c,Revenue__c,
-                       PxV__c,EBIDTDA__c,Debt__c,CreditNotes__c,CFNotes__c,Card__c,IBNotes__c,
-                       PWANotes__c,Strategic_Opportunity__c, Next_Steps_Action_Plan__c,
-                       Tier__c, Industry__c, RM__c, TSO__c, TSA__c, CSO__c, 
-                       Facilities__c, Commitments__c, Outstanding__c,
-                       Facility_Grade_s__c, Deposits__c, Name, IBTeamMemberUserName__c, PWATeamMemberUserName__c 
-                       FROM Account_Planning__c
-                       Where Id = :accountPlanningId LIMIT 1 ];
-                
-            }else{
-                apExist = [Select Id,Account__c,IB__c,PWA__c,Ownership__c,TSNotes__c,Revenue__c,
-                       PxV__c,EBIDTDA__c,Debt__c,CreditNotes__c,CFNotes__c,Card__c,IBNotes__c,
-                       PWANotes__c,Strategic_Opportunity__c, Next_Steps_Action_Plan__c,
-                       Tier__c, Industry__c, RM__c, TSO__c, TSA__c, CSO__c, 
-                       Facilities__c, Commitments__c, Outstanding__c,
-                       Facility_Grade_s__c, Deposits__c, Name, IBTeamMemberUserName__c, PWATeamMemberUserName__c 
-                       FROM Account_Planning__c
-                       Where Account__c =:currentRecordId AND Account_Planning_Period__c != null AND Account_Planning_Period__r.StartDate__c >= TODAY AND Account_Planning_Period__r.EndDate__c <= TODAY LIMIT 1 ];
-            }
+        // Initialize the page
+        initializePage();
+    }
+    
+    // Initialize page data
+    private void initializePage() {
+        try {
+            // Load full Account record with all needed fields
+            loadAccountData();
             
-            if(apExist != null && !isFormReadOnly){
-                IBValue = apExist.IB__c;
-                PWAValue = apExist.PWA__c;
+            // Load or create Account Planning record
+            loadAccountPlanningData();
+            
+            // Load Action Plan Items
+            loadActionPlanItems();
+            
+            // Determine if form should be read-only
+            determineFormState();
+            
+        } catch (Exception e) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
+                'Error initializing page: ' + e.getMessage()));
+            System.debug('Error in initializePage: ' + e.getMessage() + ' Stack: ' + e.getStackTraceString());
+        }
+    }
+    
+    // Load Account data with all required fields
+    private void loadAccountData() {
+        try {
+            RM = [SELECT Id, Name, Region__c, Tier_Level__c, Primary_NAICS__c, 
+                         Primary_NAICS_Description__c, Top_Client__c, Top_Prospect__c, 
+                         ABL__c, Business_Description__c
+                  FROM Account 
+                  WHERE Id = :currentRecordId 
+                  LIMIT 1];
+        } catch (Exception e) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
+                'Error loading account data: ' + e.getMessage()));
+        }
+    }
+    
+    // Load Account Planning data
+    private void loadAccountPlanningData() {
+        try {
+            List<Account_Planning__c> existingPlans = [SELECT Id, Account__c, Ownership__c, Strategic_Opportunity__c
+                                                      FROM Account_Planning__c 
+                                                      WHERE Account__c = :currentRecordId 
+                                                      LIMIT 1];
+            
+            if (existingPlans.size() > 0) {
+                apExist = existingPlans[0];
                 OwnershipValue = apExist.Ownership__c;
                 SOppValue = apExist.Strategic_Opportunity__c;
-                cardInputValue = apExist.Card__c;
-                notesInputValue = apExist.CFNotes__c;
-                creditNotesValue = apExist.CreditNotes__c;
-                debtValue = apExist.Debt__c;
-                ebidtdaValue = apExist.EBIDTDA__c;
-                pxvInputValue = apExist.PxV__c;
-                revenueValue = apExist.Revenue__c;
-                notesInput_pxvCard = apExist.TSNotes__c;
-                IBNotes = apExist.IBNotes__c;
-                PWANotes = apExist.PWANotes__c;
-                NextSteps_ActionPlan = apExist.Next_Steps_Action_Plan__c;
-            } else if(isFormReadOnly) {
-                // Clear all field values when form is read-only
-                clearFormValues();
+            } else {
+                // Create new Account Planning record
+                apExist = new Account_Planning__c();
+                apExist.Account__c = currentRecordId;
+                OwnershipValue = '';
+                SOppValue = '';
             }
-            getOpps();
+        } catch (Exception e) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
+                'Error loading account planning data: ' + e.getMessage()));
+        }
+    }
+    
+    // Load Action Plan Items
+    private void loadActionPlanItems() {
+        try {
+            actionPlanItems = new List<ActionPlanWrapper>();
             
-            // Initialize Action Plan Items
-            initializeActionPlanItems();
-        }catch(Exception e){
-            apExist = null;
-            System.debug('Error initializing: ' + e.getMessage());
-        }
-        
-        if(!isFormReadOnly) {
-            getFacilityCount();
-            getRelationshipTeams();
-            oppsHeaderRollUps();
-        } else {
-            // Initialize empty objects when read-only
-            initializeEmptyObjects();
-        }
-    }
-    
-    // Initialize Action Plan Items
-    private void initializeActionPlanItems() {
-        // Initialize the list
-        actionPlanItems = new List<ActionPlanItem>();
-        
-        // Check if we have an existing Account Planning record
-        if(apExist != null && apExist.Id != null) {
-            try {
-                // Query existing action plan items
-                List<Action_Plan_Item__c> existingItems = [
-                    SELECT Id, Subject__c, Description__c, Due_Date__c, Account__c, Account_Planning__c
-                    FROM Action_Plan_Item__c 
-                    WHERE Account_Planning__c = :apExist.Id
-                    ORDER BY Due_Date__c ASC
-                ];
-                
-                // Convert existing items to wrapper class
-                for(Action_Plan_Item__c item : existingItems) {
-                    ActionPlanItem wrapper = new ActionPlanItem();
-                    wrapper.Id = item.Id;
-                    wrapper.Subject = item.Subject__c;
-                    wrapper.Description = item.Description__c;
-                    wrapper.DueDate = item.Due_Date__c;
-                    wrapper.AccountId = item.Account__c;
-                    wrapper.AccountPlanningId = item.Account_Planning__c;
-                    actionPlanItems.add(wrapper);
-                }
-            } catch(Exception e) {
-                System.debug('Error querying action plan items: ' + e.getMessage());
+            // Load existing Action Plan Items
+            List<Action_Plan_Item__c> existingItems = [SELECT Id, Subject__c, Description__c, Due_Date__c
+                                                      FROM Action_Plan_Item__c 
+                                                      WHERE Account__c = :currentRecordId 
+                                                      ORDER BY CreatedDate ASC];
+            
+            // Convert to wrapper objects
+            for (Action_Plan_Item__c item : existingItems) {
+                actionPlanItems.add(new ActionPlanWrapper(item));
             }
-        } 
-        // If no existing items or no existing record, try to parse from text
-        else if(String.isNotBlank(NextSteps_ActionPlan)) {
-            // Try to convert existing text-based action plan to structured items
-            try {
-                List<String> lines = NextSteps_ActionPlan.split('\n');
-                for(String line : lines) {
-                    if(String.isNotBlank(line)) {
-                        ActionPlanItem item = new ActionPlanItem();
-                        item.Subject = line.length() > 50 ? line.substring(0, 50) : line;
-                        item.Description = line;
-                        item.DueDate = Date.today().addDays(30); // Default due date
-                        actionPlanItems.add(item);
-                    }
-                }
-            } catch(Exception e) {
-                System.debug('Error converting text action plan to items: ' + e.getMessage());
+            
+            // Ensure we always have at least 5 rows
+            while (actionPlanItems.size() < 5) {
+                actionPlanItems.add(new ActionPlanWrapper());
             }
+            
+        } catch (Exception e) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
+                'Error loading action plan items: ' + e.getMessage()));
         }
-        
-        // If no items exist, add a default empty one
-        if(actionPlanItems.isEmpty()) {
-            addNewActionPlanItem();
-        }
     }
     
-    // Add a new action plan item
-    public void addNewActionPlanItem() {
-        ActionPlanItem newItem = new ActionPlanItem();
-        newItem.AccountId = currentRecordId;
-        if(apExist != null && apExist.Id != null) {
-            newItem.AccountPlanningId = apExist.Id;
-        }
-        newItem.DueDate = Date.today().addDays(30); // Default due date to 30 days from now
+    // Determine if form should be read-only (placeholder logic)
+    private void determineFormState() {
+        // Add your business logic here to determine if form should be read-only
+        // For example, check if Account Planning Period is active
+        isFormReadOnly = false; // Default to editable
         
-        actionPlanItems.add(newItem);
+        // Example logic (customize based on your requirements):
+        // Date today = Date.today();
+        // isFormReadOnly = !isAccountPlanningPeriodActive(today);
     }
     
-    // Method to clear all form values when read-only
-    private void clearFormValues() {
-        IBValue = '';
-        PWAValue = '';
-        OwnershipValue = '';
-        SOppValue = '';
-        cardInputValue = null;
-        notesInputValue = '';
-        creditNotesValue = '';
-        debtValue = null;
-        ebidtdaValue = null;
-        pxvInputValue = null;
-        revenueValue = null;
-        notesInput_pxvCard = '';
-        IBNotes = '';
-        PWANotes = '';
-        NextSteps_ActionPlan = '';
-    }
-    
-    // Method to initialize empty objects when read-only
-    private void initializeEmptyObjects() {
-        CSO = new AccountTeamMember();
-        TSO = new AccountTeamMember();
-        TSA = new AccountTeamMember();
-        IBTeamMember = new AccountTeamMember();
-        PWA = new AccountTeamMember();
-        creditOpp = new Opportunity();
-        IBOpp = new Opportunity();
-        TSOpp = new Opportunity();
-        creditOpp_Potential = new Opportunity();
-        IBOpprtunity_Potential = new Opportunity();
-        TSOpp_Potential = new Opportunity();
-    }
-    
-    // Method to validate Account Planning Period
-    private AccountPlanning_Period__c validateAccountPlanningPeriod() {
-        Date today = Date.today();
-        
-        List<AccountPlanning_Period__c> validPeriods = [
-            SELECT Name, StartDate__c, EndDate__c
-            FROM AccountPlanning_Period__c
-            WHERE StartDate__c <= :today AND EndDate__c >= :today
-            LIMIT 1
-        ];
-        
-        if (validPeriods.isEmpty()) {
+    // Add new Action Plan Item row
+    public PageReference addNewActionPlanItem() {
+        try {
+            actionPlanItems.add(new ActionPlanWrapper());
+            return null;
+        } catch (Exception e) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
+                'Error adding new row: ' + e.getMessage()));
             return null;
         }
-        
-        return validPeriods[0];
     }
     
-    // Handle save method
-    public pagereference handleSave(){
-        try{
-            // Validate Account Planning Period
-            AccountPlanning_Period__c validPeriod = validateAccountPlanningPeriod();
+
+    
+    // Handle Save functionality
+    public PageReference handleSave() {
+        try {
+            // Save Account record
+            saveAccountData();
             
-            if (validPeriod == null) {
-                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,
-                                                           'No Account Planning Period found for Today'));
-                return null;
-            }
+            // Save Account Planning record
+            saveAccountPlanningData();
             
-            // Save action plan items to the text field for backward compatibility
-            String actionPlanText = '';
-            for(ActionPlanItem item : actionPlanItems) {
-                if(String.isNotBlank(item.Subject) || String.isNotBlank(item.Description)) {
-                    if(actionPlanText.length() > 0) {
-                        actionPlanText += '\n';
-                    }
-                    
-                    // Format: Subject - Description (Due: MM/DD/YYYY)
-                    String itemText = (String.isNotBlank(item.Subject) ? item.Subject : '');
-                    if(String.isNotBlank(item.Description)) {
-                        itemText += (itemText.length() > 0 ? ' - ' : '') + item.Description;
-                    }
-                    if(item.DueDate != null) {
-                        itemText += ' (Due: ' + item.DueDate.month() + '/' + item.DueDate.day() + '/' + item.DueDate.year() + ')';
-                    }
-                    
-                    actionPlanText += itemText;
-                }
-            }
+            // Save Action Plan Items
+            saveActionPlanItems();
             
-            // Update the text-based action plan with the new content
-            NextSteps_ActionPlan = actionPlanText;
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 
+                'All data saved successfully!'));
             
-            // Generate the record name from custom metadata
-            String recordName = validPeriod.Name;
-            Id savedRecordId;
-            
-            if(apExist != null && apExist.Id != null){
-                // Update existing record - editable fields
-                apExist.Name = recordName;
-                apExist.IB__c = IBValue;
-                apExist.PWA__c = PWAValue;
-                apExist.Ownership__c = OwnershipValue;
-                apExist.Strategic_Opportunity__c = SOppValue;
-                apExist.Card__c = cardInputValue;
-                apExist.CFNotes__c = notesInputValue;
-                apExist.CreditNotes__c = creditNotesValue;
-                apExist.Debt__c = debtValue;
-                apExist.EBIDTDA__c = ebidtdaValue;
-                apExist.PxV__c = pxvInputValue;
-                apExist.Revenue__c = revenueValue;
-                apExist.TSNotes__c = notesInput_pxvCard;
-                apExist.IBNotes__c = IBNotes;
-                apExist.PWANotes__c = PWANotes;
-                apExist.Next_Steps_Action_Plan__c = NextSteps_ActionPlan;
-                
-                // Update read-only fields from related objects
-                if(RM != null){
-                    apExist.Tier__c = RM.Tier_Level__c;
-                    apExist.Industry__c = RM.Primary_NAICS_Description__c;
-                    apExist.RM__c = RM.Owner.Name;
-                    apExist.Deposits__c = RM.Total_Deposit_Current_Balance__c;
-                }
-                
-                if(TSO != null) apExist.TSO__c = TSO.User.Name;
-                if(TSA != null) apExist.TSA__c = TSA.User.Name;
-                if(CSO != null) apExist.CSO__c = CSO.User.Name;
-                if(IBTeamMember != null) apExist.IBTeamMemberUserName__c = IBTeamMember.User.Name; 
-                if(PWA != null) apExist.PWATeamMemberUserName__c = PWA.User.Name;
-                
-                apExist.Facilities__c = countOfFacilities;
-                apExist.Commitments__c = commitmentAmount;
-                apExist.Outstanding__c = TCBUsedBalance;
-                apExist.Facility_Grade_s__c = riskRatingAvg;
-                
-                update apExist;
-                savedRecordId = apExist.Id;
-                system.debug('ID ==> '+apExist.ID);
-                
-            }else{
-                // Create new record
-                Account_Planning__c ap = new Account_Planning__c();
-                ap.Name = recordName;
-                ap.Account__c = currentRecordId;
-                
-                // Set editable fields
-                ap.IB__c = IBValue;
-                ap.PWA__c = PWAValue;
-                ap.Ownership__c = OwnershipValue;
-                ap.Strategic_Opportunity__c = SOppValue;
-                ap.Card__c = cardInputValue;
-                ap.CFNotes__c = notesInputValue;
-                ap.CreditNotes__c = creditNotesValue;
-                ap.Debt__c = debtValue;
-                ap.EBIDTDA__c = ebidtdaValue;
-                ap.PxV__c = pxvInputValue;
-                ap.Revenue__c = revenueValue;
-                ap.TSNotes__c = notesInput_pxvCard;
-                ap.IBNotes__c = IBNotes;
-                ap.PWANotes__c = PWANotes;
-                ap.Next_Steps_Action_Plan__c = NextSteps_ActionPlan;
-                
-                // Set read-only fields from related objects
-                if(RM != null){
-                    ap.Tier__c = RM.Tier_Level__c;
-                    ap.Industry__c = RM.Primary_NAICS_Description__c;
-                    ap.RM__c = RM.Owner.Name;
-                    ap.Deposits__c = RM.Total_Deposit_Current_Balance__c;
-                }
-                
-                if(TSO != null) ap.TSO__c = TSO.User.Name;
-                if(TSA != null) ap.TSA__c = TSA.User.Name;
-                if(CSO != null) ap.CSO__c = CSO.User.Name;
-                if(IBTeamMember != null && apExist != null) apExist.IBTeamMemberUserName__c = IBTeamMember.User.Name; 
-                if(PWA != null && apExist != null) apExist.PWATeamMemberUserName__c = PWA.User.Name;
-                
-                ap.Facilities__c = countOfFacilities;
-                ap.Commitments__c = commitmentAmount;
-                ap.Outstanding__c = TCBUsedBalance;
-                ap.Facility_Grade_s__c = riskRatingAvg;
-                ap.Account_Planning_Period__c = validPeriod.Id;
-                
-                Insert ap;
-                apExist = ap;
-                savedRecordId = ap.Id;
-                system.debug('ID ==> '+ap.ID);
-            }
-            
-            // Save action plan items
-            saveActionPlanItems(savedRecordId);
-            
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM,
-                                                       'Account Planning saved successfully'));
-        }catch(Exception e){
-            System.debug('The following exception has occurred: ' + e.getMessage());
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,
-                                                       'Error saving: ' + e.getMessage()));
+            return null;
+        } catch (Exception e) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
+                'Error saving data: ' + e.getMessage()));
+            System.debug('Error in handleSave: ' + e.getMessage() + ' Stack: ' + e.getStackTraceString());
+            return null;
         }
-        return null;
+    }
+    
+    // Save Account data
+    private void saveAccountData() {
+        if (RM != null) {
+            update RM;
+        }
+    }
+    
+    // Save Account Planning data
+    private void saveAccountPlanningData() {
+        if (apExist != null) {
+            // Update the values from the form
+            apExist.Ownership__c = OwnershipValue;
+            apExist.Strategic_Opportunity__c = SOppValue;
+            apExist.Account__c = currentRecordId;
+            
+            if (apExist.Id != null) {
+                update apExist;
+            } else {
+                insert apExist;
+            }
+        }
     }
     
     // Save Action Plan Items
-    private void saveActionPlanItems(Id accountPlanningId) {
-        // Lists for DML operations
-        List<Action_Plan_Item__c> itemsToUpsert = new List<Action_Plan_Item__c>();
-        Set<Id> existingItemIds = new Set<Id>();
+    private void saveActionPlanItems() {
+        List<Action_Plan_Item__c> itemsToInsert = new List<Action_Plan_Item__c>();
+        List<Action_Plan_Item__c> itemsToUpdate = new List<Action_Plan_Item__c>();
         
-        // Process each action plan item
-        for(ActionPlanItem item : actionPlanItems) {
-            // Skip empty items
-            if(String.isBlank(item.Subject) && String.isBlank(item.Description)) {
-                continue;
-            }
-            
-            // Convert wrapper to SObject
-            Action_Plan_Item__c apiItem = new Action_Plan_Item__c();
-            if(item.Id != null) {
-                apiItem.Id = item.Id;
-                existingItemIds.add(item.Id);
-            }
-            
-            // Set fields
-            apiItem.Subject__c = item.Subject;
-            apiItem.Description__c = item.Description;
-            apiItem.Due_Date__c = item.DueDate;
-            apiItem.Account__c = currentRecordId;
-            apiItem.Account_Planning__c = accountPlanningId;
-            
-            // Add to upsert list
-            itemsToUpsert.add(apiItem);
-        }
-        
-        // Check for items to delete (items in DB but not in our list)
-        List<Action_Plan_Item__c> itemsToDelete = new List<Action_Plan_Item__c>();
-        try {
-            // Only run this query if we have existing items
-            if(existingItemIds.isEmpty() && accountPlanningId != null) {
-                // Get all items for this account planning
-                itemsToDelete = [SELECT Id FROM Action_Plan_Item__c 
-                                WHERE Account_Planning__c = :accountPlanningId];
-            } else if(!existingItemIds.isEmpty() && accountPlanningId != null) {
-                // Get items for this account planning that aren't in our current list
-                itemsToDelete = [SELECT Id FROM Action_Plan_Item__c 
-                                WHERE Account_Planning__c = :accountPlanningId
-                                AND Id NOT IN :existingItemIds];
-            }
-        } catch(Exception e) {
-            System.debug('Error querying items to delete: ' + e.getMessage());
-        }
-        
-        // Perform DML operations with error handling
-        Savepoint sp = Database.setSavepoint();
-        try {
-            // Upsert items
-            if(!itemsToUpsert.isEmpty()) {
-                upsert itemsToUpsert;
-            }
-            
-            // Delete removed items
-            if(!itemsToDelete.isEmpty()) {
-                delete itemsToDelete;
-            }
-        } catch(Exception e) {
-            // Rollback on error
-            Database.rollback(sp);
-            System.debug('Error saving action plan items: ' + e.getMessage());
-            ApexPages.addMessage(new ApexPages.Message(
-                ApexPages.Severity.WARNING,
-                'Warning: Action plan items may not have saved correctly. ' + e.getMessage()
-            ));
-        }
-    }
-    
-    public void getFacilityCount(){
-        Integer riskRatingCount = 0;
-        Integer riskRatingInteger = 0;
-        String riskRatingStr = '';
-        Integer riskRatingSum = 0;
-        riskRatingAvg = 0.00;
-        List<Account> accList = new List<Account>();
-        accList = [Select Id,Name,Region__c,ParentId,CIF__c,CCN__c,Owner.Name,Tier_Level__c, Primary_NAICS__c, 
-                   Industry,Primary_NAICS_Description__c,Total_Deposit_Current_Balance__c, Top_Client__c, Top_Prospect__c, ABL__c, Business_Description__c  
-                   from Account Where Id =: currentRecordId];
-        
-        Map<ID,Account> hierarchyAccount = new Map<ID,Account> ([Select Id,ParentID,CCN__c,
-                                                                 CIF__c,Tier_Level__c,Primary_NAICS_Description__c
-                                                                 From Account Where (ParentID IN :accList)
-                                                                 AND (CIF__c != :accList[0].CCN__c) ]);
-        
-        hierarchyAccount.put(accList[0].Id,accList[0]);
-        RM = accList[0];
-        
-        if(!hierarchyAccount.isEmpty()){
-            allCCNHierachyAccounts = hierarchyAccount;
-        }
-        
-        List<Facility__c> allFacilities = [Select Id,Commitment_Balance__c,Used_Balance__c,
-                                           Risk_Rating__c,Relationship__c
-                                           From Facility__c
-                                           Where Relationship__c IN :hierarchyAccount.keySet() ];
-        
-        if(allFacilities.size() > 0) {
-            for(Facility__c facility : allFacilities){
-                countOfFacilities += 1;
-                if(facility.Commitment_Balance__c != null){
-                    commitmentAmount += facility.Commitment_Balance__c;
+        for (ActionPlanWrapper wrapper : actionPlanItems) {
+            // Only save items that have at least a subject
+            if (String.isNotBlank(wrapper.Subject)) {
+                Action_Plan_Item__c item = new Action_Plan_Item__c();
+                
+                if (!wrapper.isNew && String.isNotBlank(wrapper.Id)) {
+                    // Existing record - update
+                    item.Id = wrapper.Id;
+                    itemsToUpdate.add(item);
+                } else {
+                    // New record - insert
+                    item.Account__c = currentRecordId;
+                    if (apExist != null && apExist.Id != null) {
+                        item.Account_Planning__c = apExist.Id;
+                    }
+                    itemsToInsert.add(item);
                 }
                 
-                if(facility.Used_Balance__c != null){
-                    TCBUsedBalance += facility.Used_Balance__c;
-                }
-                
-                if(facility.Risk_Rating__c != null){
-                    riskRatingCount++;
-                    riskRatingStr = facility.Risk_Rating__c.trim().substring(0, 1);
-                    riskRatingInteger = Integer.valueOf(riskRatingStr);
-                    riskRatingSum += riskRatingInteger;
-                }
-            }
-            
-            if(riskRatingCount == 1){
-                riskRatingAvg = 1;
-            }else if(riskRatingCount > 1) {
-                riskRatingAvg = riskRatingSum / riskRatingCount;
+                // Set field values
+                item.Subject__c = wrapper.Subject;
+                item.Description__c = wrapper.Description;
+                item.Due_Date__c = wrapper.DueDate;
             }
         }
+        
+        // Perform DML operations
+        if (!itemsToInsert.isEmpty()) {
+            insert itemsToInsert;
+        }
+        
+        if (!itemsToUpdate.isEmpty()) {
+            update itemsToUpdate;
+        }
+        
+        // Refresh the action plan items to get the new IDs
+        loadActionPlanItems();
     }
     
-    // Keep all other existing methods unchanged
-    public void getOpps(){
-        oppsList = new List<Opportunity>();
-        oppsList = [Select Id,AccountId ,Deal_ID__c,CloseDate,Description,owner.name 
-                    From Opportunity Where AccountId =: currentRecordId];
+    // Method to check if Account Planning Period is active (customize as needed)
+    private Boolean isAccountPlanningPeriodActive(Date checkDate) {
+        // Add your business logic here
+        // Example: Check custom settings, metadata, or date ranges
+        return true; // Default to active
     }
     
-    public void getRelationshipTeams(){
-        // Original implementation remains unchanged
-    }
-    
-    public void oppsHeaderRollUps(){
-        // Original implementation remains unchanged
-    }
-    
-    // Wrapper class for Action Plan Items
-    public class ActionPlanItem {
-        public Id Id { get; set; }
-        public String Subject { get; set; }
-        public String Description { get; set; }
-        public Date DueDate { get; set; }
-        public Id AccountId { get; set; }
-        public Id AccountPlanningId { get; set; }
+    // Get current record ID for JavaScript
+    public String getCurrentRecordId() {
+        return this.currentRecordId;
     }
 }
