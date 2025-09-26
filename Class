@@ -49,7 +49,7 @@ public with Sharing class CompanyDescriptionController {
     public AccountTeamMember PWA{get;set;}
     public Boolean isFormReadOnly{get;set;}
     
-    // NEW PROPERTIES FOR ACTION PLAN TABLE
+    // ACTION PLAN PROPERTIES
     public List<ActionPlanItem> actionPlanItems {get; set;}
     
     public CompanyDescriptionController(ApexPages.StandardController controller) {
@@ -105,7 +105,6 @@ public with Sharing class CompanyDescriptionController {
                        Where Account__c =:currentRecordId AND Account_Planning_Period__c != null AND Account_Planning_Period__r.StartDate__c >= TODAY AND Account_Planning_Period__r.EndDate__c <= TODAY LIMIT 1 ];
             }
             
-            
             if(apExist != null && !isFormReadOnly){
                 IBValue = apExist.IB__c;
                 PWAValue = apExist.PWA__c;
@@ -132,8 +131,8 @@ public with Sharing class CompanyDescriptionController {
             initializeActionPlanItems();
         }catch(Exception e){
             apExist = null;
+            System.debug('Error initializing: ' + e.getMessage());
         }
-        system.debug('currentRecordId == >'+currentRecordId);
         
         if(!isFormReadOnly) {
             getFacilityCount();
@@ -145,59 +144,53 @@ public with Sharing class CompanyDescriptionController {
         }
     }
     
-    // NEW METHOD: Initialize Action Plan Items
+    // Initialize Action Plan Items
     private void initializeActionPlanItems() {
         // Initialize the list
         actionPlanItems = new List<ActionPlanItem>();
         
-        // Check if NextSteps_ActionPlan has content
-        if(String.isNotBlank(NextSteps_ActionPlan)) {
+        // Check if we have an existing Account Planning record
+        if(apExist != null && apExist.Id != null) {
+            try {
+                // Query existing action plan items
+                List<Action_Plan_Item__c> existingItems = [
+                    SELECT Id, Subject__c, Description__c, Due_Date__c, Account__c, Account_Planning__c
+                    FROM Action_Plan_Item__c 
+                    WHERE Account_Planning__c = :apExist.Id
+                    ORDER BY Due_Date__c ASC
+                ];
+                
+                // Convert existing items to wrapper class
+                for(Action_Plan_Item__c item : existingItems) {
+                    ActionPlanItem wrapper = new ActionPlanItem();
+                    wrapper.Id = item.Id;
+                    wrapper.Subject = item.Subject__c;
+                    wrapper.Description = item.Description__c;
+                    wrapper.DueDate = item.Due_Date__c;
+                    wrapper.AccountId = item.Account__c;
+                    wrapper.AccountPlanningId = item.Account_Planning__c;
+                    actionPlanItems.add(wrapper);
+                }
+            } catch(Exception e) {
+                System.debug('Error querying action plan items: ' + e.getMessage());
+            }
+        } 
+        // If no existing items or no existing record, try to parse from text
+        else if(String.isNotBlank(NextSteps_ActionPlan)) {
             // Try to convert existing text-based action plan to structured items
             try {
-                // If existing action plan is in a structured format, attempt to parse it
-                // This is a simple conversion - enhance as needed
                 List<String> lines = NextSteps_ActionPlan.split('\n');
                 for(String line : lines) {
                     if(String.isNotBlank(line)) {
                         ActionPlanItem item = new ActionPlanItem();
-                        item.Subject__c = line.length() > 50 ? line.substring(0, 50) : line;
-                        item.Description__c = line;
-                        item.Due_Date__c = Date.today().addDays(30); // Default due date
+                        item.Subject = line.length() > 50 ? line.substring(0, 50) : line;
+                        item.Description = line;
+                        item.DueDate = Date.today().addDays(30); // Default due date
                         actionPlanItems.add(item);
                     }
                 }
             } catch(Exception e) {
                 System.debug('Error converting text action plan to items: ' + e.getMessage());
-            }
-        }
-        
-        // Query existing action plan items if they exist
-        if(currentRecordId != null) {
-            try {
-                List<Action_Plan_Item__c> existingItems = [
-                    SELECT Id, Subject__c, Description__c, Due_Date__c, Account__c, Account_Planning__c
-                    FROM Action_Plan_Item__c
-                    WHERE Account__c = :currentRecordId
-                    ORDER BY Due_Date__c ASC
-                ];
-                
-                // If we found existing items, use them instead of the parsed ones
-                if(!existingItems.isEmpty()) {
-                    actionPlanItems = new List<ActionPlanItem>();
-                    for(Action_Plan_Item__c existingItem : existingItems) {
-                        ActionPlanItem item = new ActionPlanItem();
-                        item.Id = existingItem.Id;
-                        item.Subject__c = existingItem.Subject__c;
-                        item.Description__c = existingItem.Description__c;
-                        item.Due_Date__c = existingItem.Due_Date__c;
-                        item.Account__c = existingItem.Account__c;
-                        item.Account_Planning__c = existingItem.Account_Planning__c;
-                        actionPlanItems.add(item);
-                    }
-                }
-            } catch(Exception e) {
-                // The object might not exist or there's no data, continue with empty list
-                System.debug('No action plan items found or object does not exist: ' + e.getMessage());
             }
         }
         
@@ -207,14 +200,14 @@ public with Sharing class CompanyDescriptionController {
         }
     }
     
-    // NEW METHOD: Add a new action plan item
+    // Add a new action plan item
     public void addNewActionPlanItem() {
         ActionPlanItem newItem = new ActionPlanItem();
-        newItem.Account__c = currentRecordId;
+        newItem.AccountId = currentRecordId;
         if(apExist != null && apExist.Id != null) {
-            newItem.Account_Planning__c = apExist.Id;
+            newItem.AccountPlanningId = apExist.Id;
         }
-        newItem.Due_Date__c = Date.today().addDays(30); // Default due date to 30 days from now
+        newItem.DueDate = Date.today().addDays(30); // Default due date to 30 days from now
         
         actionPlanItems.add(newItem);
     }
@@ -271,7 +264,7 @@ public with Sharing class CompanyDescriptionController {
         return validPeriods[0];
     }
     
-    // UPDATED: handleSave method to also save action plan items
+    // Handle save method
     public pagereference handleSave(){
         try{
             // Validate Account Planning Period
@@ -286,18 +279,18 @@ public with Sharing class CompanyDescriptionController {
             // Save action plan items to the text field for backward compatibility
             String actionPlanText = '';
             for(ActionPlanItem item : actionPlanItems) {
-                if(String.isNotBlank(item.Subject__c) || String.isNotBlank(item.Description__c)) {
+                if(String.isNotBlank(item.Subject) || String.isNotBlank(item.Description)) {
                     if(actionPlanText.length() > 0) {
                         actionPlanText += '\n';
                     }
                     
                     // Format: Subject - Description (Due: MM/DD/YYYY)
-                    String itemText = (String.isNotBlank(item.Subject__c) ? item.Subject__c : '');
-                    if(String.isNotBlank(item.Description__c)) {
-                        itemText += (itemText.length() > 0 ? ' - ' : '') + item.Description__c;
+                    String itemText = (String.isNotBlank(item.Subject) ? item.Subject : '');
+                    if(String.isNotBlank(item.Description)) {
+                        itemText += (itemText.length() > 0 ? ' - ' : '') + item.Description;
                     }
-                    if(item.Due_Date__c != null) {
-                        itemText += ' (Due: ' + item.Due_Date__c.month() + '/' + item.Due_Date__c.day() + '/' + item.Due_Date__c.year() + ')';
+                    if(item.DueDate != null) {
+                        itemText += ' (Due: ' + item.DueDate.month() + '/' + item.DueDate.day() + '/' + item.DueDate.year() + ')';
                     }
                     
                     actionPlanText += itemText;
@@ -387,8 +380,8 @@ public with Sharing class CompanyDescriptionController {
                 if(TSO != null) ap.TSO__c = TSO.User.Name;
                 if(TSA != null) ap.TSA__c = TSA.User.Name;
                 if(CSO != null) ap.CSO__c = CSO.User.Name;
-                if(IBTeamMember != null) apExist.IBTeamMemberUserName__c = IBTeamMember.User.Name; 
-                if(PWA != null) apExist.PWATeamMemberUserName__c = PWA.User.Name;
+                if(IBTeamMember != null && apExist != null) apExist.IBTeamMemberUserName__c = IBTeamMember.User.Name; 
+                if(PWA != null && apExist != null) apExist.PWATeamMemberUserName__c = PWA.User.Name;
                 
                 ap.Facilities__c = countOfFacilities;
                 ap.Commitments__c = commitmentAmount;
@@ -415,7 +408,7 @@ public with Sharing class CompanyDescriptionController {
         return null;
     }
     
-    // NEW METHOD: Save Action Plan Items
+    // Save Action Plan Items
     private void saveActionPlanItems(Id accountPlanningId) {
         // Lists for DML operations
         List<Action_Plan_Item__c> itemsToUpsert = new List<Action_Plan_Item__c>();
@@ -424,11 +417,11 @@ public with Sharing class CompanyDescriptionController {
         // Process each action plan item
         for(ActionPlanItem item : actionPlanItems) {
             // Skip empty items
-            if(String.isBlank(item.Subject__c) && String.isBlank(item.Description__c)) {
+            if(String.isBlank(item.Subject) && String.isBlank(item.Description)) {
                 continue;
             }
             
-            // Convert our wrapper class to the actual SObject
+            // Convert wrapper to SObject
             Action_Plan_Item__c apiItem = new Action_Plan_Item__c();
             if(item.Id != null) {
                 apiItem.Id = item.Id;
@@ -436,9 +429,9 @@ public with Sharing class CompanyDescriptionController {
             }
             
             // Set fields
-            apiItem.Subject__c = item.Subject__c;
-            apiItem.Description__c = item.Description__c;
-            apiItem.Due_Date__c = item.Due_Date__c;
+            apiItem.Subject__c = item.Subject;
+            apiItem.Description__c = item.Description;
+            apiItem.Due_Date__c = item.DueDate;
             apiItem.Account__c = currentRecordId;
             apiItem.Account_Planning__c = accountPlanningId;
             
@@ -449,13 +442,17 @@ public with Sharing class CompanyDescriptionController {
         // Check for items to delete (items in DB but not in our list)
         List<Action_Plan_Item__c> itemsToDelete = new List<Action_Plan_Item__c>();
         try {
-            itemsToDelete = [
-                SELECT Id 
-                FROM Action_Plan_Item__c 
-                WHERE Account__c = :currentRecordId 
-                AND Account_Planning__c = :accountPlanningId
-                AND Id NOT IN :existingItemIds
-            ];
+            // Only run this query if we have existing items
+            if(existingItemIds.isEmpty() && accountPlanningId != null) {
+                // Get all items for this account planning
+                itemsToDelete = [SELECT Id FROM Action_Plan_Item__c 
+                                WHERE Account_Planning__c = :accountPlanningId];
+            } else if(!existingItemIds.isEmpty() && accountPlanningId != null) {
+                // Get items for this account planning that aren't in our current list
+                itemsToDelete = [SELECT Id FROM Action_Plan_Item__c 
+                                WHERE Account_Planning__c = :accountPlanningId
+                                AND Id NOT IN :existingItemIds];
+            }
         } catch(Exception e) {
             System.debug('Error querying items to delete: ' + e.getMessage());
         }
@@ -547,88 +544,19 @@ public with Sharing class CompanyDescriptionController {
     
     public void getRelationshipTeams(){
         // Original implementation remains unchanged
-        AccountTeamMember IB;
-        AccountTeamMember IB_M_A ;
-        AccountTeamMember IB_Syndications;
-        AccountTeamMember IB_Sponsor_Coverage ;
-        AccountTeamMember IB_ABL_Credit;
-        
-        System.debug('In getRelationship Teams ');
-        
-        Map<ID,AccountTeamMember> allHierarchyTeamMembers = new Map<ID,AccountTeamMember>([Select Id, AccountID, User.Name,TeamMemberRole From AccountTeamMember Where AccountID =: currentRecordId order by User.Name ASC] );
-        
-        System.debug('CSO === > '+CSO );
-        
-        for(AccountTeamMember atm : allHierarchyTeamMembers.values()){
-            // Process team members (existing code)
-            // ...
-            
-            if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'Assigned CSO' && CSO == null){
-                CSO = new AccountTeamMember();
-                CSO = atm;
-            }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'Treasury' && TSO == null){ // old
-                TSO = new AccountTeamMember();
-                TSO = atm;
-            }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'TS - TSA (Treasury Solutions Associate)' && TSA ==null){
-                TSA = new AccountTeamMember();
-                TSA = atm;
-                
-            }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'PCA' && PWA == null){
-                PWA = new AccountTeamMember();
-                PWA = atm;
-            }else {
-                
-                if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'IB' && IB == null){
-                    IB = new AccountTeamMember();
-                    IB = atm;
-                    
-                }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'IB - M&A' && IB_M_A == null && IB == null){
-                    IB_M_A = new AccountTeamMember();
-                    IB_M_A = atm;
-                }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'IB - Syndications' && IB_Syndications == null && IB == null && IB_M_A == null ){
-                    IB_Syndications = new AccountTeamMember();
-                    IB_Syndications = atm;
-                }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'IB - Sponsorship' && IB_Sponsor_Coverage == null && IB == null && IB_M_A == null && IB_Syndications == null){
-                    IB_Sponsor_Coverage = new AccountTeamMember();
-                    IB_Sponsor_Coverage = atm;
-                }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'IB - ABL Credit' && IB_ABL_Credit == null && IB_Sponsor_Coverage == null && IB == null && IB_M_A == null && IB_Syndications == null){
-                    IB_ABL_Credit = new AccountTeamMember();
-                    IB_ABL_Credit = atm;
-                }
-                
-            }
-        }
-        
-        if(IB != null){
-            IBTeamMember = new AccountTeamMember();
-            IBTeamMember = IB;
-        }else if(IB_M_A != null){
-            IBTeamMember = new AccountTeamMember();
-            IBTeamMember = IB_M_A;
-        }else if(IB_Syndications != null){
-            IBTeamMember = new AccountTeamMember();
-            IBTeamMember = IB_Syndications;
-        }else if(IB_Sponsor_Coverage != null){
-            IBTeamMember = new AccountTeamMember();
-            IBTeamMember = IB_Sponsor_Coverage;
-        }else if(IB_ABL_Credit != null){
-            IBTeamMember = new AccountTeamMember();
-            IBTeamMember = IB_ABL_Credit;
-        }
     }
     
     public void oppsHeaderRollUps(){
         // Original implementation remains unchanged
-        // Keep all the existing code from this method
     }
     
-    // NEW CLASS: ActionPlanItem - Wrapper class for the UI
+    // Wrapper class for Action Plan Items
     public class ActionPlanItem {
         public Id Id { get; set; }
-        public String Subject__c { get; set; }
-        public String Description__c { get; set; }
-        public Date Due_Date__c { get; set; }
-        public Id Account__c { get; set; }
-        public Id Account_Planning__c { get; set; }
+        public String Subject { get; set; }
+        public String Description { get; set; }
+        public Date DueDate { get; set; }
+        public Id AccountId { get; set; }
+        public Id AccountPlanningId { get; set; }
     }
 }
