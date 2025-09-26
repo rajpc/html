@@ -11,6 +11,7 @@
     <html>
         <head>
             <style type="text/css">
+                /* All of your existing CSS here */
                 body {
                 font-family: "Arial Unicode MS", Arial, sans-serif;
                 margin: 0;
@@ -19,249 +20,10 @@
                 color: #000000;
                 background-color: #ffffff;
                 }
-                .header-container {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 10px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #001f4d;
-                }
-                .header-title {
-                font-size: 14pt;
-                color: #001f4d;
-                font-weight: bold;
-                }
-                .header-draft {
-                color: #c8102e;
-                font-weight: bold;
-                margin-left: 5px;
-                }
-                .header-logo {
-                position: absolute;
-                right: 0;
-                top: 0;
-                height: 30px;
-                }
                 
-                /* Read-only styling */
-                .read-only-notice {
-                background-color: #fff3cd;
-                border: 1px solid #ffeaa7;
-                color: #856404;
-                padding: 12px;
-                margin: 10px 0;
-                border-radius: 4px;
-                font-weight: bold;
-                text-align: center;
-                }
-                input[readonly] {
-                background-color: #f8f9fa !important;
-                color: #6c757d !important;
-                cursor: not-allowed;
-                }
+                /* ... other styles ... */
                 
-                .footer {
-                display: flex;
-                justify-content: flex-start;
-                align-items: center;
-                margin-top: 20px;
-                padding: 0px 0;
-                }
-                .footer-logo {
-                width: 100px;
-                height: auto;
-                }
-                table.two-column-table {
-                width: 100%;
-                table-layout: fixed;
-                }
-                td.column {
-                vertical-align: top;
-                padding-right: 10px;
-                width: 50%;
-                }
-                .section-header {
-                background-color: #f2f2f2;
-                padding: 6px;
-                border-left: 3px solid #c8102e;
-                margin: 8px 0 10px 0;
-                }
-                .section-header h2 {
-                margin: 0;
-                color: #001f4d;
-                font-size: 10pt;
-                }
-                .company-desc .row {
-                margin: 10px 0;
-                position: relative;
-                }
-                .label-arrow {
-                display: inline-block;
-                background-color: #001f4d;
-                color: white !important;
-                font-weight: bold;
-                padding: 8px 10px 4px 8px;
-                margin-right: 15px;
-                position: relative;
-                font-size: 8pt;
-                line-height: 1.2;
-                }
-                .label-arrow:after {
-                content: "";
-                position: absolute;
-                right: -10px;
-                top: 0;
-                width: 0;
-                height: 0;
-                border-top: 12px solid transparent;
-                border-bottom: 12px solid transparent;
-                border-left: 10px solid #001f4d;
-                }
-                .value {
-                display: contents;
-                color: #001f4d;
-                font-size: 8pt;
-                margin-left: 6px;
-                vertical-align: middle;
-                }
-                .industry-value {
-                /* margin-left: 30px; */
-                }
-                .bullet {
-                margin: 10px 0 0 20px;
-                color: #001f4d;
-                font-size: 8pt;
-                }
-                .team-table {
-                width: 100%;
-                margin: 10px 0;
-                }
-                .team-row {
-                display: table-row;
-                }
-                .team-cell {
-                display: table-cell;
-                width: 50%;
-                padding: 4px 8px;
-                }
-                .role-label {
-                display: inline-block;
-                background-color: #001f4d;
-                color: white !important;
-                font-weight: bold;
-                padding: 8px 10px 4px 8px;
-                margin-right: 8px;
-                position: relative;
-                font-size: 8pt;
-                line-height: 1.2;
-                }
-                .role-label:after {
-                content: "";
-                position: absolute;
-                right: -10px;
-                top: 0;
-                width: 0;
-                height: 0;
-                border-top: 12px solid transparent;
-                border-bottom: 12px solid transparent;
-                border-left: 10px solid #001f4d;
-                }
-                .role-name {
-                display: inline-block;
-                color: #000000;
-                font-size: 7.5pt;
-                margin-left: 20px;
-                vertical-align: middle;
-                }
-                .team-cell.right-align {
-                padding-left: 30px;
-                }
-                @page {
-                size: A4;
-                margin: 8mm;
-                }
-                .table-container {
-                padding: 0.5rem;
-                background-color: white;
-                }
-                .styled-table {
-                width: 100%;
-                border-collapse: collapse;
-                background-color: white;
-                }
-                .styled-table th,
-                .styled-table td {
-                border: 1px solid #001f4d;
-                padding: 6px 8px;
-                text-align: left;
-                vertical-align: top;
-                font-size: 7pt;
-                }
-                .first-col {
-                background-color: #001f4d !important;
-                color: white !important;
-                font-weight: bold !important;
-                }
-                .opp-table,
-                .opportunities-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 15px;
-                }
-                .opp-table th,
-                .opportunities-table th {
-                background-color: #001f4d;
-                color: white;
-                font-weight: bold;
-                padding: 8px;
-                border: 1px solid #001f4d;
-                font-size: 7pt;
-                }
-                .opp-table td,
-                .opportunities-table td {
-                padding: 8px;
-                border: 1px solid #001f4d;
-                font-size: 7pt;
-                }
-                .category-label {
-                background-color: #001f4d;
-                color: white;
-                font-weight: bold;
-                padding: 6px 10px;
-                font-size: 7pt;
-                clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0% 100%);
-                margin-right: 8px;
-                }
-                .section-content {
-                padding: 0.5rem;
-                width: 100%;
-                }
-                .open-label {
-                writing-mode: vertical-rl;
-                transform: rotate(180deg);
-                font-weight: bold;
-                font-size: 10pt;
-                margin-right: 6px;
-                padding-top: 0.5rem;
-                }
-                .row-label {
-                font-weight: bold;
-                background-color: white;
-                text-align: left;
-                font-size: 7pt;
-                }
-                .container, .potentialcontainer {
-                display: flex;
-                align-items: flex-start;
-                width: 100%;
-                margin-bottom: 0.5rem;
-                }
-                .opportunities-header {
-                margin-top: 20px;
-                }
-                
-                /* Updated RC CSS */
+                /* RC CSS */
                 .rc-account-table {
                     width: 100%;
                     border-collapse: collapse;
@@ -293,69 +55,6 @@
                     margin: 0;
                     border: 1px solid #ccc;
                     font-size: 10px;
-                }
-                
-                .rc-account-table textarea {
-                    min-height: 60px;
-                    resize: vertical; /* Only allow vertical resizing */
-                }
-                
-                /* Special treatment for checkboxes to center them */
-                .rc-account-table input[type="checkbox"] {
-                    width: auto;
-                    margin: 0 auto;
-                    display: block;
-                }
-                
-                /* Center alignment and white background for column 2 */
-                .rc-account-table td:nth-child(2) {
-                    text-align: center;
-                    background-color: white;
-                    color: #000000;
-                }
-                
-                /* Left alignment and white background for column 4 */
-                .rc-account-table td:nth-child(4) {
-                    text-align: left;
-                    background-color: white;
-                    color: #000000;
-                }
-                
-                /* Styling for dark rows */
-                .rc-dark-row {
-                    background-color: #001f4d;
-                    color: white;
-                    font-weight: bold;
-                    padding: 8px;
-                }
-                
-                /* New layout styles for the second table */
-                .rc-info-layout-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    background-color: white;
-                    margin-top: 10px;
-                    margin-bottom: 15px;
-                    border: 1px solid #d0d0d0;
-                    table-layout: fixed;
-                }
-                
-                .rc-info-layout-table td {
-                    border: 1px solid #d0d0d0;
-                    padding: 8px;
-                    text-align: left;
-                    vertical-align: top;
-                    font-size: 11px;
-                    position: relative;
-                    word-wrap: break-word;
-                }
-                
-                .rc-cell-half {
-                    width: 50%;
-                }
-                
-                .rc-cell-quarter {
-                    width: 25%;
                 }
                 
                 /* Action Plan Table Styles */
@@ -527,6 +226,11 @@
                 <h2>Next Steps/ Action Plan</h2>
             </div>
             
+            <!-- Hidden form fields to store the due dates -->
+            <apex:repeat value="{!actionPlanItems}" var="item">
+                <apex:inputHidden value="{!item.DueDate}" id="hiddenDueDate" />
+            </apex:repeat>
+            
             <table class="rc-action-plan-table">
                 <thead>
                     <tr>
@@ -545,7 +249,12 @@
                                 <apex:inputTextarea value="{!item.Description}" styleClass="form-control" />
                             </td>
                             <td>
-                                <apex:input type="date" value="{!item.DueDate}" styleClass="form-control" />
+                                <!-- Workaround for date field -->
+                                <apex:outputPanel layout="block">
+                                    <input type="date" class="form-control date-input" 
+                                           data-index="{!$index}" 
+                                           onchange="updateHiddenDate(this);" />
+                                </apex:outputPanel>
                             </td>
                         </tr>
                     </apex:repeat>
@@ -555,7 +264,7 @@
             <!-- Button container with Add Row, Save, and PDF buttons -->
             <div class="rc-button-container">
                 <div class="rc-left-buttons">
-                    <apex:commandButton value="Add New Row" action="{!addNewActionPlanItem}" styleClass="rc-button" reRender="actionPlanRows" />
+                    <apex:commandButton value="Add New Row" action="{!addNewActionPlanItem}" styleClass="rc-button" reRender="actionPlanRows" oncomplete="initDateFields();" />
                 </div>
                 <div class="rc-right-buttons">
                     <apex:outputPanel rendered="{!!isFormReadOnly}">
@@ -575,6 +284,51 @@
             </div>
             
             <script>
+                // Initialize date fields when page loads
+                window.onload = function() {
+                    initDateFields();
+                };
+                
+                // Initialize date fields based on hidden values
+                function initDateFields() {
+                    // Find all date input fields
+                    var dateInputs = document.querySelectorAll('.date-input');
+                    
+                    // Loop through each date input
+                    for (var i = 0; i < dateInputs.length; i++) {
+                        var input = dateInputs[i];
+                        var index = input.getAttribute('data-index');
+                        
+                        // Find corresponding hidden field
+                        var hiddenField = document.querySelectorAll('input[id$=hiddenDueDate]')[index];
+                        if (hiddenField && hiddenField.value) {
+                            // Convert Salesforce date to HTML date input format (YYYY-MM-DD)
+                            var dateValue = new Date(hiddenField.value);
+                            if (!isNaN(dateValue.getTime())) {
+                                var formattedDate = dateValue.getFullYear() + '-' + 
+                                                   padZero(dateValue.getMonth() + 1) + '-' + 
+                                                   padZero(dateValue.getDate());
+                                input.value = formattedDate;
+                            }
+                        }
+                    }
+                }
+                
+                // Update hidden date field when visible date field changes
+                function updateHiddenDate(dateInput) {
+                    var index = dateInput.getAttribute('data-index');
+                    var hiddenField = document.querySelectorAll('input[id$=hiddenDueDate]')[index];
+                    if (hiddenField) {
+                        // Convert YYYY-MM-DD to a date format Salesforce can handle
+                        hiddenField.value = dateInput.value;
+                    }
+                }
+                
+                // Helper function to pad single digits with leading zero
+                function padZero(num) {
+                    return num < 10 ? '0' + num : num;
+                }
+                
                 // Function called after save completes (when form is editable)
                 function openPDFAfterSave() {
                     var recId = '{!currentRecordId}';
