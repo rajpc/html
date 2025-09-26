@@ -72,15 +72,6 @@
                       width: 100px;
                       height: auto;
                       }
-                      table.two-column-table {
-                      width: 100%;
-                      table-layout: fixed;
-                      }
-                      td.column {
-                      vertical-align: top;
-                      padding-right: 10px;
-                      width: 50%;
-                      }
                       .section-header {
                       background-color: #f2f2f2;
                       padding: 6px;
@@ -92,241 +83,120 @@
                       color: #001f4d;
                       font-size: 10pt;
                       }
-                      .company-desc .row {
-                      margin: 10px 0;
-                      position: relative;
-                      }
-                      .label-arrow {
-                      display: inline-block;
-                      background-color: #001f4d;
-                      color: white !important;
-                      font-weight: bold;
-                      padding: 8px 10px 4px 8px;
-                      margin-right: 15px;
-                      position: relative;
-                      font-size: 8pt;
-                      line-height: 1.2;
-                      }
-                      .label-arrow:after {
-                      content: "";
-                      position: absolute;
-                      right: -10px;
-                      top: 0;
-                      width: 0;
-                      height: 0;
-                      border-top: 12px solid transparent;
-                      border-bottom: 12px solid transparent;
-                      border-left: 10px solid #001f4d;
-                      }
-                      .value {
-                      display: contents;
-                      color: #001f4d;
-                      font-size: 8pt;
-                      margin-left: 6px;
-                      vertical-align: middle;
-                      }
-                      .industry-value {
-                      /* margin-left: 30px; */
-                      }
-                      .bullet {
-                      margin: 10px 0 0 20px;
-                      color: #001f4d;
-                      font-size: 8pt;
-                      }
-                      .team-table {
-                      width: 100%;
-                      margin: 10px 0;
-                      }
-                      .team-row {
-                      display: table-row;
-                      }
-                      .team-cell {
-                      display: table-cell;
-                      width: 50%;
-                      padding: 4px 8px;
-                      }
-                      .role-label {
-                      display: inline-block;
-                      background-color: #001f4d;
-                      color: white !important;
-                      font-weight: bold;
-                      padding: 8px 10px 4px 8px;
-                      margin-right: 8px;
-                      position: relative;
-                      font-size: 8pt;
-                      line-height: 1.2;
-                      }
-                      .role-label:after {
-                      content: "";
-                      position: absolute;
-                      right: -10px;
-                      top: 0;
-                      width: 0;
-                      height: 0;
-                      border-top: 12px solid transparent;
-                      border-bottom: 12px solid transparent;
-                      border-left: 10px solid #001f4d;
-                      }
-                      .role-name {
-                      display: inline-block;
-                      color: #000000;
-                      font-size: 7.5pt;
-                      margin-left: 20px;
-                      vertical-align: middle;
-                      }
-                      .team-cell.right-align {
-                      padding-left: 30px;
-                      }
                       @page {
                       size: A4;
                       margin: 8mm;
                       }
-                      .table-container {
-                      padding: 0.5rem;
-                      background-color: white;
-                      }
-                      .styled-table {
-                      width: 100%;
-                      border-collapse: collapse;
-                      background-color: white;
-                      }
-                      .styled-table th,
-                      .styled-table td {
-                      border: 1px solid #001f4d;
-                      padding: 6px 8px;
-                      text-align: left;
-                      vertical-align: top;
-                      font-size: 7pt;
-                      }
-                      .first-col {
-                      background-color: #001f4d !important;
-                      color: white !important;
-                      font-weight: bold !important;
-                      }
-                      .opp-table,
-                      .opportunities-table {
-                      width: 100%;
-                      border-collapse: collapse;
-                      margin-bottom: 15px;
-                      }
-                      .opp-table th,
-                      .opportunities-table th {
-                      background-color: #001f4d;
-                      color: white;
-                      font-weight: bold;
-                      padding: 8px;
-                      border: 1px solid #001f4d;
-                      font-size: 7pt;
-                      }
-                      .opp-table td,
-                      .opportunities-table td {
-                      padding: 8px;
-                      border: 1px solid #001f4d;
-                      font-size: 7pt;
-                      }
-                      .category-label {
-                      background-color: #001f4d;
-                      color: white;
-                      font-weight: bold;
-                      padding: 6px 10px;
-                      font-size: 7pt;
-                      clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0% 100%);
-                      margin-right: 8px;
-                      }
-                      .section-content {
-                      padding: 0.5rem;
-                      width: 100%;
-                      }
-                      .open-label {
-                      writing-mode: vertical-rl;
-                      transform: rotate(180deg);
-                      font-weight: bold;
-                      font-size: 10pt;
-                      margin-right: 6px;
-                      padding-top: 0.5rem;
-                      }
-                      .row-label {
-                      font-weight: bold;
-                      background-color: white;
-                      text-align: left;
-                      font-size: 7pt;
-                      }
-                      .container, .potentialcontainer {
-                      display: flex;
-                      align-items: flex-start;
-                      width: 100%;
-                      margin-bottom: 0.5rem;
-                      }
-                      .opportunities-header {
-                      margin-top: 20px;
-                      }
                       
-                      /* Updated RC CSS */
-                      .rc-account-table {
+                      /* Updated table styling for new layout */
+                      .company-info-table {
                           width: 100%;
                           border-collapse: collapse;
                           background-color: white;
                           margin-top: 10px;
                           margin-bottom: 15px;
                           border: 1px solid #d0d0d0;
-                          table-layout: fixed; /* This ensures fixed width columns */
                       }
                       
-                      .rc-account-table td {
+                      .company-info-table td {
                           border: 1px solid #d0d0d0;
                           padding: 8px;
                           text-align: left;
-                          vertical-align: top;
+                          vertical-align: middle;
                           font-size: 11px;
                           position: relative;
-                          word-wrap: break-word; /* Ensures text wraps within cell */
                       }
                       
-                      /* Ensure all form elements within cells have proper padding and width */
-                      .rc-account-table .form-control, 
-                      .rc-account-table input, 
-                      .rc-account-table textarea, 
-                      .rc-account-table select {
+                      /* Dark header cells */
+                      .dark-header {
+                          background-color: #001f4d;
+                          color: white;
+                          font-weight: bold;
+                          padding: 8px 12px;
+                          white-space: nowrap;
+                      }
+                      
+                      /* Input/value cells */
+                      .value-cell {
+                          background-color: white;
+                          padding: 8px 12px;
+                          min-width: 150px;
+                      }
+                      
+                      /* Checkbox cells - centered */
+                      .checkbox-cell {
+                          text-align: center;
+                          padding: 8px;
+                          background-color: white;
+                      }
+                      
+                      /* Form control styling */
+                      .company-info-table .form-control, 
+                      .company-info-table input[type="text"], 
+                      .company-info-table textarea {
                           box-sizing: border-box;
                           width: 100%;
                           padding: 5px;
                           margin: 0;
                           border: 1px solid #ccc;
-                          font-size: 10px;
-                      }
-                      
-                      .rc-account-table textarea {
-                          min-height: 60px;
-                          resize: vertical; /* Only allow vertical resizing */
-                      }
-                      
-                      /* Special treatment for checkboxes to center them */
-                      .rc-account-table input[type="checkbox"] {
-                          width: auto;
-                          margin: 0 auto;
-                          display: block;
-                      }
-                      
-                      /* Center alignment and white background for column 2 */
-                      .rc-account-table td:nth-child(2) {
-                          text-align: center;
+                          font-size: 11px;
                           background-color: white;
-                          color: #000000;
                       }
                       
-                      /* Left alignment and white background for column 4 */
-                      .rc-account-table td:nth-child(4) {
-                          text-align: left;
+                      .company-info-table textarea {
+                          min-height: 50px;
+                          resize: vertical;
+                      }
+                      
+                      .company-info-table input[type="checkbox"] {
+                          width: 16px;
+                          height: 16px;
+                          margin: 0;
+                      }
+                      
+                      /* Table for description fields */
+                      .description-table {
+                          width: 100%;
+                          border-collapse: collapse;
                           background-color: white;
-                          color: #000000;
+                          margin-top: 10px;
+                          margin-bottom: 15px;
+                          border: 1px solid #d0d0d0;
                       }
                       
-                      /* Styling for dark rows */
-                      .rc-dark-row {
-                          background-color: #001f4d;
-                          color: white;
-                          font-weight: bold;
+                      .description-table td {
+                          border: 1px solid #d0d0d0;
                           padding: 8px;
+                          vertical-align: top;
+                          font-size: 11px;
+                      }
+                      
+                      .description-table .dark-header {
+                          width: 150px;
+                          vertical-align: top;
+                      }
+                      
+                      .description-table textarea {
+                          width: 100%;
+                          min-height: 60px;
+                          padding: 5px;
+                          border: 1px solid #ccc;
+                          font-size: 11px;
+                          resize: vertical;
+                          box-sizing: border-box;
+                      }
+                      
+                      /* Button styling */
+                      .pdfButton {
+                          float: right;
+                          margin-top: 15px;
+                      }
+                      
+                      .pdfButton button,
+                      .pdfButton input[type="submit"] {
+                          margin-left: 10px;
+                          padding: 8px 15px;
+                          font-size: 11px;
                       }
             </style>
         </head>
@@ -351,62 +221,62 @@
                 <h2>Company Description</h2>
             </div>
             
-            <table class="rc-account-table">
+            <!-- First table with tier and primary info -->
+            <table class="company-info-table">
                 <tr>
-                    <td class="rc-dark-row">Tier</td>
-                    <td>
+                    <td class="dark-header">Tier</td>
+                    <td class="value-cell" style="width: 80px; text-align: center;">
                         <apex:outputField value="{!RM.Tier_Level__c}" />
                     </td>
-                    <td class="rc-dark-row">Primary NAICS</td>
-                    <td>
+                    <td class="dark-header">Primary NAICS</td>
+                    <td class="value-cell">
                         <apex:inputField value="{!RM.Primary_NAICS__c}" styleClass="form-control" />
                     </td>
                 </tr>
                 <tr>
-                    <td class="rc-dark-row">VIP Client</td>
-                    <td>
+                    <td class="dark-header">VIP Client</td>
+                    <td class="checkbox-cell">
                         <apex:outputField value="{!RM.Top_Client__c}" />
                     </td>
-                    <td class="rc-dark-row">Primary NAICS Description</td>
-                    <td>
-                        <apex:inputTextarea value="{!RM.Primary_NAICS_Description__c}" styleClass="form-control" />
+                    <td class="dark-header">Primary NAICS Description</td>
+                    <td class="value-cell">
+                        <apex:inputField value="{!RM.Primary_NAICS_Description__c}" styleClass="form-control" />
                     </td>
                 </tr>
                 <tr>
-                    <td class="rc-dark-row">VIP Prospect</td>
-                    <td>
+                    <td class="dark-header">VIP Prospect</td>
+                    <td class="checkbox-cell">
                         <apex:outputField value="{!RM.Top_Prospect__c}" />
                     </td>
-                    <td class="rc-dark-row">ABL Account</td>
-                    <td>
-                        <apex:inputField value="{!RM.ABL__c}" styleClass="form-control" />
+                    <td class="dark-header">ABL Account</td>
+                    <td class="checkbox-cell" style="text-align: right; padding-right: 20px;">
+                        <apex:inputField value="{!RM.ABL__c}" />
                     </td>
                 </tr>
             </table>
 
-            <table class="rc-account-table">
+            <!-- Second table with text area fields -->
+            <table class="description-table">
                 <tr>
-                    <td class="rc-dark-row">Ownership</td>
+                    <td class="dark-header">Ownership</td>
                     <td colspan="3">
                         <apex:inputTextarea value="{!RM.Ownership__c}" styleClass="form-control" />
                     </td>
                 </tr>
                 <tr>
-                    <td class="rc-dark-row">Business Description</td>
-                    <td colspan="3">
+                    <td class="dark-header">Business Description</td>
+                    <td>
                         <apex:inputTextarea value="{!RM.Business_Description__c}" styleClass="form-control" />
                     </td>
-                </tr>
-                <tr>
-                    <td class="rc-dark-row">Strategic Opportunity</td>
-                    <td colspan="3">
+                    <td class="dark-header">Strategic Opportunity</td>
+                    <td>
                         <apex:inputTextarea value="{!RM.Strategic_Opportunity__c}" styleClass="form-control" />
                     </td>
                 </tr>
             </table>
             
             <!-- Updated Button Section -->
-            <div class="pdfButton" style="float: right">
+            <div class="pdfButton">
                 <!-- Show Save button only when form is not read-only -->
                 <apex:outputPanel rendered="{!!isFormReadOnly}">
                     <apex:commandButton value="Save" action="{!handleSave}"/> 
