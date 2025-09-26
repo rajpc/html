@@ -6,7 +6,7 @@
            standardController="Account"
            docType="html-5.0"
            extensions="CompanyDescriptionController">
-           <apex:slds />
+    <apex:slds />
     <apex:form >
     <html>
         <head>
@@ -119,7 +119,6 @@
                 border-left: 10px solid #001f4d;
                 }
                 .value {
-                <!-- display: inline-block; -->
                 display: contents;
                 color: #001f4d;
                 font-size: 8pt;
@@ -127,7 +126,7 @@
                 vertical-align: middle;
                 }
                 .industry-value {
-                <!-- margin-left: 30px; -->
+                /* margin-left: 30px; */
                 }
                 .bullet {
                 margin: 10px 0 0 20px;
@@ -261,21 +260,52 @@
                 .opportunities-header {
                 margin-top: 20px;
                 }
-                <!-- RC CSS -->
+                
+                /* Updated RC CSS */
                 .rc-account-table {
                     width: 100%;
                     border-collapse: collapse;
                     background-color: white;
                     margin-top: 10px;
+                    margin-bottom: 15px;
+                    border: 1px solid #d0d0d0;
+                    table-layout: fixed; /* This ensures fixed width columns */
                 }
                 
                 .rc-account-table td {
-                    border: 1px solid #001f4d;
-                    padding: 6px 8px;
+                    border: 1px solid #d0d0d0;
+                    padding: 8px;
                     text-align: left;
                     vertical-align: top;
                     font-size: 11px;
                     width: 25%;
+                    position: relative;
+                    word-wrap: break-word; /* Ensures text wraps within cell */
+                }
+                
+                /* Ensure all form elements within cells have proper padding and width */
+                .rc-account-table .form-control, 
+                .rc-account-table input, 
+                .rc-account-table textarea, 
+                .rc-account-table select {
+                    box-sizing: border-box;
+                    width: 100%;
+                    padding: 5px;
+                    margin: 0;
+                    border: 1px solid #ccc;
+                    font-size: 10px;
+                }
+                
+                .rc-account-table textarea {
+                    min-height: 60px;
+                    resize: vertical; /* Only allow vertical resizing */
+                }
+                
+                /* Special treatment for checkboxes to center them */
+                .rc-account-table input[type="checkbox"] {
+                    width: auto;
+                    margin: 0 auto;
+                    display: block;
                 }
                 
                 /* Center alignment and white background for column 2 */
@@ -297,6 +327,7 @@
                     background-color: #001f4d;
                     color: white;
                     font-weight: bold;
+                    padding: 8px;
                 }
             </style>
         </head>
@@ -313,12 +344,14 @@
                 <div class="header-title">
                     {!RM.Name} <span class="header-draft">|&nbsp;{!RM.Region__c}</span>
                 </div>
-                <img src="/resource/TexasCapitalTopLogo" alt="Top Logo" class="header-logo"/>
+                <img src="{!URLFOR($Resource.TexasCapitalTopLogo)}" alt="Top Logo" class="header-logo"/>
             </div>
+            
             <!-- Company Description -->
             <div class="section-header">
                 <h2>Company Description</h2>
             </div>
+            
             <table class="rc-account-table">
                 <tr>
                     <td class="rc-dark-row">Tier</td>
@@ -327,7 +360,7 @@
                     </td>
                     <td class="rc-dark-row">Primary NAICS</td>
                     <td>
-                        <apex:inputField value="{!RM.Primary_NAICS__c}" />
+                        <apex:inputField value="{!RM.Primary_NAICS__c}" styleClass="form-control" />
                     </td>
                 </tr>
                 <tr>
@@ -337,7 +370,7 @@
                     </td>
                     <td class="rc-dark-row">Primary NAICS Description</td>
                     <td>
-                        <apex:inputField value="{!RM.Primary_NAICS_Description__c}" />
+                        <apex:inputTextarea value="{!RM.Primary_NAICS_Description__c}" styleClass="form-control" />
                     </td>
                 </tr>
                 <tr>
@@ -347,7 +380,7 @@
                     </td>
                     <td class="rc-dark-row">ABL Account</td>
                     <td>
-                        <apex:inputField value="{!RM.ABL__c}" />
+                        <apex:inputField value="{!RM.ABL__c}" styleClass="form-control" />
                     </td>
                 </tr>
             </table>
@@ -355,18 +388,20 @@
             <table class="rc-account-table">
                 <tr>
                     <td class="rc-dark-row">Ownership</td>
-                    <td>
-                        <apex:inputField value="{!RM.Primary_NAICS_Description__c}" />
+                    <td colspan="3">
+                        <apex:inputTextarea value="{!RM.Ownership__c}" styleClass="form-control" />
                     </td>
                 </tr>
                 <tr>
                     <td class="rc-dark-row">Business Description</td>
-                    <td>
-                        <apex:inputField value="{!RM.Business_Description__c}" />
+                    <td colspan="3">
+                        <apex:inputTextarea value="{!RM.Business_Description__c}" styleClass="form-control" />
                     </td>
+                </tr>
+                <tr>
                     <td class="rc-dark-row">Strategic Opportunity</td>
-                    <td>
-                        <apex:inputField value="{!RM.Primary_NAICS_Description__c}" />
+                    <td colspan="3">
+                        <apex:inputTextarea value="{!RM.Strategic_Opportunity__c}" styleClass="form-control" />
                     </td>
                 </tr>
             </table>
@@ -391,41 +426,41 @@
                 <apex:outputPanel rendered="{!isFormReadOnly}">
                     <button onclick="openPDFDirectly()" type="button">Open PDF</button>
                 </apex:outputPanel>
+            </div>
             
             <script>
-            // Function called after save completes (when form is editable)
-            function openPDFAfterSave() {
-                var recId = '{!currentRecordId}';
-                var apId = '{!apExist.Id}'; // Account Planning record ID
-                var pageName = 'AccountPlanningPDF';
+                // Function called after save completes (when form is editable)
+                function openPDFAfterSave() {
+                    var recId = '{!currentRecordId}';
+                    var apId = '{!apExist.Id}'; // Account Planning record ID
+                    var pageName = 'AccountPlanningPDF';
+                    
+                    console.log('Opening PDF after save for record: ' + recId);
+                    
+                    // Build URL with multiple parameters
+                    var url = '/apex/' + pageName + '?Id=' + recId + '&apId=' + apId + '&mode=edit';
+                    window.open(url, '_blank');
+                }
                 
-                console.log('Opening PDF after save for record: ' + recId);
-                
-                // Build URL with multiple parameters
-                var url = '/apex/' + pageName + '?Id=' + recId + '&apId=' + apId + '&mode=edit';
-                window.open(url, '_blank');
-            }
-            
-            // Function called directly when form is read-only
-            function openPDFDirectly() {
-                var recId = '{!currentRecordId}';
-                var apId = '{!apExist.Id}'; // Account Planning record ID
-                var pageName = 'AccountPlanningPDF';
-                
-                console.log('Opening PDF directly for record: ' + recId);
-                
-                // Build URL with multiple parameters
-                var url = '/apex/' + pageName + '?Id=' + recId + '&apId=' + apId + '&mode=readonly';
-                window.open(url, '_blank');
-            }
+                // Function called directly when form is read-only
+                function openPDFDirectly() {
+                    var recId = '{!currentRecordId}';
+                    var apId = '{!apExist.Id}'; // Account Planning record ID
+                    var pageName = 'AccountPlanningPDF';
+                    
+                    console.log('Opening PDF directly for record: ' + recId);
+                    
+                    // Build URL with multiple parameters
+                    var url = '/apex/' + pageName + '?Id=' + recId + '&apId=' + apId + '&mode=readonly';
+                    window.open(url, '_blank');
+                }
             </script>
+            
+            <!-- Footer -->
+            <div class="footer">
+                <img src="{!URLFOR($Resource.TexasCapitalBottomLogo)}" alt="Bottom Logo" class="footer-logo"/>
             </div>
-        
-        <!-- Footer -->
-        <div class="footer">
-            <!-- <img class="logo-bottom" src="{!URLFOR($Resource.TexasCapitalBottomLogo)}" /> -->
-        </div>
-    </body>
+        </body>
     </html>
-</apex:form>
+    </apex:form>
 </apex:page>
