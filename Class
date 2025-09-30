@@ -6,15 +6,16 @@ public class CompanyDescriptionController {
     public Integer rowIndex { get; set; }
     
     public CompanyDescriptionController(ApexPages.StandardController stdController) {
+        // MODIFIED: Querying ONLY for fields that exist on the Account object
         stdController.addFields(new List<String>{
-            'Tier_level__c', 'Top_Prospect__c', 'Top_Client__c',
-            'Primary_NAICS__c', 'Primary_NAICS_Description__c', 'ABL__c',
+            'Tier_Level__c', 
             'Business_Description__c'
         });
         this.acc = (Account)stdController.getRecord();
         
+        // This query for the Account_Planning__c object is still correct
         List<Account_Planning__c> existingPlans = [
-            SELECT Id, Tier_level__c, Top_Prospect__c, Top_Client__c,
+            SELECT Id, Tier__c, Top_Prospect__c, Top_Client__c,
                    Primary_NAICS__c, Primary_NAICS_Description__c, ABL__c,
                    Ownership__c, Business_Description__c, Strategic_Opportunity__c
             FROM Account_Planning__c
@@ -27,13 +28,12 @@ public class CompanyDescriptionController {
             this.accPlan = existingPlans[0];
         } else {
             this.accPlan = new Account_Planning__c();
-            this.accPlan.Tier_level__c = acc.Tier_level__c;
-            this.accPlan.Top_Prospect__c = acc.Top_Prospect__c;
-            this.accPlan.Top_Client__c = acc.Top_Client__c;
-            this.accPlan.Primary_NAICS__c = acc.Primary_NAICS__c;
-            this.accPlan.Primary_NAICS_Description__c = acc.Primary_NAICS_Description__c;
-            this.accPlan.ABL__c = acc.ABL__c;
+            
+            // MODIFIED: Pre-populating ONLY the fields that exist on the Account object
+            this.accPlan.Tier__c = acc.Tier_Level__c;
             this.accPlan.Business_Description__c = acc.Business_Description__c;
+            
+            // All other fields will start blank for a new record, which resolves the errors.
         }
         
         this.taskList = new List<TaskWrapper>();
@@ -58,13 +58,13 @@ public class CompanyDescriptionController {
     }
 
     public PageReference openPDF() {
-        // MODIFIED: Corrected the page name reference
         PageReference pdfPage = Page.CompanyDescriptionView;
         pdfPage.getParameters().put('id', acc.Id);
         pdfPage.setRedirect(true);
         return pdfPage;
     }
     
+    // All other methods are unchanged
     public void saveRow() {
         if (rowIndex != null && rowIndex < taskList.size()) {
             TaskWrapper wrapper = taskList.get(rowIndex);
