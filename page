@@ -3,6 +3,7 @@
     <apex:slds />
 
     <style type="text/css">
+        /* All CSS is unchanged */
         #vfPageContainer {
             font-family: "Arial Unicode MS", Arial, sans-serif;
             padding: 10px 20px !important;
@@ -226,6 +227,17 @@
                         </td>
                     </tr>
                 </table>
+
+                <div style="padding: 10px; text-align: left;">
+                    <apex:commandButton 
+                        id="saveBtn" 
+                        styleClass="rc-button" 
+                        value="Save" 
+                        action="{!saveAccountDetails}" 
+                        rerender="msgs, buttonPanel"
+                        onclick="this.disabled=true; setTimeout(function(){document.getElementById('{!$Component.saveBtn}').disabled=false;}, 10000);"
+                    />
+                </div>
         
                 <div class="section-header">
                     <h2>Next Steps / Action Plan</h2>
@@ -275,19 +287,11 @@
                 <div class="bottom-button-bar">
                     <div class="left-buttons">
                         <apex:outputPanel id="buttonPanel">
-                            <apex:commandButton styleClass="rc-button" value="Add New Row" action="{!addRow}" rerender="tablePanel, buttonPanel" disabled="{!isAddDisabled}"/>
+                            <apex:commandButton styleClass="rc-button" value="Add New Row" action="{!addRow}" rerender="tablePanel, buttonPanel" disabled="{!isAddDisabled || isActionPlanDisabled}"/>
                         </apex:outputPanel>
                     </div>
                     <div class="right-buttons">
-                        <apex:commandButton 
-                            id="saveBtn" 
-                            styleClass="rc-button" 
-                            value="Save" 
-                            action="{!saveAccountDetails}" 
-                            rerender="msgs"
-                            onclick="this.disabled=true; setTimeout(function(){document.getElementById('{!$Component.saveBtn}').disabled=false;}, 10000);"
-                        />
-                        <apex:commandButton styleClass="rc-button" value="Open PDF" action="{!openPDF}" style="margin-left: 10px;"/>
+                        <apex:commandButton styleClass="rc-button" value="Open PDF" action="{!openPDF}"/>
                     </div>
                 </div>
             </apex:form>
