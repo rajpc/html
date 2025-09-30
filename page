@@ -110,7 +110,7 @@
             margin: 20px 0 10px 0;
         }
         #vfPageContainer .section-header h3,
-        #vfPageContainer .section-header h2 { /* Apply to h2 as well */
+        #vfPageContainer .section-header h2 {
             margin: 0;
             color: #001f4d;
             font-size: 10pt;
@@ -179,7 +179,7 @@
     <div id="vfPageContainer">
         <div class="slds-scope">
             
-            <apex:form >
+            <apex:form>
                 <apex:pageMessages id="msgs"/>
                 
                 <div class="section-header">
@@ -189,7 +189,7 @@
                 <table class="info-table">
                     <tr>
                         <td class="field-label">Tier</td>
-                        <td class="field-value value-centered"><apex:outputField value="{!accPlan.Tier_Level__c}"/></td>
+                        <td class="field-value value-centered"><apex:outputField value="{!accPlan.Tier__c}"/></td>
                         <td class="field-label">Primary NAICS</td>
                         <td class="field-value value-left"><apex:inputField value="{!accPlan.Primary_NAICS__c}"/></td>
                     </tr>
@@ -279,7 +279,8 @@
                         </apex:outputPanel>
                     </div>
                     <div class="right-buttons">
-                        <apex:commandButton id="saveBtn" 
+                        <apex:commandButton 
+                            id="saveBtn" 
                             styleClass="rc-button" 
                             value="Save" 
                             action="{!saveAccountDetails}" 
