@@ -6,14 +6,13 @@ public class CompanyDescriptionController {
     public Integer rowIndex { get; set; }
     
     public CompanyDescriptionController(ApexPages.StandardController stdController) {
-        // MODIFIED: Querying ONLY for fields that exist on the Account object
         stdController.addFields(new List<String>{
-            'Tier_Level__c', 
+            'Tier_Level__c', 'Top_Prospect__c', 'Top_Client__c',
+            'Primary_NAICS__c', 'Primary_NAICS_Description__c', 'ABL__c',
             'Business_Description__c'
         });
         this.acc = (Account)stdController.getRecord();
         
-        // This query for the Account_Planning__c object is still correct
         List<Account_Planning__c> existingPlans = [
             SELECT Id, Tier__c, Top_Prospect__c, Top_Client__c,
                    Primary_NAICS__c, Primary_NAICS_Description__c, ABL__c,
@@ -28,12 +27,8 @@ public class CompanyDescriptionController {
             this.accPlan = existingPlans[0];
         } else {
             this.accPlan = new Account_Planning__c();
-            
-            // MODIFIED: Pre-populating ONLY the fields that exist on the Account object
             this.accPlan.Tier__c = acc.Tier_Level__c;
             this.accPlan.Business_Description__c = acc.Business_Description__c;
-            
-            // All other fields will start blank for a new record, which resolves the errors.
         }
         
         this.taskList = new List<TaskWrapper>();
@@ -47,10 +42,8 @@ public class CompanyDescriptionController {
         try {
             accPlan.Account__c = acc.Id;
             acc.Business_Description__c = accPlan.Business_Description__c;
-
             upsert accPlan; 
             update acc;
-
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 'Account Plan was saved successfully.'));
         } catch (DmlException e) {
             ApexPages.addMessages(e);
@@ -64,10 +57,16 @@ public class CompanyDescriptionController {
         return pdfPage;
     }
     
-    // All other methods are unchanged
     public void saveRow() {
         if (rowIndex != null && rowIndex < taskList.size()) {
             TaskWrapper wrapper = taskList.get(rowIndex);
+            // MODIFIED: WhatId now points to the Account Plan's ID
+            if (accPlan.Id == null) {
+                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'You must save the main Account Plan details before adding tasks.'));
+                return;
+            }
+            wrapper.taskRec.WhatId = accPlan.Id;
+
             Date startDate = Date.newInstance(2025, 9, 25);
             Date endDate = Date.newInstance(2025, 10, 5);
             Date dueDate = wrapper.taskRec.ActivityDate;
@@ -82,7 +81,6 @@ public class CompanyDescriptionController {
                 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Subject, Description, and Date are all required.'));
                 return;
             }
-            wrapper.taskRec.WhatId = acc.Id;
             try {
                 upsert wrapper.taskRec;
                 wrapper.isEditMode = false;
@@ -91,6 +89,12 @@ public class CompanyDescriptionController {
             }
         }
     }
+
+    // NEW METHOD: Disables the action plan section until the main plan is saved
+    public Boolean getIsActionPlanDisabled() {
+        return accPlan.Id == null;
+    }
+
     public void addRow() {
         if (taskList.size() < 5) {
             taskList.add(new TaskWrapper(taskList.size()));
