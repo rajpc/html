@@ -288,6 +288,7 @@
                     <div class="left-buttons">
                         <apex:outputPanel id="buttonPanel">
                             <apex:commandButton styleClass="rc-button" value="Add New Row" action="{!addRow}" rerender="tablePanel, buttonPanel" disabled="{!isAddDisabled || isActionPlanDisabled}"/>
+                            <apex:outputText value=" (Save the plan to enable)" style="font-style: italic; color: #555; margin-left: 5px;" rendered="{!isActionPlanDisabled}"/>
                         </apex:outputPanel>
                     </div>
                     <div class="right-buttons">
