@@ -1,275 +1,117 @@
-public with sharing class CompanyDescriptionController {
-    
-    // Standard controller
-    private ApexPages.StandardController stdController;
-    
-    // Account record (from standard controller)
-    public Account RM {get; set;}
-    
-    // Account Planning record
-    public Account_Planning__c apExist {get; set;}
-    
-    // Action Plan Items list for the repeater
-    public List<ActionPlanWrapper> actionPlanItems {get; set;}
-    
-    // Properties for Account_Planning__c fields
-    public String OwnershipValue {get; set;}
-    public String SOppValue {get; set;}
-    
-    // Form state properties
-    public Boolean isFormReadOnly {get; set;}
-    public String currentRecordId {get; set;}
-    
-    // Wrapper class for Action Plan Items
-    public class ActionPlanWrapper {
-        public String Subject {get; set;}
-        public String Description {get; set;}
-        public Date DueDate {get; set;}
-        public String Id {get; set;}
-        public Boolean isNew {get; set;}
-        
-        // Constructor for new items
-        public ActionPlanWrapper() {
-            this.Subject = '';
-            this.Description = '';
-            this.DueDate = null;
-            this.Id = null;
-            this.isNew = true;
-        }
-        
-        // Constructor for existing items
-        public ActionPlanWrapper(Action_Plan_Item__c item) {
-            this.Subject = item.Subject__c;
-            this.Description = item.Description__c;
-            this.DueDate = item.Due_Date__c;
-            this.Id = item.Id;
-            this.isNew = false;
-        }
-    }
-    
-    // Constructor
-    public CompanyDescriptionController(ApexPages.StandardController controller) {
-        this.stdController = controller;
-        this.RM = (Account) controller.getRecord();
-        this.currentRecordId = this.RM.Id;
-        
-        // Initialize the page
-        initializePage();
-    }
-    
-    // Initialize page data
-    private void initializePage() {
-        try {
-            // Load full Account record with all needed fields
-            loadAccountData();
-            
-            // Load or create Account Planning record
-            loadAccountPlanningData();
-            
-            // Load Action Plan Items
-            loadActionPlanItems();
-            
-            // Determine if form should be read-only
-            determineFormState();
-            
-        } catch (Exception e) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
-                'Error initializing page: ' + e.getMessage()));
-            System.debug('Error in initializePage: ' + e.getMessage() + ' Stack: ' + e.getStackTraceString());
-        }
-    }
-    
-    // Load Account data with all required fields
-    private void loadAccountData() {
-        try {
-            RM = [SELECT Id, Name, Region__c, Tier_Level__c, Primary_NAICS__c, 
-                         Primary_NAICS_Description__c, Top_Client__c, Top_Prospect__c, 
-                         ABL__c, Business_Description__c
-                  FROM Account 
-                  WHERE Id = :currentRecordId 
-                  LIMIT 1];
-        } catch (Exception e) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
-                'Error loading account data: ' + e.getMessage()));
-        }
-    }
-    
-    // Load Account Planning data
-    private void loadAccountPlanningData() {
-        try {
-            List<Account_Planning__c> existingPlans = [SELECT Id, Account__c, Ownership__c, Strategic_Opportunity__c
-                                                      FROM Account_Planning__c 
-                                                      WHERE Account__c = :currentRecordId 
-                                                      LIMIT 1];
-            
-            if (existingPlans.size() > 0) {
-                apExist = existingPlans[0];
-                OwnershipValue = apExist.Ownership__c;
-                SOppValue = apExist.Strategic_Opportunity__c;
-            } else {
-                // Create new Account Planning record
-                apExist = new Account_Planning__c();
-                apExist.Account__c = currentRecordId;
-                OwnershipValue = '';
-                SOppValue = '';
-            }
-        } catch (Exception e) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
-                'Error loading account planning data: ' + e.getMessage()));
-        }
-    }
-    
-    // Load Action Plan Items
-    private void loadActionPlanItems() {
-        try {
-            actionPlanItems = new List<ActionPlanWrapper>();
-            
-            // Load existing Action Plan Items
-            List<Action_Plan_Item__c> existingItems = [SELECT Id, Subject__c, Description__c, Due_Date__c
-                                                      FROM Action_Plan_Item__c 
-                                                      WHERE Account__c = :currentRecordId 
-                                                      ORDER BY CreatedDate ASC];
-            
-            // Convert to wrapper objects
-            for (Action_Plan_Item__c item : existingItems) {
-                actionPlanItems.add(new ActionPlanWrapper(item));
-            }
-            
-            // Ensure we always have at least 5 rows
-            while (actionPlanItems.size() < 5) {
-                actionPlanItems.add(new ActionPlanWrapper());
-            }
-            
-        } catch (Exception e) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
-                'Error loading action plan items: ' + e.getMessage()));
-        }
-    }
-    
-    // Determine if form should be read-only (placeholder logic)
-    private void determineFormState() {
-        // Add your business logic here to determine if form should be read-only
-        // For example, check if Account Planning Period is active
-        isFormReadOnly = false; // Default to editable
-        
-        // Example logic (customize based on your requirements):
-        // Date today = Date.today();
-        // isFormReadOnly = !isAccountPlanningPeriodActive(today);
-    }
-    
-    // Add new Action Plan Item row
-    public PageReference addNewActionPlanItem() {
-        try {
-            actionPlanItems.add(new ActionPlanWrapper());
-            return null;
-        } catch (Exception e) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
-                'Error adding new row: ' + e.getMessage()));
-            return null;
-        }
-    }
-    
+public class CompanyDescriptionController {
 
+    public Account acc { get; set; } 
+    public Account_Planning__c accPlan { get; set; } 
+    public List<TaskWrapper> taskList { get; set; }
+    public Integer rowIndex { get; set; }
     
-    // Handle Save functionality
-    public PageReference handleSave() {
+    public CompanyDescriptionController(ApexPages.StandardController stdController) {
+        stdController.addFields(new List<String>{
+            'Tier_level__c', 'Top_Prospect__c', 'Top_Client__c',
+            'Primary_NAICS__c', 'Primary_NAICS_Description__c', 'ABL__c',
+            'Business_Description__c'
+        });
+        this.acc = (Account)stdController.getRecord();
+        
+        List<Account_Planning__c> existingPlans = [
+            SELECT Id, Tier_level__c, Top_Prospect__c, Top_Client__c,
+                   Primary_NAICS__c, Primary_NAICS_Description__c, ABL__c,
+                   Ownership__c, Business_Description__c, Strategic_Opportunity__c
+            FROM Account_Planning__c
+            WHERE Account__c = :acc.Id
+            ORDER BY CreatedDate DESC
+            LIMIT 1
+        ];
+
+        if (!existingPlans.isEmpty()) {
+            this.accPlan = existingPlans[0];
+        } else {
+            this.accPlan = new Account_Planning__c();
+            this.accPlan.Tier_level__c = acc.Tier_level__c;
+            this.accPlan.Top_Prospect__c = acc.Top_Prospect__c;
+            this.accPlan.Top_Client__c = acc.Top_Client__c;
+            this.accPlan.Primary_NAICS__c = acc.Primary_NAICS__c;
+            this.accPlan.Primary_NAICS_Description__c = acc.Primary_NAICS_Description__c;
+            this.accPlan.ABL__c = acc.ABL__c;
+            this.accPlan.Business_Description__c = acc.Business_Description__c;
+        }
+        
+        this.taskList = new List<TaskWrapper>();
+    }
+
+    public void saveAccountDetails() {
+        if (acc.Id == null) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'An Account ID is required to save.'));
+            return;
+        }
         try {
-            // Save Account record
-            saveAccountData();
-            
-            // Save Account Planning record
-            saveAccountPlanningData();
-            
-            // Save Action Plan Items
-            saveActionPlanItems();
-            
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 
-                'All data saved successfully!'));
-            
-            return null;
-        } catch (Exception e) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
-                'Error saving data: ' + e.getMessage()));
-            System.debug('Error in handleSave: ' + e.getMessage() + ' Stack: ' + e.getStackTraceString());
-            return null;
+            accPlan.Account__c = acc.Id;
+            acc.Business_Description__c = accPlan.Business_Description__c;
+
+            upsert accPlan; 
+            update acc;
+
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 'Account Plan was saved successfully.'));
+        } catch (DmlException e) {
+            ApexPages.addMessages(e);
         }
     }
-    
-    // Save Account data
-    private void saveAccountData() {
-        if (RM != null) {
-            update RM;
-        }
+
+    public PageReference openPDF() {
+        // MODIFIED: Corrected the page name reference
+        PageReference pdfPage = Page.CompanyDescriptionView;
+        pdfPage.getParameters().put('id', acc.Id);
+        pdfPage.setRedirect(true);
+        return pdfPage;
     }
     
-    // Save Account Planning data
-    private void saveAccountPlanningData() {
-        if (apExist != null) {
-            // Update the values from the form
-            apExist.Ownership__c = OwnershipValue;
-            apExist.Strategic_Opportunity__c = SOppValue;
-            apExist.Account__c = currentRecordId;
-            
-            if (apExist.Id != null) {
-                update apExist;
-            } else {
-                insert apExist;
+    public void saveRow() {
+        if (rowIndex != null && rowIndex < taskList.size()) {
+            TaskWrapper wrapper = taskList.get(rowIndex);
+            Date startDate = Date.newInstance(2025, 9, 25);
+            Date endDate = Date.newInstance(2025, 10, 5);
+            Date dueDate = wrapper.taskRec.ActivityDate;
+            if (dueDate != null && (dueDate <= startDate || dueDate >= endDate)) {
+                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Outside the valid Account Planning Period'));
+                taskList.remove(rowIndex);
+                return; 
+            }
+            if (String.isBlank(wrapper.taskRec.Subject) || 
+                String.isBlank(wrapper.taskRec.Description) || 
+                dueDate == null) {
+                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Subject, Description, and Date are all required.'));
+                return;
+            }
+            wrapper.taskRec.WhatId = acc.Id;
+            try {
+                upsert wrapper.taskRec;
+                wrapper.isEditMode = false;
+            } catch (DmlException e) {
+                ApexPages.addMessages(e);
             }
         }
     }
-    
-    // Save Action Plan Items
-    private void saveActionPlanItems() {
-        List<Action_Plan_Item__c> itemsToInsert = new List<Action_Plan_Item__c>();
-        List<Action_Plan_Item__c> itemsToUpdate = new List<Action_Plan_Item__c>();
-        
-        for (ActionPlanWrapper wrapper : actionPlanItems) {
-            // Only save items that have at least a subject
-            if (String.isNotBlank(wrapper.Subject)) {
-                Action_Plan_Item__c item = new Action_Plan_Item__c();
-                
-                if (!wrapper.isNew && String.isNotBlank(wrapper.Id)) {
-                    // Existing record - update
-                    item.Id = wrapper.Id;
-                    itemsToUpdate.add(item);
-                } else {
-                    // New record - insert
-                    item.Account__c = currentRecordId;
-                    if (apExist != null && apExist.Id != null) {
-                        item.Account_Planning__c = apExist.Id;
-                    }
-                    itemsToInsert.add(item);
-                }
-                
-                // Set field values
-                item.Subject__c = wrapper.Subject;
-                item.Description__c = wrapper.Description;
-                item.Due_Date__c = wrapper.DueDate;
-            }
+    public void addRow() {
+        if (taskList.size() < 5) {
+            taskList.add(new TaskWrapper(taskList.size()));
         }
-        
-        // Perform DML operations
-        if (!itemsToInsert.isEmpty()) {
-            insert itemsToInsert;
-        }
-        
-        if (!itemsToUpdate.isEmpty()) {
-            update itemsToUpdate;
-        }
-        
-        // Refresh the action plan items to get the new IDs
-        loadActionPlanItems();
     }
-    
-    // Method to check if Account Planning Period is active (customize as needed)
-    private Boolean isAccountPlanningPeriodActive(Date checkDate) {
-        // Add your business logic here
-        // Example: Check custom settings, metadata, or date ranges
-        return true; // Default to active
+    public void editRow() {
+        if (rowIndex != null && rowIndex < taskList.size()) {
+            taskList.get(rowIndex).isEditMode = true;
+        }
     }
-    
-    // Get current record ID for JavaScript
-    public String getCurrentRecordId() {
-        return this.currentRecordId;
+    public Boolean getIsAddDisabled() {
+        return taskList.size() >= 5;
+    }
+    public class TaskWrapper {
+        public Task taskRec { get; set; }
+        public Boolean isEditMode { get; set; }
+        public Integer rowIndex { get; set; }
+        public TaskWrapper(Integer index) {
+            this.taskRec = new Task();
+            this.isEditMode = true;
+            this.rowIndex = index;
+        }
     }
 }
