@@ -305,7 +305,12 @@
                             </apex:outputPanel>
                         </div>
                         <div class="right-buttons">
-                            <apex:commandButton styleClass="rc-button" value="Open PDF" action="{!openPDF}"/>
+                            <apex:commandButton 
+                                styleClass="rc-button" 
+                                value="Open PDF" 
+                                onclick="window.open('/apex/CompanyDescriptionPDF?id={!Account.Id}', '_blank');"
+                                reRender="none"
+                            />
                         </div>
                     </div>
                 </apex:outputPanel>
