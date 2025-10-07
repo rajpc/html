@@ -1,5 +1,4 @@
 public class CompanyDescriptionController {
-
     public Account acc { get; set; } 
     public Account_Planning__c accPlan { get; set; } 
     public List<TaskWrapper> taskList { get; set; }
@@ -9,11 +8,11 @@ public class CompanyDescriptionController {
     public Date planningPeriodStartDate { get; set; }
     public Date planningPeriodEndDate { get; set; }
     public Boolean isPeriodActive { get; private set; }
-    private Id taskRecordTypeId;
+
+    public Id taskRecordTypeId;
     
     public CompanyDescriptionController(ApexPages.StandardController stdController) {
         this.isPeriodActive = false;
-        // MODIFIED: Querying for all fields that exist on the Account for pre-population
         stdController.addFields(new List<String>{
             'OwnerId', 'Tier_Level__c', 'Top_Prospect__c', 'Top_Client__c',
             'Primary_NAICS__c', 'Primary_NAICS_Description__c', 'ABL__c',
@@ -21,7 +20,12 @@ public class CompanyDescriptionController {
         });
         this.acc = (Account)stdController.getRecord();
         
-        taskRecordTypeId = Schema.SObjectType.Task.getSObjectSubtypeInfosByDeveloperName().get('Task').getRecordTypeId();
+        // Try to get Task Record Type ID - only if Record Types are enabled for Task
+        try {
+            taskRecordTypeId = [SELECT Id FROM RecordType WHERE SObjectType = 'Task' AND Name = 'Task' LIMIT 1].Id;
+        } catch (QueryException e) {
+            taskRecordTypeId = null;
+        }
         
         Date today = Date.today();
         List<AccountPlanning_Period__c> periods = [
@@ -38,11 +42,11 @@ public class CompanyDescriptionController {
             planningPeriodEndDate = currentPeriod.enddate__c;
 
             List<Account_Planning__c> existingPlans = [
-                SELECT Id, Tier__c, Top_Prospect__c, Top_Client__c, Name2__c, AccountPlanning_Period__c,
+                SELECT Id, Tier__c, Top_Prospect__c, Top_Client__c, Name2__c, Account_Planning_Period__c,
                        Primary_NAICS__c, Primary_NAICS_Description__c, ABL__c,
                        Ownership__c, Business_Description__c, Strategic_Opportunity__c
                 FROM Account_Planning__c
-                WHERE Account__c = :acc.Id AND AccountPlanning_Period__c = :currentPeriod.Id
+                WHERE Account__c = :acc.Id AND Account_Planning_Period__c = :currentPeriod.Id
                 LIMIT 1
             ];
 
@@ -51,8 +55,6 @@ public class CompanyDescriptionController {
                 this.accPlan.Business_Description__c = acc.Business_Description__c;
             } else {
                 this.accPlan = new Account_Planning__c();
-                
-                // MODIFIED: Pre-populating ALL fields from the parent Account
                 this.accPlan.Tier__c = acc.Tier_Level__c;
                 this.accPlan.Top_Prospect__c = acc.Top_Prospect__c;
                 this.accPlan.Top_Client__c = acc.Top_Client__c;
@@ -92,7 +94,7 @@ public class CompanyDescriptionController {
             if (accPlan.Id == null) {
                 accPlan.Name2__c = currentPeriod.Name;
             }
-            accPlan.AccountPlanning_Period__c = currentPeriod.Id;
+            accPlan.Account_Planning_Period__c = currentPeriod.Id;
             accPlan.Account__c = acc.Id;
             acc.Business_Description__c = accPlan.Business_Description__c;
             upsert accPlan; 
@@ -104,10 +106,11 @@ public class CompanyDescriptionController {
     }
 
     public PageReference openPDF() {
-        PageReference pdfPage = Page.CompanyDescriptionView;
+        /*PageReference pdfPage = Page.CompanyDescriptionPDF;
         pdfPage.getParameters().put('id', acc.Id);
-        pdfPage.setRedirect(true);
-        return pdfPage;
+        pdfPage.setRedirect(false);
+        return pdfPage;*/
+        return null;
     }
     
     public void saveRow() {
@@ -120,7 +123,12 @@ public class CompanyDescriptionController {
             wrapper.taskRec.WhatId = accPlan.Id;
             wrapper.taskRec.OwnerId = acc.OwnerId;
             wrapper.taskRec.Status = 'Open';
-            wrapper.taskRec.RecordTypeId = taskRecordTypeId;
+            
+            // Only set RecordTypeId if Record Types are enabled for Task
+            if (taskRecordTypeId != null) {
+                wrapper.taskRec.RecordTypeId = taskRecordTypeId;
+            }
+
             wrapper.taskRec.Type = 'Account Planning';
             Date dueDate = wrapper.taskRec.ActivityDate;
             if (dueDate != null && (dueDate < planningPeriodStartDate || dueDate > planningPeriodEndDate)) {
@@ -151,14 +159,17 @@ public class CompanyDescriptionController {
             taskList.add(new TaskWrapper(taskList.size()));
         }
     }
+    
     public void editRow() {
         if (rowIndex != null && rowIndex < taskList.size()) {
             taskList.get(rowIndex).isEditMode = true;
         }
     }
+    
     public Boolean getIsAddDisabled() {
         return taskList.size() >= 5;
     }
+    
     public class TaskWrapper {
         public Task taskRec { get; set; }
         public Boolean isEditMode { get; set; }
