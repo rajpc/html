@@ -1,15 +1,12 @@
 <apex:page standardController="Account" extensions="CompanyDescriptionController" renderAs="pdf" standardStylesheets="false" showHeader="false" sidebar="false">
     
     <style type="text/css">
-        /* =================================================================== */
-        /* This CSS has been simplified for PDF rendering.                     */
-        /* Unsupported rules like flexbox and styles for buttons are removed.  */
-        /* =================================================================== */
         @page {
             size: A4;
             margin: 8mm;
         }
-        body {
+        /* MODIFIED: Styles moved from the 'body' tag to a container class */
+        .pdf-container {
             font-family: "Arial Unicode MS", Arial, sans-serif;
             font-size: 8pt;
             color: #000000;
@@ -73,7 +70,7 @@
             padding: 6px;
             border-left: 3px solid #c8102e;
             margin: 20px 0 10px 0;
-            -webkit-print-color-adjust: exact; /* Helps ensure background colors print */
+            -webkit-print-color-adjust: exact;
         }
         .section-header h3,
         .section-header h2 {
@@ -98,7 +95,7 @@
             border: 1px solid #d0d0d0;
             text-align: left;
             font-size: 11px;
-            -webkit-print-color-adjust: exact; /* Helps ensure background colors print */
+            -webkit-print-color-adjust: exact;
         }
         .rc-action-plan-table td {
             border: 1px solid #d0d0d0;
@@ -110,7 +107,7 @@
         }
     </style>
     
-    <div>
+    <div class="pdf-container">
         
         <apex:outputPanel rendered="{!isPeriodActive}">
             <div class="section-header">
