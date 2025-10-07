@@ -216,18 +216,18 @@
                         <tr>
                             <td class="field-label">Ownership</td>
                             <td class="field-value">
-                                <apex:inputTextarea value="{!accPlan.Ownership__c}" rows="5"/>
+                                <apex:inputTextarea value="{!accPlan.Ownership__c}" rows="3"/>
                             </td>
                             <td colspan="2"></td>
                         </tr>
                         <tr>
                             <td class="field-label">Business Description</td>
                             <td class="field-value">
-                                <apex:inputTextarea value="{!accPlan.Business_Description__c}" rows="5"/>
+                                <apex:inputTextarea value="{!accPlan.Business_Description__c}" rows="3"/>
                             </td>
                             <td class="field-label">Strategic Opportunity</td>
                             <td class="field-value">
-                                <apex:inputTextarea value="{!accPlan.Strategic_Opportunity__c}" rows="5"/>
+                                <apex:inputTextarea value="{!accPlan.Strategic_Opportunity__c}" rows="3"/>
                             </td>
                         </tr>
                     </table>
