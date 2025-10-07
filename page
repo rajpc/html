@@ -3,7 +3,6 @@
     <apex:slds />
 
     <style type="text/css">
-        /* All CSS is unchanged */
         #vfPageContainer {
             font-family: "Arial Unicode MS", Arial, sans-serif;
             padding: 10px 20px !important;
@@ -162,6 +161,10 @@
             cursor: pointer;
             font-size: 11px;
         }
+        #vfPageContainer .rc-button-save {
+            font-size: 11px;
+            width: 100px;
+        }
         #vfPageContainer .rc-button:hover {
             background-color: #00367a;
         }
@@ -182,119 +185,126 @@
             
             <apex:form>
                 <apex:pageMessages id="msgs"/>
-                
-                <div class="section-header">
-                     <h3>Company Description</h3>
-                </div>
-                
-                <table class="info-table">
-                    <tr>
-                        <td class="field-label">Tier</td>
-                        <td class="field-value value-centered"><apex:outputField value="{!accPlan.Tier__c}"/></td>
-                        <td class="field-label">Primary NAICS</td>
-                        <td class="field-value value-left"><apex:inputField value="{!accPlan.Primary_NAICS__c}"/></td>
-                    </tr>
-                    <tr>
-                        <td class="field-label">VIP Prospect</td>
-                        <td class="field-value value-centered"><apex:outputField value="{!accPlan.Top_Prospect__c}"/></td>
-                        <td class="field-label">Primary NAICS Description</td>
-                        <td class="field-value value-left"><apex:inputField value="{!accPlan.Primary_NAICS_Description__c}"/></td>
-                    </tr>
-                    <tr>
-                        <td class="field-label">VIP Client</td>
-                        <td class="field-value value-centered"><apex:outputField value="{!accPlan.Top_Client__c}"/></td>
-                        <td class="field-label">ABL Account</td>
-                        <td class="field-value value-centered"><apex:inputField value="{!accPlan.ABL__c}"/></td>
-                    </tr>
-                </table>
 
-                <table class="description-table">
-                    <tr>
-                        <td class="field-label">Ownership</td>
-                        <td class="field-value">
-                            <apex:inputTextarea value="{!accPlan.Ownership__c}" rows="5"/>
-                        </td>
-                        <td colspan="2"></td>
-                    </tr>
-                    <tr>
-                        <td class="field-label">Business Description</td>
-                        <td class="field-value">
-                            <apex:inputTextarea value="{!accPlan.Business_Description__c}" rows="5"/>
-                        </td>
-                        <td class="field-label">Strategic Opportunity</td>
-                        <td class="field-value">
-                            <apex:inputTextarea value="{!accPlan.Strategic_Opportunity__c}" rows="5"/>
-                        </td>
-                    </tr>
-                </table>
-
-                <div style="padding: 10px; text-align: left;">
-                    <apex:commandButton 
-                        id="saveBtn" 
-                        styleClass="rc-button" 
-                        value="Save" 
-                        action="{!saveAccountDetails}" 
-                        rerender="msgs, buttonPanel"
-                        onclick="this.disabled=true; setTimeout(function(){document.getElementById('{!$Component.saveBtn}').disabled=false;}, 10000);"
-                    />
-                </div>
-        
-                <div class="section-header">
-                    <h2>Next Steps / Action Plan</h2>
-                </div>
-                
-                <apex:outputPanel id="tablePanel">
-                    <table class="rc-action-plan-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 25%;">Subject</th>
-                                <th>Description</th>
-                                <th style="width: 15%;">Date</th>
-                                <th style="width: 10%">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <apex:repeat value="{!taskList}" var="tw">
-                                <tr>
-                                    <td>
-                                        <apex:inputText value="{!tw.taskRec.Subject}" rendered="{!tw.isEditMode}" />
-                                        <apex:outputText value="{!tw.taskRec.Subject}" rendered="{!NOT(tw.isEditMode)}"/>
-                                    </td>
-                                    <td>
-                                        <apex:inputTextarea value="{!tw.taskRec.Description}" rendered="{!tw.isEditMode}" rows="1"/>
-                                        <apex:outputText value="{!tw.taskRec.Description}" rendered="{!NOT(tw.isEditMode)}"/>
-                                    </td>
-                                    <td>
-                                        <apex:inputField value="{!tw.taskRec.ActivityDate}" rendered="{!tw.isEditMode}"/>
-                                        <apex:outputText value="{0,date,MM/dd/yyyy}" rendered="{!NOT(tw.isEditMode)}">
-                                             <apex:param value="{!tw.taskRec.ActivityDate}" /> 
-                                        </apex:outputText>
-                                    </td>
-                                    <td>
-                                        <apex:commandButton styleClass="rc-button" value="Save" action="{!saveRow}" rerender="tablePanel, msgs, buttonPanel" rendered="{!tw.isEditMode}">
-                                            <apex:param name="rowIndexParam" value="{!tw.rowIndex}" assignTo="{!rowIndex}"/>
-                                        </apex:commandButton>
-                                        <apex:commandButton styleClass="rc-button" value="Edit" action="{!editRow}" rerender="tablePanel" rendered="{!NOT(tw.isEditMode)}" immediate="true">
-                                            <apex:param name="rowIndexParam" value="{!tw.rowIndex}" assignTo="{!rowIndex}"/>
-                                        </apex:commandButton>
-                                    </td>
-                                </tr>
-                            </apex:repeat>
-                        </tbody>
+                <apex:outputPanel rendered="{!isPeriodActive}">
+                    <div class="section-header">
+                         <h3>Company Description</h3>
+                    </div>
+                    
+                    <table class="info-table">
+                        <tr>
+                            <td class="field-label">Tier</td>
+                            <td class="field-value value-centered"><apex:outputField value="{!accPlan.Tier__c}"/></td>
+                            <td class="field-label">Primary NAICS</td>
+                            <td class="field-value value-left"><apex:inputField value="{!accPlan.Primary_NAICS__c}"/></td>
+                        </tr>
+                        <tr>
+                            <td class="field-label">VIP Prospect</td>
+                            <td class="field-value value-centered"><apex:outputField value="{!accPlan.Top_Prospect__c}"/></td>
+                            <td class="field-label">Primary NAICS Description</td>
+                            <td class="field-value value-left"><apex:inputField value="{!accPlan.Primary_NAICS_Description__c}"/></td>
+                        </tr>
+                        <tr>
+                            <td class="field-label">VIP Client</td>
+                            <td class="field-value value-centered"><apex:outputField value="{!accPlan.Top_Client__c}"/></td>
+                            <td class="field-label">ABL Account</td>
+                            <td class="field-value value-centered"><apex:inputField value="{!accPlan.ABL__c}"/></td>
+                        </tr>
                     </table>
+    
+                    <table class="description-table">
+                        <tr>
+                            <td class="field-label">Ownership</td>
+                            <td class="field-value">
+                                <apex:inputTextarea value="{!accPlan.Ownership__c}" rows="5"/>
+                            </td>
+                            <td colspan="2"></td>
+                        </tr>
+                        <tr>
+                            <td class="field-label">Business Description</td>
+                            <td class="field-value">
+                                <apex:inputTextarea value="{!accPlan.Business_Description__c}" rows="5"/>
+                            </td>
+                            <td class="field-label">Strategic Opportunity</td>
+                            <td class="field-value">
+                                <apex:inputTextarea value="{!accPlan.Strategic_Opportunity__c}" rows="5"/>
+                            </td>
+                        </tr>
+                    </table>
+    
+                    <div style="padding: 10px; text-align: center;">
+                        <apex:commandButton 
+                            id="saveBtn" 
+                            styleClass="rc-button rc-button-save" 
+                            value="Save" 
+                            action="{!saveAccountDetails}" 
+                            rerender="msgs, buttonPanel"
+                            onclick="this.disabled=true; setTimeout(function(){document.getElementById('{!$Component.saveBtn}').disabled=false;}, 10000);"
+                        />
+                    </div>
+            
+                    <div class="section-header">
+                        <h2>Next Steps / Action Plan</h2>
+                    </div>
+                    
+                    <apex:outputPanel id="tablePanel">
+                        <table class="rc-action-plan-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Subject</th>
+                                    <th>Description</th>
+                                    <th style="width: 15%;">Date</th>
+                                    <th style="width: 10%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <apex:repeat value="{!taskList}" var="tw">
+                                    <tr>
+                                        <td>
+                                            <apex:inputText value="{!tw.taskRec.Subject}" rendered="{!tw.isEditMode}" />
+                                            <apex:outputText value="{!tw.taskRec.Subject}" rendered="{!NOT(tw.isEditMode)}"/>
+                                        </td>
+                                        <td>
+                                            <apex:inputTextarea value="{!tw.taskRec.Description}" rendered="{!tw.isEditMode}" rows="1"/>
+                                            <apex:outputText value="{!tw.taskRec.Description}" rendered="{!NOT(tw.isEditMode)}"/>
+                                        </td>
+                                        <td>
+                                            <apex:inputField value="{!tw.taskRec.ActivityDate}" rendered="{!tw.isEditMode}"/>
+                                            <apex:outputText value="{0,date,MM/dd/yyyy}" rendered="{!NOT(tw.isEditMode)}">
+                                                 <apex:param value="{!tw.taskRec.ActivityDate}" /> 
+                                            </apex:outputText>
+                                        </td>
+                                        <td>
+                                            <apex:commandButton styleClass="rc-button" value="Save" action="{!saveRow}" rerender="tablePanel, msgs, buttonPanel" rendered="{!tw.isEditMode}">
+                                                <apex:param name="rowIndexParam" value="{!tw.rowIndex}" assignTo="{!rowIndex}"/>
+                                            </apex:commandButton>
+                                            <apex:commandButton styleClass="rc-button" value="Edit" action="{!editRow}" rerender="tablePanel" rendered="{!NOT(tw.isEditMode)}" immediate="true">
+                                                <apex:param name="rowIndexParam" value="{!tw.rowIndex}" assignTo="{!rowIndex}"/>
+                                            </apex:commandButton>
+                                        </td>
+                                    </tr>
+                                </apex:repeat>
+                            </tbody>
+                        </table>
+                    </apex:outputPanel>
+    
+                    <div class="bottom-button-bar">
+                        <div class="left-buttons">
+                            <apex:outputPanel id="buttonPanel">
+                                <apex:commandButton styleClass="rc-button" value="Add New Row" action="{!addRow}" rerender="tablePanel, buttonPanel" disabled="{!isAddDisabled || isActionPlanDisabled}"/>
+                                <apex:outputText value=" (Save the plan to enable)" style="font-style: italic; color: #555; margin-left: 5px;" rendered="{!isActionPlanDisabled}"/>
+                            </apex:outputPanel>
+                        </div>
+                        <div class="right-buttons">
+                            <apex:commandButton styleClass="rc-button" value="Open PDF" action="{!openPDF}"/>
+                        </div>
+                    </div>
                 </apex:outputPanel>
 
-                <div class="bottom-button-bar">
-                    <div class="left-buttons">
-                        <apex:outputPanel id="buttonPanel">
-                            <apex:commandButton styleClass="rc-button" value="Add New Row" action="{!addRow}" rerender="tablePanel, buttonPanel" disabled="{!isAddDisabled || isActionPlanDisabled}"/>
-                            <apex:outputText value=" (Save the plan to enable)" style="font-style: italic; color: #555; margin-left: 5px;" rendered="{!isActionPlanDisabled}"/>
-                        </apex:outputPanel>
-                    </div>
-                    <div class="right-buttons">
-                        <apex:commandButton styleClass="rc-button" value="Open PDF" action="{!openPDF}"/>
-                    </div>
-                </div>
+                <apex:outputPanel rendered="{!NOT(isPeriodActive)}" style="text-align:center; padding: 20px; font-size: 14px; color: #555;">
+                    There is no active Account Planning Period at this time.
+                </apex:outputPanel>
+
             </apex:form>
         </div>
     </div>
