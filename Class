@@ -16,7 +16,7 @@ public class CompanyDescriptionController {
         stdController.addFields(new List<String>{'Tier_Level__c', 'Business_Description__c', 'OwnerId'});
         this.acc = (Account)stdController.getRecord();
         
-        taskRecordTypeId = Schema.SObjectType.Task.getSObjectSubtypeInfosByDeveloperName().get('Task').getRecordTypeId();
+        //taskRecordTypeId = Schema.SObjectType.Task.getSObjectSubtypeInfosByDeveloperName().get('Task').getRecordTypeId();
         
         Date today = Date.today();
         List<AccountPlanning_Period__c> periods = [
@@ -32,13 +32,12 @@ public class CompanyDescriptionController {
             planningPeriodStartDate = currentPeriod.startdate__c;
             planningPeriodEndDate = currentPeriod.enddate__c;
 
-            // MODIFIED: Removed the Type__c field from the query as it's no longer needed
             List<Account_Planning__c> existingPlans = [
-                SELECT Id, Tier__c, Top_Prospect__c, Top_Client__c, Name2__c, AccountPlanning_Period__c,
+                SELECT Id, Tier__c, Top_Prospect__c, Top_Client__c, Name2__c, Account_Planning_Period__c,
                        Primary_NAICS__c, Primary_NAICS_Description__c, ABL__c,
                        Ownership__c, Business_Description__c, Strategic_Opportunity__c
                 FROM Account_Planning__c
-                WHERE Account__c = :acc.Id AND AccountPlanning_Period__c = :currentPeriod.Id
+                WHERE Account__c = :acc.Id AND Account_Planning_Period__c = :currentPeriod.Id
                 LIMIT 1
             ];
 
@@ -47,6 +46,8 @@ public class CompanyDescriptionController {
                 this.accPlan.Business_Description__c = acc.Business_Description__c;
                 
                 this.taskList = new List<TaskWrapper>();
+                
+                // This query must select Subject, Description, and ActivityDate to display them on the page.
                 List<Task> relatedTasks = [
                     SELECT Subject, Description, ActivityDate 
                     FROM Task 
@@ -82,7 +83,7 @@ public class CompanyDescriptionController {
             if (accPlan.Id == null) {
                 accPlan.Name2__c = currentPeriod.Name;
             }
-            accPlan.AccountPlanning_Period__c = currentPeriod.Id;
+            accPlan.Account_Planning_Period__c = currentPeriod.Id;
             accPlan.Account__c = acc.Id;
             acc.Business_Description__c = accPlan.Business_Description__c;
             upsert accPlan; 
@@ -107,14 +108,11 @@ public class CompanyDescriptionController {
                 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Cannot save task: There is no active Account Planning Period.'));
                 return;
             }
-            
             wrapper.taskRec.WhatId = accPlan.Id;
             wrapper.taskRec.OwnerId = acc.OwnerId;
             wrapper.taskRec.Status = 'Open';
-            wrapper.taskRec.RecordTypeId = taskRecordTypeId;
-            // MODIFIED: Type is now a hardcoded value
+            //wrapper.taskRec.RecordTypeId = taskRecordTypeId;
             wrapper.taskRec.Type = 'Account Planning';
-
             Date dueDate = wrapper.taskRec.ActivityDate;
             if (dueDate != null && (dueDate < planningPeriodStartDate || dueDate > planningPeriodEndDate)) {
                 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Due Date must be within the active planning period (' + planningPeriodStartDate.format() + ' to ' + planningPeriodEndDate.format() + ').'));
@@ -153,3 +151,13 @@ public class CompanyDescriptionController {
         return taskList.size() >= 5;
     }
     public class TaskWrapper {
+        public Task taskRec { get; set; }
+        public Boolean isEditMode { get; set; }
+        public Integer rowIndex { get; set; }
+        public TaskWrapper(Integer index) {
+            this.taskRec = new Task();
+            this.isEditMode = true;
+            this.rowIndex = index;
+        }
+    }
+}
