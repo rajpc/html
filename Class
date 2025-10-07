@@ -13,10 +13,15 @@ public class CompanyDescriptionController {
     
     public CompanyDescriptionController(ApexPages.StandardController stdController) {
         this.isPeriodActive = false;
-        stdController.addFields(new List<String>{'Tier_Level__c', 'Business_Description__c', 'OwnerId'});
+        // MODIFIED: Querying for all fields that exist on the Account for pre-population
+        stdController.addFields(new List<String>{
+            'OwnerId', 'Tier_Level__c', 'Top_Prospect__c', 'Top_Client__c',
+            'Primary_NAICS__c', 'Primary_NAICS_Description__c', 'ABL__c',
+            'Business_Description__c'
+        });
         this.acc = (Account)stdController.getRecord();
         
-        //taskRecordTypeId = Schema.SObjectType.Task.getSObjectSubtypeInfosByDeveloperName().get('Task').getRecordTypeId();
+        taskRecordTypeId = Schema.SObjectType.Task.getSObjectSubtypeInfosByDeveloperName().get('Task').getRecordTypeId();
         
         Date today = Date.today();
         List<AccountPlanning_Period__c> periods = [
@@ -33,44 +38,48 @@ public class CompanyDescriptionController {
             planningPeriodEndDate = currentPeriod.enddate__c;
 
             List<Account_Planning__c> existingPlans = [
-                SELECT Id, Tier__c, Top_Prospect__c, Top_Client__c, Name2__c, Account_Planning_Period__c,
+                SELECT Id, Tier__c, Top_Prospect__c, Top_Client__c, Name2__c, AccountPlanning_Period__c,
                        Primary_NAICS__c, Primary_NAICS_Description__c, ABL__c,
                        Ownership__c, Business_Description__c, Strategic_Opportunity__c
                 FROM Account_Planning__c
-                WHERE Account__c = :acc.Id AND Account_Planning_Period__c = :currentPeriod.Id
+                WHERE Account__c = :acc.Id AND AccountPlanning_Period__c = :currentPeriod.Id
                 LIMIT 1
             ];
 
             if (!existingPlans.isEmpty()) {
                 this.accPlan = existingPlans[0];
                 this.accPlan.Business_Description__c = acc.Business_Description__c;
-                
-                this.taskList = new List<TaskWrapper>();
-                
-                // This query must select Subject, Description, and ActivityDate to display them on the page.
-                List<Task> relatedTasks = [
-                    SELECT Subject, Description, ActivityDate 
-                    FROM Task 
-                    WHERE WhatId = :accPlan.Id 
-                    AND ActivityDate >= :planningPeriodStartDate 
-                    AND ActivityDate <= :planningPeriodEndDate
-                ];
-                for (Task t : relatedTasks) {
-                    TaskWrapper wrapper = new TaskWrapper(taskList.size());
-                    wrapper.taskRec = t;
-                    wrapper.isEditMode = false; 
-                    this.taskList.add(wrapper);
-                }
-
             } else {
                 this.accPlan = new Account_Planning__c();
+                
+                // MODIFIED: Pre-populating ALL fields from the parent Account
                 this.accPlan.Tier__c = acc.Tier_Level__c;
+                this.accPlan.Top_Prospect__c = acc.Top_Prospect__c;
+                this.accPlan.Top_Client__c = acc.Top_Client__c;
+                this.accPlan.Primary_NAICS__c = acc.Primary_NAICS__c;
+                this.accPlan.Primary_NAICS_Description__c = acc.Primary_NAICS_Description__c;
+                this.accPlan.ABL__c = acc.ABL__c;
                 this.accPlan.Business_Description__c = acc.Business_Description__c;
-                this.taskList = new List<TaskWrapper>();
             }
         } else {
             this.accPlan = new Account_Planning__c();
-            this.taskList = new List<TaskWrapper>();
+        }
+        
+        this.taskList = new List<TaskWrapper>();
+        if(this.isPeriodActive && this.accPlan.Id != null) {
+            List<Task> relatedTasks = [
+                SELECT Subject, Description, ActivityDate 
+                FROM Task 
+                WHERE WhatId = :accPlan.Id 
+                AND ActivityDate >= :planningPeriodStartDate 
+                AND ActivityDate <= :planningPeriodEndDate
+            ];
+            for (Task t : relatedTasks) {
+                TaskWrapper wrapper = new TaskWrapper(taskList.size());
+                wrapper.taskRec = t;
+                wrapper.isEditMode = false; 
+                this.taskList.add(wrapper);
+            }
         }
     }
 
@@ -83,7 +92,7 @@ public class CompanyDescriptionController {
             if (accPlan.Id == null) {
                 accPlan.Name2__c = currentPeriod.Name;
             }
-            accPlan.Account_Planning_Period__c = currentPeriod.Id;
+            accPlan.AccountPlanning_Period__c = currentPeriod.Id;
             accPlan.Account__c = acc.Id;
             acc.Business_Description__c = accPlan.Business_Description__c;
             upsert accPlan; 
@@ -111,7 +120,7 @@ public class CompanyDescriptionController {
             wrapper.taskRec.WhatId = accPlan.Id;
             wrapper.taskRec.OwnerId = acc.OwnerId;
             wrapper.taskRec.Status = 'Open';
-            //wrapper.taskRec.RecordTypeId = taskRecordTypeId;
+            wrapper.taskRec.RecordTypeId = taskRecordTypeId;
             wrapper.taskRec.Type = 'Account Planning';
             Date dueDate = wrapper.taskRec.ActivityDate;
             if (dueDate != null && (dueDate < planningPeriodStartDate || dueDate > planningPeriodEndDate)) {
