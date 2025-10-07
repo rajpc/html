@@ -1,4 +1,5 @@
 public class CompanyDescriptionController {
+
     public Account acc { get; set; } 
     public Account_Planning__c accPlan { get; set; } 
     public List<TaskWrapper> taskList { get; set; }
@@ -8,7 +9,6 @@ public class CompanyDescriptionController {
     public Date planningPeriodStartDate { get; set; }
     public Date planningPeriodEndDate { get; set; }
     public Boolean isPeriodActive { get; private set; }
-
     public Id taskRecordTypeId;
     
     public CompanyDescriptionController(ApexPages.StandardController stdController) {
@@ -20,7 +20,6 @@ public class CompanyDescriptionController {
         });
         this.acc = (Account)stdController.getRecord();
         
-        // Try to get Task Record Type ID - only if Record Types are enabled for Task
         try {
             taskRecordTypeId = [SELECT Id FROM RecordType WHERE SObjectType = 'Task' AND Name = 'Task' LIMIT 1].Id;
         } catch (QueryException e) {
@@ -104,14 +103,6 @@ public class CompanyDescriptionController {
             ApexPages.addMessages(e);
         }
     }
-
-    public PageReference openPDF() {
-        /*PageReference pdfPage = Page.CompanyDescriptionPDF;
-        pdfPage.getParameters().put('id', acc.Id);
-        pdfPage.setRedirect(false);
-        return pdfPage;*/
-        return null;
-    }
     
     public void saveRow() {
         if (rowIndex != null && rowIndex < taskList.size()) {
@@ -123,21 +114,14 @@ public class CompanyDescriptionController {
             wrapper.taskRec.WhatId = accPlan.Id;
             wrapper.taskRec.OwnerId = acc.OwnerId;
             wrapper.taskRec.Status = 'Open';
-            
-            // Only set RecordTypeId if Record Types are enabled for Task
-            if (taskRecordTypeId != null) {
-                wrapper.taskRec.RecordTypeId = taskRecordTypeId;
-            }
-
+            wrapper.taskRec.RecordTypeId = taskRecordTypeId;
             wrapper.taskRec.Type = 'Account Planning';
             Date dueDate = wrapper.taskRec.ActivityDate;
             if (dueDate != null && (dueDate < planningPeriodStartDate || dueDate > planningPeriodEndDate)) {
                 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Due Date must be within the active planning period (' + planningPeriodStartDate.format() + ' to ' + planningPeriodEndDate.format() + ').'));
                 return;
             }
-            if (String.isBlank(wrapper.taskRec.Subject) || 
-                String.isBlank(wrapper.taskRec.Description) || 
-                dueDate == null) {
+            if (String.isBlank(wrapper.taskRec.Subject) || String.isBlank(wrapper.taskRec.Description) || dueDate == null) {
                 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Subject, Description, and Date are all required.'));
                 return;
             }
@@ -159,17 +143,14 @@ public class CompanyDescriptionController {
             taskList.add(new TaskWrapper(taskList.size()));
         }
     }
-    
     public void editRow() {
         if (rowIndex != null && rowIndex < taskList.size()) {
             taskList.get(rowIndex).isEditMode = true;
         }
     }
-    
     public Boolean getIsAddDisabled() {
         return taskList.size() >= 5;
     }
-    
     public class TaskWrapper {
         public Task taskRec { get; set; }
         public Boolean isEditMode { get; set; }
