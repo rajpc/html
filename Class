@@ -9,7 +9,7 @@ public class CompanyDescriptionController {
     public Date planningPeriodStartDate { get; set; }
     public Date planningPeriodEndDate { get; set; }
     public Boolean isPeriodActive { get; private set; }
-    public Id taskRecordTypeId;
+    private Id taskRecordTypeId;
     
     public CompanyDescriptionController(ApexPages.StandardController stdController) {
         this.isPeriodActive = false;
@@ -121,7 +121,9 @@ public class CompanyDescriptionController {
                 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Due Date must be within the active planning period (' + planningPeriodStartDate.format() + ' to ' + planningPeriodEndDate.format() + ').'));
                 return;
             }
-            if (String.isBlank(wrapper.taskRec.Subject) || String.isBlank(wrapper.taskRec.Description) || dueDate == null) {
+            if (String.isBlank(wrapper.taskRec.Subject) || 
+                String.isBlank(wrapper.taskRec.Description) || 
+                dueDate == null) {
                 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Subject, Description, and Date are all required.'));
                 return;
             }
