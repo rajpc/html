@@ -3,6 +3,7 @@
     <apex:slds />
 
     <style type="text/css">
+        /* All CSS is unchanged */
         #vfPageContainer {
             font-family: "Arial Unicode MS", Arial, sans-serif;
             padding: 10px 20px !important;
@@ -194,19 +195,28 @@
                     <table class="info-table">
                         <tr>
                             <td class="field-label">Tier</td>
-                            <td class="field-value value-centered"><apex:outputField value="{!accPlan.Tier__c}"/></td>
+                            <td class="field-value value-centered">
+                                <apex:outputField value="{!accPlan.Tier__c}"/>
+                                <apex:inputHidden value="{!accPlan.Tier__c}" />
+                            </td>
                             <td class="field-label">Primary NAICS</td>
                             <td class="field-value value-left"><apex:inputField value="{!accPlan.Primary_NAICS__c}"/></td>
                         </tr>
                         <tr>
                             <td class="field-label">VIP Prospect</td>
-                            <td class="field-value value-centered"><apex:outputField value="{!accPlan.Top_Prospect__c}"/></td>
+                            <td class="field-value value-centered">
+                                <apex:outputField value="{!accPlan.Top_Prospect__c}"/>
+                                <apex:inputHidden value="{!accPlan.Top_Prospect__c}" />
+                            </td>
                             <td class="field-label">Primary NAICS Description</td>
                             <td class="field-value value-left"><apex:inputField value="{!accPlan.Primary_NAICS_Description__c}"/></td>
                         </tr>
                         <tr>
                             <td class="field-label">VIP Client</td>
-                            <td class="field-value value-centered"><apex:outputField value="{!accPlan.Top_Client__c}"/></td>
+                            <td class="field-value value-centered">
+                                <apex:outputField value="{!accPlan.Top_Client__c}"/>
+                                <apex:inputHidden value="{!accPlan.Top_Client__c}" />
+                            </td>
                             <td class="field-label">ABL Account</td>
                             <td class="field-value value-centered"><apex:inputField value="{!accPlan.ABL__c}"/></td>
                         </tr>
