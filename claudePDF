@@ -1,0 +1,208 @@
+<apex:page standardController="Account" extensions="CompanyDescriptionController" renderAs="pdf" standardStylesheets="false" showHeader="false" sidebar="false" applyBodyTag="false" applyHtmlTag="false">
+<html>
+<head>
+    <style type="text/css">
+        @page {
+            size: A4;
+            margin: 8mm;
+        }
+        
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 9pt;
+            color: #000000;
+            margin: 0;
+            padding: 10px;
+        }
+        
+        .section-header {
+            background-color: #f2f2f2;
+            padding: 8px;
+            border-left: 4px solid #c8102e;
+            margin: 15px 0 10px 0;
+        }
+        
+        .section-header h3,
+        .section-header h2 {
+            margin: 0;
+            padding: 0;
+            color: #001f4d;
+            font-size: 11pt;
+            font-weight: bold;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        
+        table td {
+            border: 1px solid #808080;
+            padding: 8px;
+            vertical-align: top;
+        }
+        
+        .field-label {
+            background-color: #001f4d !important;
+            color: #ffffff !important;
+            font-weight: bold;
+            text-align: left;
+            padding: 8px !important;
+            width: 20%;
+        }
+        
+        .field-value {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 8px;
+        }
+        
+        .value-centered {
+            text-align: center;
+            width: 30%;
+        }
+        
+        .value-left {
+            text-align: left;
+            width: 30%;
+        }
+        
+        .info-table td {
+            height: 30px;
+        }
+        
+        .description-table .field-value {
+            width: 30%;
+            min-height: 60px;
+        }
+        
+        .rc-action-plan-table th {
+            background-color: #001f4d !important;
+            color: #ffffff !important;
+            font-weight: bold;
+            padding: 10px;
+            border: 1px solid #808080;
+            text-align: left;
+            font-size: 10pt;
+        }
+        
+        .rc-action-plan-table td {
+            border: 1px solid #808080;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 9pt;
+        }
+        
+        .no-period-message {
+            text-align: center;
+            padding: 40px;
+            font-size: 14pt;
+            color: #555555;
+        }
+    </style>
+</head>
+<body>
+    <apex:outputPanel rendered="{!isPeriodActive}">
+        <div class="section-header">
+            <h3>Company Description</h3>
+        </div>
+        
+        <table class="info-table">
+            <tr>
+                <td class="field-label">Tier</td>
+                <td class="field-value value-centered">
+                    <apex:outputField value="{!accPlan.Tier__c}"/>
+                </td>
+                <td class="field-label">Primary NAICS</td>
+                <td class="field-value value-left">
+                    <apex:outputField value="{!accPlan.Primary_NAICS__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="field-label">VIP Prospect</td>
+                <td class="field-value value-centered">
+                    <apex:outputField value="{!accPlan.Top_Prospect__c}"/>
+                </td>
+                <td class="field-label">Primary NAICS Description</td>
+                <td class="field-value value-left">
+                    <apex:outputField value="{!accPlan.Primary_NAICS_Description__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="field-label">VIP Client</td>
+                <td class="field-value value-centered">
+                    <apex:outputField value="{!accPlan.Top_Client__c}"/>
+                </td>
+                <td class="field-label">ABL Account</td>
+                <td class="field-value value-centered">
+                    <apex:outputField value="{!accPlan.ABL__c}"/>
+                </td>
+            </tr>
+        </table>
+
+        <table class="description-table">
+            <tr>
+                <td class="field-label">Ownership</td>
+                <td class="field-value" colspan="3">
+                    <apex:outputText value="{!accPlan.Ownership__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="field-label">Business Description</td>
+                <td class="field-value">
+                    <apex:outputText value="{!accPlan.Business_Description__c}"/>
+                </td>
+                <td class="field-label">Strategic Opportunity</td>
+                <td class="field-value">
+                    <apex:outputText value="{!accPlan.Strategic_Opportunity__c}"/>
+                </td>
+            </tr>
+        </table>
+
+        <div class="section-header">
+            <h2>Next Steps / Action Plan</h2>
+        </div>
+        
+        <table class="rc-action-plan-table">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Subject</th>
+                    <th style="width: 50%;">Description</th>
+                    <th style="width: 25%;">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <apex:repeat value="{!taskList}" var="tw">
+                    <tr>
+                        <td>
+                            <apex:outputText value="{!tw.taskRec.Subject}"/>
+                        </td>
+                        <td>
+                            <apex:outputText value="{!tw.taskRec.Description}"/>
+                        </td>
+                        <td>
+                            <apex:outputText value="{0,date,MM/dd/yyyy}">
+                                <apex:param value="{!tw.taskRec.ActivityDate}"/> 
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                </apex:repeat>
+            </tbody>
+        </table>
+    </apex:outputPanel>
+
+    <apex:outputPanel rendered="{!NOT(isPeriodActive)}">
+        <div class="no-period-message">
+            There is no active Account Planning Period at this time.
+        </div>
+    </apex:outputPanel>
+</body>
+</html>
+</apex:page>
