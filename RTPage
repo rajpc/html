@@ -1,0 +1,95 @@
+<apex:page standardController="Account" extensions="RelationshipTeamController">
+    <style>
+        .section-header {
+            background-color: #f2f2f2;
+            padding: 6px;
+            border-left: 3px solid #c8102e;
+            margin: 8px 0 10px 0;
+        }
+        .section-header h2 {
+            margin: 0;
+            color: #001f4d;
+            font-size: 10pt;
+        }
+        .team-table {
+            width: 100%;
+            margin: 10px 0;
+        }
+        .team-row {
+            display: table-row;
+        }
+        .team-cell {
+            display: table-cell;
+            width: 50%;
+            padding: 4px 8px;
+        }
+        .role-label {
+            display: inline-block;
+            background-color: #001f4d;
+            color: white !important;
+            font-weight: bold;
+            padding: 8px 10px 4px 8px;
+            margin-right: 8px;
+            position: relative;
+            font-size: 8pt;
+            line-height: 1.2;
+        }
+        .role-label:after {
+            content: "";
+            position: absolute;
+            right: -10px;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            border-left: 10px solid #001f4d;
+        }
+        .role-name {
+            display: inline-block;
+            color: #000000;
+            font-size: 7.5pt;
+            margin-left: 20px;
+            vertical-align: middle;
+        }
+        .team-cell.right-align {
+            padding-left: 30px;
+        }
+    </style>
+
+    <div class="section-header">
+        <h2>Relationship Team</h2>
+    </div>
+    <div class="team-table">
+        <div class="team-row">
+            <div class="team-cell">
+                <div class="role-label">RM</div>
+                <span class="role-name">{!Account.Owner.Name}</span>
+            </div>
+            <div class="team-cell right-align">
+                <div class="role-label">CSO</div>
+                <span class="role-name">{!CSO.User.Name}</span>
+            </div>
+        </div>
+        <div class="team-row">
+            <div class="team-cell">
+                <div class="role-label">TSO</div>
+                <span class="role-name">{!TSO.User.Name}</span>
+            </div>
+            <div class="team-cell right-align">
+                <div class="role-label">IB</div>
+                <span class="role-name">{!IBTeamMember.User.Name}</span>
+            </div>
+        </div>
+        <div class="team-row">
+            <div class="team-cell">
+                <div class="role-label">TSA</div>
+                <span class="role-name">{!TSA.User.Name}</span>
+            </div>
+            <div class="team-cell right-align">
+                <div class="role-label">PWA</div>
+                <span class="role-name">{!PWA.User.Name}</span>
+            </div>
+        </div>
+    </div>
+</apex:page>
