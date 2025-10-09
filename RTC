@@ -1,0 +1,74 @@
+public with sharing class RelationshipTeamController {
+    
+    // Public properties to be accessed by the Visualforce page
+    public AccountTeamMember CSO {get; private set;}
+    public AccountTeamMember TSO {get; private set;}
+    public AccountTeamMember TSA {get; private set;}
+    public AccountTeamMember IBTeamMember {get; private set;}
+    public AccountTeamMember PWA {get; private set;}
+
+    private Id currentRecordId;
+
+    // Constructor that receives the standard controller context
+    public RelationshipTeamController(ApexPages.StandardController controller) {
+        this.currentRecordId = controller.getId();
+        initializeEmptyObjects();
+        loadTeamMembers();
+    }
+    
+    // This is the logic extracted from the original controller
+    private void loadTeamMembers() {
+        if (this.currentRecordId == null) return;
+
+        AccountTeamMember IB;
+        AccountTeamMember IB_M_A;
+        AccountTeamMember IB_Syndications;
+        AccountTeamMember IB_Sponsor_Coverage;
+        AccountTeamMember IB_ABL_Credit;
+
+        // Query for team members only on the current account record
+        Map<Id, AccountTeamMember> teamMembers = new Map<Id, AccountTeamMember>(
+            [SELECT Id, AccountID, User.Name, TeamMemberRole 
+             FROM AccountTeamMember 
+             WHERE AccountID = :this.currentRecordId 
+             ORDER BY User.Name ASC]
+        );
+
+        for (AccountTeamMember atm : teamMembers.values()) {
+            if (atm.TeamMemberRole == 'Assigned CSO') {
+                CSO = atm;
+            } else if (atm.TeamMemberRole == 'Treasury') {
+                TSO = atm;
+            } else if (atm.TeamMemberRole == 'TS - TSA (Treasury Solutions Associate)') {
+                TSA = atm;
+            } else if (atm.TeamMemberRole == 'PCA') {
+                PWA = atm;
+            } else if (atm.TeamMemberRole == 'IB') {
+                IB = atm;
+            } else if (atm.TeamMemberRole == 'IB - M&A') {
+                IB_M_A = atm;
+            } else if (atm.TeamMemberRole == 'IB - Syndications') {
+                IB_Syndications = atm;
+            } else if (atm.TeamMemberRole == 'IB - Sponsorship') {
+                IB_Sponsor_Coverage = atm;
+            } else if (atm.TeamMemberRole == 'IB - ABL Credit') {
+                IB_ABL_Credit = atm;
+            }
+        }
+        
+        // Determine the primary IB Team Member based on priority
+        if (IB != null) IBTeamMember = IB;
+        else if (IB_M_A != null) IBTeamMember = IB_M_A;
+        else if (IB_Syndications != null) IBTeamMember = IB_Syndications;
+        else if (IB_Sponsor_Coverage != null) IBTeamMember = IB_Sponsor_Coverage;
+        else if (IB_ABL_Credit != null) IBTeamMember = IB_ABL_Credit;
+    }
+    
+    private void initializeEmptyObjects() {
+        CSO = new AccountTeamMember(User = new User());
+        TSO = new AccountTeamMember(User = new User());
+        TSA = new AccountTeamMember(User = new User());
+        IBTeamMember = new AccountTeamMember(User = new User());
+        PWA = new AccountTeamMember(User = new User());
+    }
+}
