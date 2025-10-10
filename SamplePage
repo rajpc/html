@@ -4,65 +4,76 @@
            sidebar="false"
            standardStylesheets="false"
            standardController="Account"
-           docType="html-5.0"
-           extensions="RelationshipTeamController"> <apex:form >
+           docType="html-5.0">
+           <!-- extensions="RelationshipTeamController"> -->
     <html>
         <head>
             <style type="text/css">
                 body {
-                    font-family: Arial, sans-serif;
+                font-family: Arial, sans-serif;
                 }
-
+                
                 .rt-main-layout {
-                    width: 100%;
+                width: 100%;
                 }
                 .rt-left-column {
-                    width: 50%;
-                    vertical-align: top;
-                    padding-right: 15px;
+                width: 50%;
+                vertical-align: top;
+                padding-right: 15px;
                 }
                 .rt-right-column {
-                    width: 50%;
-                    vertical-align: top;
+                width: 50%;
+                vertical-align: top;
                 }
-
+                
                 .rt-data-table {
-                    border-collapse: collapse;
+                border-collapse: collapse;
                 }
-
+                
                 .rt-label-cell {
-                    background-color: #001f4d; 
-                    color: white;
-                    padding: 6px 8px;
-                    border: 1px solid #D3D3D3; 
-                    white-space: nowrap;
-                    font-size: 12px;
-                    width: 140px; 
+                background-color: #001f4d; 
+                color: white;
+                padding: 6px 8px;
+                border: 1px solid #D3D3D3; 
+                white-space: nowrap;
+                font-size: 12px;
+                width: 140px; 
                 }
-
+                
                 .rt-value-cell {
-                    background-color: white;
-                    padding: 6px 8px;
-                    border: 1px solid #D3D3D3; 
-                    width: 140px; 
-                    font-size: 12px;
+                background-color: white;
+                padding: 6px 8px;
+                border: 1px solid #D3D3D3; 
+                width: 140px; 
+                font-size: 12px;
                 }
                 
                 .rt-ib-list-table {
-                    margin-top: 20px;
+                margin-top: 20px;
                 }
-
+                .rt-section-header {
+                	background-color: #f2f2f2;
+                	padding: 6px;
+                	border-left: 3px solid #c8102e;
+                	margin: 8px 0 10px 0;
+                }
+                .rt-section-header h2 {
+                	margin: 0;
+                	color: #001f4d;
+                	font-size: 10pt;
+                }
+                
             </style>
         </head>
         <body>
-
+            <div class="rt-section-header">
+                <h2>Relationship Team</h2>
+            </div>
             <table class="rt-main-layout">
                 <tr>
                     <td class="rt-left-column">
-		     <div class="section-header">
-                            <h2>Relationship Team</h2>
-                     </div><br/><br/>
-
+                        
+                        
                         <table class="rt-data-table">
                             <tr>
                                 <td class="rt-label-cell">RM</td>
@@ -85,7 +96,7 @@
                                 <td class="rt-value-cell">&nbsp;</td>
                             </tr>
                         </table>
-
+                        
                         <table class="rt-data-table rt-ib-list-table">
                             <tr>
                                 <td class="rt-label-cell">IB</td>
@@ -144,40 +155,19 @@
                                 <td class="rt-value-cell">&nbsp;</td>
                             </tr>
                         </table>
-
+                        
                     </td>
                     <td class="rt-right-column">
                     </td>
                 </tr>
             </table>
-<!-- Updated Button Section -->
-            <div class="pdfButton" style="float: right">
-                <!-- When form is read-only: Just open PDF without saving -->
-                <apex:outputPanel rendered="{!isFormReadOnly}">
-                    <button onclick="openPDFDirectly()" type="button">Open PDF</button>
-                </apex:outputPanel>
-                
-                <script>
-                // Function called directly when form is read-only
-                function openPDFDirectly() {
-                    var recId = '{!currentRecordId}';
-                    var apId = '{!apExist.Id}'; // Account Planning record ID
-                    var pageName = 'RelationshipTeamPDF';
-                    
-                    console.log('Opening PDF directly for record: ' + recId);
-                    
-                    // Build URL with multiple parameters
-                    var url = '/apex/' + pageName + '?Id=' + recId + '&apId=' + apId + '&mode=readonly';
-                    window.open(url, '_blank');
-                }
-                </script>
-            </div>
-            
-            <!-- Footer -->
-            <div class="footer">
-                <!-- <img class="logo-bottom" src="{!URLFOR($Resource.TexasCapitalBottomLogo)}" /> -->
-            </div>
 
-        </body>
-    </html>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <!-- <img class="logo-bottom" src="{!URLFOR($Resource.TexasCapitalBottomLogo)}" /> -->
+        </div>
+        
+    </body>
+</html>
 </apex:page>
