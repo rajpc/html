@@ -1,0 +1,146 @@
+<apex:page showHeader="false" standardStylesheets="false" sidebar="false" docType="html-5.0">
+    <html>
+        <head>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                }
+
+                .main-layout {
+                    width: 100%;
+                }
+                .left-column {
+                    width: 50%;
+                    vertical-align: top;
+                    padding-right: 15px;
+                }
+                .right-column {
+                    width: 50%;
+                    vertical-align: top;
+                }
+
+                .data-table {
+                    border-collapse: collapse;
+                }
+
+                .label-cell {
+                    background-color: #001f4d; 
+                    color: white;
+                    padding: 6px 8px;
+                    border: 1px solid #D3D3D3; 
+                    white-space: nowrap;
+                    font-size: 12px;
+                    width: 140px; 
+                }
+
+                .value-cell {
+                    background-color: white;
+                    padding: 6px 8px;
+                    border: 1px solid #D3D3D3; 
+                    width: 140px; 
+                    font-size: 12px;
+                }
+                
+                .ib-list-table {
+                    margin-top: 20px;
+                }
+
+            </style>
+        </head>
+        <body>
+
+            <table class="main-layout">
+                <tr>
+                    <td class="left-column">
+
+                        <table class="data-table">
+                            <tr>
+                                <td class="label-cell">RM</td>
+                                <td class="value-cell">Todd Hardy</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">CSO</td>
+                                <td class="value-cell">Lorrie Martinez</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">TSO</td>
+                                <td class="value-cell">Beth Martin</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">TSA</td>
+                                <td class="value-cell">Annalin Martin</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">PB</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                        </table>
+
+                        <table class="data-table ib-list-table">
+                            <tr>
+                                <td class="label-cell">IB</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - ABL</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - ABL Credit</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - Capital Solutions</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - Coverage</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - EFL</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - ETF</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - Leveraged Finance</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - M&amp;A</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - Operations</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - Public Finance</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - Sales &amp; Trading</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - Sponsor Coverage</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">IB - Syndications</td>
+                                <td class="value-cell">&nbsp;</td>
+                            </tr>
+                        </table>
+
+                    </td>
+                    <td class="right-column">
+                    </td>
+                </tr>
+            </table>
+
+        </body>
+    </html>
+</apex:page>
