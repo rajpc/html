@@ -1,12 +1,12 @@
 public with sharing class RelationshipTeamController {
     
     // Public properties to be accessed by the Visualforce page
-    public AccountTeamMember CSO {get; private set;}
+    /*public AccountTeamMember CSO {get; private set;}
     public AccountTeamMember TSO {get; private set;}
     public AccountTeamMember TSA {get; private set;}
     public AccountTeamMember IBTeamMember {get; private set;}
     public AccountTeamMember PWA {get; private set;}
-
+	public Account RM{get;set;}
     private Id currentRecordId;
 
     // Constructor that receives the standard controller context
@@ -70,5 +70,922 @@ public with sharing class RelationshipTeamController {
         TSA = new AccountTeamMember(User = new User());
         IBTeamMember = new AccountTeamMember(User = new User());
         PWA = new AccountTeamMember(User = new User());
+    }*/
+    
+    // Existing properties
+    public Map<Id,Integer> accountFacilityCount{get;set;}
+    public Map<Id,Decimal> accountWithCustomerCommitmentAmount {get; set;}
+    public Integer countOfFacilities{get;set;}
+    public Decimal revenueValue{get;set;}
+    public String revenueValueString{get;set;}
+    public Decimal pxvInputValue{get;set;}
+    public Decimal cardInputValue{get;set;}
+    public String notesInput_pxvCard{get;set;}
+    Public Decimal debtValue{get;set;}
+    Public Decimal ebidtdaValue{get;set;}
+    Public String notesInputValue{get;set;}
+    Public String IBNotes{get;set;}
+    Public String PWANotes{get;set;}
+    public Decimal commitmentAmount{get;set;}
+    Public String creditNotesValue{get;set;}
+    public Decimal TCBUsedBalance{get;set;}
+    public String currentRecordId {get;set;}
+    public string IBValue {get; set;}
+    public string PWAValue {get; set;}
+    Public Decimal DepositValue{get;set;}
+    Public String OwnershipValue{get;set;}
+    public String NextSteps_ActionPlan{get;set;}
+    Public String SOppValue{get;set;}
+    Public Decimal riskRatingAvg{get;set;}
+    public Account_Planning__c apExist{get; set;}
+    public List<Opportunity> oppsList {get;set;}
+    private Map<Id,Account> allCCNHierachyAccounts;
+    public Opportunity creditOpp{get;set;}
+    public Opportunity IBOpp{get;set;}
+    public Opportunity TSOpp{get;set;}
+    public Opportunity creditOpp_Potential{get;set;}
+    public Opportunity IBOpprtunity_Potential{get;set;}
+    public Opportunity TSOpp_Potential{get;set;}
+    public Decimal funded{get;set;}
+    public Decimal TSFees {get;set;}
+    public Decimal IBFees{get;set;}
+    public Decimal IbDeposit{get;set;}
+    public Decimal NibDeposit {get;set;}
+    public Decimal cardSpend{get;set;}
+    public Decimal commitment {get;set;}
+    public Account RM{get;set;}
+    public AccountTeamMember CSO{get;set;}
+    public AccountTeamMember TSO{get;set;}
+    public AccountTeamMember TSA{get;set;}
+    public AccountTeamMember IBTeamMember{get;set;}
+    public AccountTeamMember PWA{get;set;}
+    public Boolean isFormReadOnly{get;set;}
+    
+    public RelationshipTeamController(ApexPages.StandardController controller) {
+        this.DepositValue = 0.00;
+        this.RM = new Account();
+        this.commitment = 0.00;
+        this.TCBUsedBalance = 0.00;
+        this.cardSpend = 0.00;
+        this.IbDeposit = 0.00;
+        this.NibDeposit = 0.00;
+        this.funded = 0.00;
+        this.TSFees = 0.00;
+        this.IBFees =0.00;
+        this.TSOpp = new Opportunity();
+        this.allCCNHierachyAccounts = new Map<ID,Account>();
+        this.accountFacilityCount = new Map<Id,Integer>();
+        this.accountWithCustomerCommitmentAmount = new Map<ID,Decimal>();
+        this.commitmentAmount = 0;
+        this.countOfFacilities = 0;
+        currentRecordId = ApexPages.CurrentPage().getparameters().get('Id');
+        String accountPlanningId = ApexPages.CurrentPage().getparameters().get('apId');
+        String mode = ApexPages.CurrentPage().getparameters().get('mode');
+        
+        System.debug('Account ID : '+ currentRecordId);
+        System.debug('Account Planning ID : '+ accountPlanningId);
+        System.debug('Mode: '+ mode);
+        
+        // Check if form should be read-only based on Account Planning Period
+        AccountPlanning_Period__c validPeriod = validateAccountPlanningPeriod();
+        isFormReadOnly = (validPeriod == null);
+        
+        apExist = new Account_Planning__c();
+        try{
+            // Updated query to include new fields
+            if(String.isNotBlank(accountPlanningId)){
+                apExist = [Select Id,Account__c,IB__c,PWA__c,Ownership__c,TSNotes__c,Revenue__c,
+                       PxV__c,EBIDTDA__c,Debt__c,CreditNotes__c,CFNotes__c,Card__c,IBNotes__c,
+                       PWANotes__c,Strategic_Opportunity__c, Next_Steps_Action_Plan__c,
+                       Tier__c, Industry__c, RM__c, TSO__c, TSA__c, CSO__c, 
+                       Facilities__c, Commitments__c, Outstanding__c,
+                       Facility_Grade_s__c, Deposits__c, Name, IBTeamMemberUserName__c, PWATeamMemberUserName__c 
+                       FROM Account_Planning__c
+                       Where Id = :accountPlanningId LIMIT 1 ];
+                
+            }else{
+          
+                apExist = [Select Id,Account__c,IB__c,PWA__c,Ownership__c,TSNotes__c,Revenue__c,
+                       PxV__c,EBIDTDA__c,Debt__c,CreditNotes__c,CFNotes__c,Card__c,IBNotes__c,
+                       PWANotes__c,Strategic_Opportunity__c, Next_Steps_Action_Plan__c,
+                       Tier__c, Industry__c, RM__c, TSO__c, TSA__c, CSO__c, 
+                       Facilities__c, Commitments__c, Outstanding__c,
+                       Facility_Grade_s__c, Deposits__c, Name, IBTeamMemberUserName__c, PWATeamMemberUserName__c 
+                       FROM Account_Planning__c
+                       Where Account__c =:currentRecordId AND Account_Planning_Period__c != null AND Account_Planning_Period__r.StartDate__c <= TODAY AND Account_Planning_Period__r.EndDate__c >= TODAY LIMIT 1 ];
+         
+			}
+            
+            if(apExist != null && !isFormReadOnly){
+                IBValue = apExist.IB__c;
+                PWAValue = apExist.PWA__c;
+                OwnershipValue = apExist.Ownership__c;
+                SOppValue = apExist.Strategic_Opportunity__c;
+                cardInputValue = apExist.Card__c;
+                notesInputValue = apExist.CFNotes__c;
+                creditNotesValue = apExist.CreditNotes__c;
+                debtValue = apExist.Debt__c;
+                ebidtdaValue = apExist.EBIDTDA__c;
+                pxvInputValue = apExist.PxV__c;
+                revenueValue = apExist.Revenue__c;
+                notesInput_pxvCard = apExist.TSNotes__c;
+                IBNotes = apExist.IBNotes__c;
+                PWANotes = apExist.PWANotes__c;
+                NextSteps_ActionPlan = apExist.Next_Steps_Action_Plan__c;
+            } else if(isFormReadOnly) {
+                // Clear all field values when form is read-only
+                clearFormValues();
+            }
+            getOpps();
+        }catch(Exception e){
+            apExist = null;
+        }
+        system.debug('currentRecordId == >'+currentRecordId);
+        
+        if(!isFormReadOnly) {
+            getFacilityCount();
+            getRelationshipTeams();
+            oppsHeaderRollUps();
+        } else {
+            // Initialize empty objects when read-only
+            initializeEmptyObjects();
+        }
     }
+    
+    // Method to clear all form values when read-only
+    private void clearFormValues() {
+        IBValue = '';
+        PWAValue = '';
+        OwnershipValue = '';
+        SOppValue = '';
+        cardInputValue = null;
+        notesInputValue = '';
+        creditNotesValue = '';
+        debtValue = null;
+        ebidtdaValue = null;
+        pxvInputValue = null;
+        revenueValue = null;
+        notesInput_pxvCard = '';
+        IBNotes = '';
+        PWANotes = '';
+        NextSteps_ActionPlan = '';
+    }
+    
+    // Method to initialize empty objects when read-only
+    private void initializeEmptyObjects() {
+        CSO = new AccountTeamMember();
+        TSO = new AccountTeamMember();
+        TSA = new AccountTeamMember();
+        IBTeamMember = new AccountTeamMember();
+        PWA = new AccountTeamMember();
+        creditOpp = new Opportunity();
+        IBOpp = new Opportunity();
+        TSOpp = new Opportunity();
+        creditOpp_Potential = new Opportunity();
+        IBOpprtunity_Potential = new Opportunity();
+        TSOpp_Potential = new Opportunity();
+    }
+    
+    // Method to validate Account Planning Period
+    private AccountPlanning_Period__c validateAccountPlanningPeriod() {
+        Date today = Date.today();
+        
+        List<AccountPlanning_Period__c> validPeriods = [
+            SELECT Name, StartDate__c, EndDate__c
+            FROM AccountPlanning_Period__c
+            WHERE StartDate__c <= :today AND EndDate__c >= :today
+            LIMIT 1
+        ];
+        
+        if (validPeriods.isEmpty()) {
+            return null;
+        }
+        
+        return validPeriods[0];
+    }
+    
+    public void getFacilityCount(){
+        Integer riskRatingCount = 0;
+        Integer riskRatingInteger = 0;
+        String riskRatingStr = '';
+        Integer riskRatingSum = 0;
+        riskRatingAvg = 0.00;
+        List<Account> accList = new List<Account>();
+        accList = [Select Id,Name,Region__c,ParentId,CIF__c,CCN__c,Owner.Name,Tier_Level__c,
+                   Industry,Primary_NAICS_Description__c,Total_Deposit_Current_Balance__c
+                   from Account Where Id =: currentRecordId];
+        
+        Map<ID,Account> hierarchyAccount = new Map<ID,Account> ([Select Id,ParentID,CCN__c,
+                                                                 CIF__c,Tier_Level__c,Primary_NAICS_Description__c
+                                                                 From Account Where (ParentID IN :accList)
+                                                                 AND (CIF__c != :accList[0].CCN__c) ]);
+        
+        hierarchyAccount.put(accList[0].Id,accList[0]);
+        RM = accList[0];
+        
+        if(!hierarchyAccount.isEmpty()){
+            allCCNHierachyAccounts = hierarchyAccount;
+        }
+        
+        List<Facility__c> allFacilities = [Select Id,Commitment_Balance__c,Used_Balance__c,
+                                           Risk_Rating__c,Relationship__c
+                                           From Facility__c
+                                           Where Relationship__c IN :hierarchyAccount.keySet() ];
+        
+        if(allFacilities.size() > 0) {
+            for(Facility__c facility : allFacilities){
+                countOfFacilities += 1;
+                if(facility.Commitment_Balance__c != null){
+                    commitmentAmount += facility.Commitment_Balance__c;
+                }
+                
+                if(facility.Used_Balance__c != null){
+                    TCBUsedBalance += facility.Used_Balance__c;
+                }
+                
+                if(facility.Risk_Rating__c != null){
+                    riskRatingCount++;
+                    riskRatingStr = facility.Risk_Rating__c.trim().substring(0, 1);
+                    riskRatingInteger = Integer.valueOf(riskRatingStr);
+                    riskRatingSum += riskRatingInteger;
+                }
+            }
+            
+            if(riskRatingCount == 1){
+                riskRatingAvg = 1;
+            }else if(riskRatingCount > 1) {
+                riskRatingAvg = riskRatingSum / riskRatingCount;
+            }
+        }
+    }
+    
+    
+    public pagereference handleSave(){
+        try{
+            // Validate Account Planning Period
+            AccountPlanning_Period__c validPeriod = validateAccountPlanningPeriod();
+            
+            if (validPeriod == null) {
+                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,
+                                                           'No Account Planning Period found for Today'));
+                return null;
+            }
+            
+            
+            
+            // Generate the record name from custom metadata
+            String recordName = validPeriod.Name;
+            Id savedRecordId;
+            
+            if(apExist != null && apExist.Id != null){
+                // Update existing record - editable fields
+                apExist.Name = recordName;
+                apExist.IB__c = IBValue;
+                apExist.PWA__c = PWAValue;
+                apExist.Ownership__c = OwnershipValue;
+                apExist.Strategic_Opportunity__c = SOppValue;
+                apExist.Card__c = cardInputValue;
+                apExist.CFNotes__c = notesInputValue;
+                apExist.CreditNotes__c = creditNotesValue;
+                apExist.Debt__c = debtValue;
+                apExist.EBIDTDA__c = ebidtdaValue;
+                apExist.PxV__c = pxvInputValue;
+                apExist.Revenue__c = revenueValue;
+                apExist.TSNotes__c = notesInput_pxvCard;
+                apExist.IBNotes__c = IBNotes;
+                apExist.PWANotes__c = PWANotes;
+                apExist.Next_Steps_Action_Plan__c = NextSteps_ActionPlan;
+                
+                // Update read-only fields from related objects
+                if(RM != null){
+                    apExist.Tier__c = RM.Tier_Level__c;
+                    apExist.Industry__c = RM.Primary_NAICS_Description__c;
+                    apExist.RM__c = RM.Owner.Name;
+                    apExist.Deposits__c = RM.Total_Deposit_Current_Balance__c;
+                }
+                
+                if(TSO != null) apExist.TSO__c = TSO.User.Name;
+                if(TSA != null) apExist.TSA__c = TSA.User.Name;
+                if(CSO != null) apExist.CSO__c = CSO.User.Name;
+                if(IBTeamMember != null) apExist.IBTeamMemberUserName__c = IBTeamMember.User.Name; 
+                if(PWA != null) apExist.PWATeamMemberUserName__c = PWA.User.Name;
+                
+                apExist.Facilities__c = countOfFacilities;
+                apExist.Commitments__c = commitmentAmount;
+                apExist.Outstanding__c = TCBUsedBalance;
+                apExist.Facility_Grade_s__c = riskRatingAvg;
+                
+                update apExist;
+                savedRecordId = apExist.Id;
+                system.debug('ID ==> '+apExist.ID);
+                
+            }else{
+                // Create new record
+                Account_Planning__c ap = new Account_Planning__c();
+                ap.Name = recordName;
+                ap.Account__c = currentRecordId;
+                
+                // Set editable fields
+                ap.IB__c = IBValue;
+                ap.PWA__c = PWAValue;
+                ap.Ownership__c = OwnershipValue;
+                ap.Strategic_Opportunity__c = SOppValue;
+                ap.Card__c = cardInputValue;
+                ap.CFNotes__c = notesInputValue;
+                ap.CreditNotes__c = creditNotesValue;
+                ap.Debt__c = debtValue;
+                ap.EBIDTDA__c = ebidtdaValue;
+                ap.PxV__c = pxvInputValue;
+                ap.Revenue__c = revenueValue;
+                ap.TSNotes__c = notesInput_pxvCard;
+                ap.IBNotes__c = IBNotes;
+                ap.PWANotes__c = PWANotes;
+                ap.Next_Steps_Action_Plan__c = NextSteps_ActionPlan;
+                
+                // Set read-only fields from related objects
+                if(RM != null){
+                    ap.Tier__c = RM.Tier_Level__c;
+                    ap.Industry__c = RM.Primary_NAICS_Description__c;
+                    ap.RM__c = RM.Owner.Name;
+                    ap.Deposits__c = RM.Total_Deposit_Current_Balance__c;
+                }
+                
+                if(TSO != null) ap.TSO__c = TSO.User.Name;
+                if(TSA != null) ap.TSA__c = TSA.User.Name;
+                if(CSO != null) ap.CSO__c = CSO.User.Name;
+                if(IBTeamMember != null) apExist.IBTeamMemberUserName__c = IBTeamMember.User.Name; 
+                if(PWA != null) apExist.PWATeamMemberUserName__c = PWA.User.Name;
+                
+                ap.Facilities__c = countOfFacilities;
+                ap.Commitments__c = commitmentAmount;
+                ap.Outstanding__c = TCBUsedBalance;
+                ap.Facility_Grade_s__c = riskRatingAvg;
+                ap.Account_Planning_Period__c = validPeriod.Id;
+                
+                Insert ap;
+                apExist = ap;
+                savedRecordId = ap.Id;
+                system.debug('ID ==> '+ap.ID);
+            }
+            
+            
+            
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM,
+                                                       'Account Planning saved successfully'));
+        }catch(Exception e){
+            System.debug('The following exception has occurred: ' + e.getMessage());
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,
+                                                       'Error saving: ' + e.getMessage()));
+        }
+        return null;
+    }
+    // Keep all other existing methods unchanged
+    public void getOpps(){
+        oppsList = new List<Opportunity>();
+        oppsList = [Select Id,AccountId ,Deal_ID__c,CloseDate,Description,owner.name 
+                    From Opportunity Where AccountId =: currentRecordId];
+    }
+    
+    public void oppsHeaderRollUps(){
+        System.debug('In the Opps Header Rollups');
+        System.debug('Account Hierarchy IDS '+allCCNHierachyAccounts);
+        //Credit-New, and Credit-Renew/Modify
+        // Credit-New, and Credit-Renew/Modify
+        // Treasury - Acquire/Deepen opportunity record types
+        // //Treasury - Acquire/Deepen opportunity record types
+        // Treasury - Acquire/Deepen opportunity record types
+        // Capital Solutions Opportunity record type
+        // Credit - New and Credit - Renew/Modify
+        //
+        // credit -New and Credit - Renew/Modify
+        // TS - treasury acquire/deepen
+        // IB - Investment Banking
+        // PWA - Private Bank Opportunity
+        // PWA- private Wealth Advisor
+        //
+        // get all the accounts in hierarchy
+        // get all the realated opps
+        //
+        //
+        
+        Map<Decimal,Opportunity> creditOpportunity_CreditNew_Open = new Map<Decimal,Opportunity>();
+        Map<Decimal,Opportunity> creditOpportunity_CreditReNew_Open = new Map<Decimal,Opportunity>();
+        Map<Decimal,Opportunity> IBOpp_Open = new Map<Decimal,Opportunity>();
+        // Map<Decimal,Opportunity> IBOpp_Potential = new Map<Decimal,Opportunity>();
+        
+        Map<Decimal,Opportunity> TS_IB_Open = new Map<Decimal,Opportunity>();
+        Map<Decimal,Opportunity> TS_NIB_Open = new Map<Decimal,Opportunity>();
+        Map<Decimal,Opportunity> TS_PXV_Open = new Map<Decimal,Opportunity>();
+        Map<Decimal,Opportunity> TS_CardSpend_Open = new Map<Decimal,Opportunity>();
+        
+        
+        Map<Decimal,Opportunity> creditOpportunity_CreditNew_Potential = new Map<Decimal,Opportunity>();
+        Map<Decimal,Opportunity> creditOpportunity_CreditReNew_Potential = new Map<Decimal,Opportunity>();
+        Map<Decimal,Opportunity> IBOpp_Potential = new Map<Decimal,Opportunity>();
+        
+        Map<Decimal,Opportunity> TS_IB_Potential = new Map<Decimal,Opportunity>();
+        Map<Decimal,Opportunity> TS_NIB_Potential = new Map<Decimal,Opportunity>();
+        Map<Decimal,Opportunity> TS_PXV_Potential = new Map<Decimal,Opportunity>();
+        Map<Decimal,Opportunity> TS_CardSpend_Potential= new Map<Decimal,Opportunity>();
+        
+        Decimal deposits=0.00;
+        
+        Decimal funded_Credit_New = 0.00;
+        Decimal funded_Credit_ReNew = 0.00;
+        
+        Decimal funded_Credit_New_Max = 0.00;
+        Decimal funded_Credit_ReNew_Max = 0.00;
+        Decimal IBFees_Max_Open = 0.00; // only Expected Revenue field is condidered to show on the table
+        Decimal TS_IB_Max = 0.00;
+        Decimal TS_NIB_Max = 0.00;
+        Decimal TS_PXV_Max = 0.00;
+        Decimal TS_CardSpend_Max = 0.00;
+        Decimal deposit_Open = 0.00;
+        Decimal deposit_Potential = 0.00;
+        Decimal deposit_Max = 0.00;
+        
+        Decimal funded_Credit_New_Max_Potential = 0.00;
+        Decimal funded_Credit_ReNew_Max_Potential = 0.00;
+        Decimal TS_PXV_Max_Potential = 0.00;
+        Decimal TS_CardSpend_Max_Potential = 0.00;
+        Decimal TS_NIB_Max_Potential = 0.00;
+        Decimal TS_IB_Max_Potential = 0.00;
+        Decimal IBFees_Max_Potential = 0.00;
+        Decimal yearlyIncome = 0.00;
+        Decimal merchantServiceRevenue = 0.00;
+        Decimal FXSpread = 0.00;
+        Decimal syndication_Credit_New = 0.00;
+        Decimal syndication_Credit_ReNew = 0.00;
+        Decimal TCBGrossDerivativeIncome = 0.00;
+        Decimal expectedRevenue = 0.00;
+        Decimal commitment_Credit_New = 0.00;
+        Decimal commitment_Credit_ReNew = 0.00;
+        Map<Id,Opportunity> creditNewOpps = new Map<Id,Opportunity>();
+        Map<Id,Opportunity> Credit_RenewOpps = new Map<Id,Opportunity>();
+        Map<Id,Opportunity> Treasury_Acquire_DeepenOpps = new Map<Id,Opportunity>();
+        Map<Id,Opportunity> Capital_SolutionsOpps = new Map<Id,Opportunity>();
+        Map<Id,Opportunity> Investment_BankingOpps = new Map<Id,Opportunity>();
+        Map<Id,Opportunity> Private_Bank_OpportunityOpps = new Map<Id,Opportunity>();
+        Map<Id,Opportunity> Private_Wealth_AdvisorsOpps = new Map<Id,Opportunity>();
+        Map<Id,Opportunity> credit_CreditNew_Open = new Map<Id,Opportunity>(); // Display deals that are not in a closed stage nor are in Non-Qualified stage.
+        Map<Id,Opportunity> TS_Open = new Map<Id,Opportunity>(); // Display deals that are not in a closed stage nor are in Non-Qualified stage.
+        Map<Id,Opportunity> IB_Open = new Map<Id,Opportunity>(); // Display deals that are not in a closed stage nor are in Non-Qualified stage.
+        List<String> recordTypes = new List<String>{'Credit_New','Credit_Renew','Treasury_Acquire_Deepen','Capital_Solutions','Investment_Banking','Private_Bank_Opportunity','Private_Wealth_Advisors'};
+            
+        List<Opportunity> allOpportunities = [Select Id,Name,RecordType.DeveloperName,TCB_Funded_Amount__c,AccountId,Estimated_IB_Deposit_Amount__c,Estimated_Operating_Deposits__c,Average_Spend__c,Yearly_Income__c,Merchant_Services_Revenue__c, FX_Spread__c,Swap__c,Expected_Revenue__c,FAS_91_Fees_Skim_Current__c,StageName, Total_TCB_Final_Allocation__c,Deal_ID__c,Account.Name,Owner.Name,CloseDate From Opportunity Where RecordType.DeveloperName IN : recordTypes AND AccountID IN : allCCNHierachyAccounts.keyset() ];
+        
+        for(Opportunity opp : allOpportunities){
+            
+            if(opp.RecordType.DeveloperName == 'Credit_New'){
+                
+                if(opp.StageName != null && ( (opp.StageName != 'Closed') && (opp.StageName != 'Won') && (opp.StageName != 'Lost') && (opp.StageName != 'Closed Won') && (opp.StageName != 'Closed Lost') && (opp.StageName != 'Closed-Won') && (opp.StageName != 'Closed-Lost') && (opp.StageName != 'Closed-Cancelled')) && opp.StageName != 'Non-Qualified Opportunity' ){ // Display deals that are not in a closed stage nor are in Non-Qualified stage.
+                    // credit_CreditNew_Open.put(opp.id,opp);
+                    
+                    if(opp.TCB_Funded_Amount__c >= funded_Credit_New_Max ){
+                        
+                        
+                        funded_Credit_New_Max = opp.TCB_Funded_Amount__c;
+                        creditOpportunity_CreditNew_Open.put(funded_Credit_New_Max,opp);
+                        
+                    }
+                }else if( opp.StageName == 'Non-Qualified Opportunity'){
+                    
+                    System.debug('In Non-Qualified credit Renew === >');
+                    
+                    if(opp.TCB_Funded_Amount__c >= funded_Credit_New_Max_Potential ){
+                        
+                        funded_Credit_New_Max_Potential = opp.TCB_Funded_Amount__c;
+                        creditOpportunity_CreditNew_Potential.put(funded_Credit_New_Max_Potential,opp);
+                        
+                    }
+                }
+                
+                if(opp.TCB_Funded_Amount__c != null){
+                    
+                    funded_Credit_New += opp.TCB_Funded_Amount__c; // adding all the creditnew opps funded amout
+                    
+                }
+                
+                if(opp.FAS_91_Fees_Skim_Current__c != null){
+                    syndication_Credit_New += opp.FAS_91_Fees_Skim_Current__c;
+                }
+                
+                if(opp.Total_TCB_Final_Allocation__c != null){
+                    commitment_Credit_New += opp.Total_TCB_Final_Allocation__c;
+                }
+                
+                
+            }else if(opp.RecordType.DeveloperName == 'Credit_Renew'){
+                
+                
+                if(opp.StageName != null && ( (opp.StageName != 'Closed') && (opp.StageName != 'Won') && (opp.StageName != 'Lost') && (opp.StageName != 'Closed Won') && (opp.StageName != 'Closed Lost') && (opp.StageName != 'Closed-Won') && (opp.StageName != 'Closed-Lost') && (opp.StageName != 'Closed-Cancelled')) && opp.StageName != 'Non-Qualified Opportunity' ){ // Display deals that are not in a closed stage nor are in Non-Qualified stage.
+                    
+                    if(opp.TCB_Funded_Amount__c >= funded_Credit_ReNew_Max ){
+                        
+                        funded_Credit_ReNew_Max = opp.TCB_Funded_Amount__c;
+                        
+                        creditOpportunity_CreditReNew_Open.put(funded_Credit_ReNew_Max,opp);
+                        
+                    }
+                    
+                }else if(opp.StageName == 'Non-Qualified Opportunity'){
+                    
+                    if(opp.TCB_Funded_Amount__c >= funded_Credit_ReNew_Max_Potential ){
+                        
+                        funded_Credit_ReNew_Max_Potential = opp.TCB_Funded_Amount__c;
+                        
+                        creditOpportunity_CreditReNew_Potential.put(funded_Credit_ReNew_Max_Potential,opp);
+                        
+                    }
+                }
+                
+                if(opp.TCB_Funded_Amount__c != null){
+                    
+                    funded_Credit_ReNew += opp.TCB_Funded_Amount__c;
+                    
+                    
+                }
+                
+                if(opp.FAS_91_Fees_Skim_Current__c != null){
+                    syndication_Credit_ReNew += opp.FAS_91_Fees_Skim_Current__c;
+                }
+                
+                if(opp.Total_TCB_Final_Allocation__c != null){
+                    commitment_Credit_ReNew += opp.Total_TCB_Final_Allocation__c;
+                }
+                
+            }else if(opp.RecordType.DeveloperName == 'Treasury_Acquire_Deepen'){
+                
+                System.debug(opp + 'op > Depsoit NIB ---- > '+ opp.Yearly_Income__c + ' '+ opp.Merchant_Services_Revenue__c + ' ' + opp.FX_Spread__c);
+                
+                
+                if(opp.StageName != null && ( (opp.StageName != 'Closed') && (opp.StageName != 'Won') && (opp.StageName != 'Lost') && (opp.StageName != 'Closed Won') && (opp.StageName != 'Closed Lost') && (opp.StageName != 'Closed-Won') && (opp.StageName != 'Closed-Lost') && (opp.StageName != 'Closed-Cancelled')) && opp.StageName != 'Non-Qualified Opportunity' ){ // Display deals that are not in a closed stage nor are in Non-Qualified stage.
+                    //TS_Open.put(opp.id,opp);
+                    
+                    if(opp.Yearly_Income__c != null) {
+                        // Est. Annual Gross Recurring PxV Revenue - Yearly_Income__c for pxv calculation
+                        
+                        if(opp.Yearly_Income__c >= TS_PXV_Max ){
+                            
+                            TS_PXV_Max = opp.Yearly_Income__c;
+                            TS_PXV_Open.put(TS_PXV_Max,opp);
+                            
+                        }
+                    }
+                    
+                    if(opp.Average_Spend__c != null) {
+                        // Average_Spend__c - for card spend calculation
+                        
+                        if(opp.Average_Spend__c >= TS_CardSpend_Max ){
+                            
+                            TS_CardSpend_Max = opp.Average_Spend__c;
+                            TS_CardSpend_Open.put(TS_CardSpend_Max,opp);
+                            
+                        }
+                    }
+                    
+                    if(opp.Estimated_Operating_Deposits__c != null) {
+                        // Estimated_Operating_Deposits__c - for Deposit NIB calculation
+                        
+                        if(opp.Estimated_Operating_Deposits__c >= TS_NIB_Max ){
+                            
+                            TS_NIB_Max = opp.Estimated_Operating_Deposits__c;
+                            TS_NIB_Open.put(TS_NIB_Max,opp);
+                            
+                        }
+                    }
+                    
+                    if(opp.Estimated_IB_Deposit_Amount__c != null) {
+                        // Estimated_IB_Deposit_Amount__c - for Deposit IB calculation
+                        
+                        if(opp.Estimated_IB_Deposit_Amount__c >= TS_IB_Max ){
+                            
+                            TS_IB_Max = opp.Estimated_IB_Deposit_Amount__c;
+                            TS_IB_Open.put(TS_IB_Max,opp);
+                            
+                        }
+                    }
+                    
+                }else if(opp.StageName == 'Non-Qualified Opportunity'){
+                    
+                    if(opp.Yearly_Income__c != null) {
+                        // Est. Annual Gross Recurring PxV Revenue - Yearly_Income__c for pxv calculation
+                        
+                        if(opp.Yearly_Income__c >= TS_PXV_Max_Potential ){
+                            
+                            TS_PXV_Max_Potential = opp.Yearly_Income__c;
+                            TS_PXV_Potential.put(TS_PXV_Max_Potential,opp);
+                            
+                        }
+                    }
+                    
+                    if(opp.Average_Spend__c != null) {
+                        // Average_Spend__c - for card spend calculation
+                        
+                        if(opp.Average_Spend__c >= TS_CardSpend_Max_Potential ){
+                            
+                            TS_CardSpend_Max_Potential = opp.Average_Spend__c;
+                            TS_CardSpend_Potential.put(TS_CardSpend_Max_Potential,opp);
+                            
+                        }
+                    }
+                    
+                    if(opp.Estimated_Operating_Deposits__c != null) {
+                        // Estimated_Operating_Deposits__c - for Deposit NIB calculation
+                        
+                        if(opp.Estimated_Operating_Deposits__c >= TS_NIB_Max_Potential ){
+                            
+                            TS_NIB_Max_Potential = opp.Estimated_Operating_Deposits__c;
+                            TS_NIB_Potential.put(TS_NIB_Max_Potential,opp);
+                            
+                        }
+                    }
+                    
+                    if(opp.Estimated_IB_Deposit_Amount__c != null) {
+                        // Estimated_IB_Deposit_Amount__c - for Deposit IB calculation
+                        
+                        if(opp.Estimated_IB_Deposit_Amount__c >= TS_IB_Max_Potential ){
+                            
+                            TS_IB_Max_Potential = opp.Estimated_IB_Deposit_Amount__c;
+                            TS_IB_Potential.put(TS_IB_Max_Potential,opp);
+                            
+                        }
+                    }
+                    
+                }
+                
+                if( opp.Estimated_IB_Deposit_Amount__c != null){
+                    IbDeposit += opp.Estimated_IB_Deposit_Amount__c;
+                }
+                
+                if(opp.Estimated_Operating_Deposits__c != null){
+                    NibDeposit += opp.Estimated_Operating_Deposits__c;
+                    
+                }
+                
+                
+                
+                if(opp.Average_Spend__c != null){
+                    
+                    cardSpend += opp.Average_Spend__c;
+                    
+                }
+                
+                if(opp.Yearly_Income__c != null){
+                    
+                    yearlyIncome += opp.Yearly_Income__c ;
+                    
+                }
+                
+                if(opp.Merchant_Services_Revenue__c != null){
+                    merchantServiceRevenue += opp.Merchant_Services_Revenue__c;
+                }
+                
+                if(opp.FX_Spread__c != null){
+                    FXSpread += opp.FX_Spread__c;
+                }
+                
+            }else if(opp.RecordType.DeveloperName == 'Capital_Solutions'){
+                
+                if(opp.Swap__c != null){
+                    TCBGrossDerivativeIncome += opp.Swap__c;
+                }
+                
+                
+                
+            }else if(opp.RecordType.DeveloperName == 'Investment_Banking'){
+                
+                if(opp.StageName != null && ( (opp.StageName != 'Closed') && (opp.StageName != 'Won') && (opp.StageName != 'Lost') && (opp.StageName != 'Closed Won') && (opp.StageName != 'Closed Lost') && (opp.StageName != 'Closed-Won') && (opp.StageName != 'Closed-Lost') && (opp.StageName != 'Closed-Cancelled')) && opp.StageName != 'Non-Qualified Opportunity' ){ // Display deals that are not in a closed stage nor are in Non-Qualified stage.
+                    //IB_Open.put(opp.id,opp);
+                    //
+                    
+                    if(opp.Expected_Revenue__c != null){
+                        
+                        if( opp.Expected_Revenue__c >= IBFees_Max_Open){
+                            
+                            IBFees_Max_Open = opp.Expected_Revenue__c;
+                            IBOpp_Open.put(IBFees_Max_Open,opp);
+                            
+                        }
+                        
+                    }
+                    
+                    
+                }else if(opp.StageName == 'Non-Qualified Opportunity'){
+                    
+                    if(opp.Expected_Revenue__c != null){
+                        
+                        if( opp.Expected_Revenue__c >= IBFees_Max_Potential){
+                            
+                            IBFees_Max_Potential = opp.Expected_Revenue__c;
+                            IBOpp_Potential.put(IBFees_Max_Potential,opp);
+                            
+                        }
+                        
+                    }
+                    
+                }
+                
+                if(opp.Expected_Revenue__c != null){
+                    expectedRevenue += opp.Expected_Revenue__c;
+                }
+                
+                
+            }
+            
+            
+        }
+        
+        // Final Calculation
+        
+        if(funded_Credit_New > funded_Credit_ReNew) {
+            funded = funded_Credit_New;
+        }else {
+            funded = funded_Credit_ReNew;
+        }
+        
+        if(commitment_Credit_New > commitment_Credit_ReNew){
+            commitment = commitment_Credit_New;
+        }else {
+            commitment = commitment_Credit_ReNew;
+        }
+        //funded = funded_Credit_New + funded_Credit_ReNew;
+        TSFees = yearlyIncome + merchantServiceRevenue + FXSpread;
+        IBFees = syndication_Credit_New + syndication_Credit_ReNew + TCBGrossDerivativeIncome + expectedRevenue;
+        
+        if(funded_Credit_New_Max > funded_Credit_ReNew_Max){
+            creditOpp = new Opportunity();
+            creditOpp = creditOpportunity_CreditNew_Open.get(funded_Credit_New_Max);
+        }else {
+            creditOpp = new Opportunity();
+            creditOpp = creditOpportunity_CreditReNew_Open.get(funded_Credit_ReNew_Max);
+        }
+        
+        if(funded_Credit_New_Max_Potential > funded_Credit_ReNew_Max_Potential){
+            creditOpp_Potential = new Opportunity();
+            creditOpp_Potential = creditOpportunity_CreditNew_Potential.get(funded_Credit_New_Max_Potential);
+        }else {
+            creditOpp_Potential = new Opportunity();
+            creditOpp_Potential = creditOpportunity_CreditReNew_Potential.get(funded_Credit_ReNew_Max_Potential);
+        }
+        
+        
+        system.debug('===> creditOpp_Potential '+creditOpp_Potential );
+        
+        if(IBFees_Max_Open > 0.00){
+            IBOpp = new Opportunity();
+            IBOpp = IBOpp_Open.get(IBFees_Max_Open);
+        }
+        
+        if(IBFees_Max_Potential > 0.00){
+            IBOpprtunity_Potential = new Opportunity();
+            IBOpprtunity_Potential = IBOpp_Potential.get(IBFees_Max_Potential);
+        }
+        
+        system.debug('===> IBOpprtunity_Potential '+IBOpprtunity_Potential );
+        
+        
+        
+        if(TS_IB_Max > TS_NIB_Max){
+            TSOpp = TS_IB_Open.get(TS_IB_Max);
+            deposit_Open = TS_IB_Max;
+        }else{
+            deposit_Open = TS_NIB_Max;
+            TSOpp = TS_NIB_Open.get(TS_NIB_Max);
+        }
+        
+        if(deposit_Open > TS_PXV_Max && deposit_Open > TS_CardSpend_Max){
+            // deposit is max
+            // deposit_Max = deposit_Open;
+            // TSOpp =
+            
+        }else if(TS_PXV_Max > deposit_Open && TS_PXV_Max > TS_CardSpend_Max){
+            // TS_PXV_Max is max
+            //deposit_Max = TS_PXV_Max;
+            TSOpp = TS_PXV_Open.get(TS_PXV_Max);
+            
+        }else if(TS_CardSpend_Max > deposit_Open && TS_CardSpend_Max > TS_PXV_Max){
+            // TS_CardSpend_Max is max
+            // deposit_Max = TS_CardSpend_Max;
+            TSOpp = TS_CardSpend_Open.get(TS_CardSpend_Max);
+        }
+        
+        // system.debug('Funded === > '+ funded);
+        // system.debug('funded_Credit_New === > '+ funded_Credit_New);
+        // system.debug('funded_Credit_ReNew === > '+ funded_Credit_ReNew);
+        // system.debug('IbDeposit === > '+ IbDeposit); IbDeposit + NibDeposit
+        
+        system.debug('NibDeposit === > '+ NibDeposit);
+        //system.debug('cardSpend === > '+ cardSpend);
+        system.debug('TSFees === > '+ TSFees);
+        system.debug('IBFees === > '+ IBFees);
+        
+        system.debug('credit_CreditNew_Open === > '+ credit_CreditNew_Open);
+        system.debug('TS_Open === > '+ TS_Open);
+        system.debug('IB_Open === > '+ IB_Open);
+        
+        DepositValue = IbDeposit + NibDeposit;
+        
+        if(TS_IB_Max_Potential > TS_NIB_Max_Potential){
+            TSOpp_Potential = TS_IB_Potential.get(TS_IB_Max_Potential);
+            deposit_Potential = TS_IB_Max_Potential;
+        }else{
+            deposit_Potential = TS_NIB_Max_Potential;
+            TSOpp_Potential = TS_NIB_Potential.get(TS_NIB_Max_Potential);
+        }
+        
+        if(deposit_Potential > TS_PXV_Max_Potential && deposit_Potential > TS_CardSpend_Max_Potential){
+            // deposit is max
+            // deposit_Max = deposit_Open;
+            // TSOpp =
+            
+        }else if(TS_PXV_Max_Potential > deposit_Potential && TS_PXV_Max_Potential > TS_CardSpend_Max_Potential){
+            // TS_PXV_Max is max
+            //deposit_Max = TS_PXV_Max;
+            TSOpp_Potential = TS_PXV_Potential.get(TS_PXV_Max_Potential);
+            
+        }else if(TS_CardSpend_Max_potential > deposit_Potential && TS_CardSpend_Max_Potential > TS_PXV_Max_Potential){
+            // TS_CardSpend_Max is max
+            // deposit_Max = TS_CardSpend_Max;
+            TSOpp_Potential = TS_CardSpend_Potential.get(TS_CardSpend_Max_Potential);
+        }
+        
+        system.debug('TSOpp_Potential === > '+ TSOpp_Potential);
+    }
+    
+    public void getRelationshipTeams(){
+        
+        AccountTeamMember IB;
+        AccountTeamMember IB_M_A ;
+        AccountTeamMember IB_Syndications;
+        AccountTeamMember IB_Sponsor_Coverage ;
+        AccountTeamMember IB_ABL_Credit;
+        
+        
+        System.debug('In getRelationship Teams ');
+        
+        // Map<ID,AccountTeamMember> allHierarchyTeamMembers = new Map<ID,AccountTeamMember>([Select Id, AccountID, User.Name,TeamMemberRole From AccountTeamMember Where AccountID IN : allCCNHierachyAccounts.keySet() order by User.Name ASC] );
+        Map<ID,AccountTeamMember> allHierarchyTeamMembers = new Map<ID,AccountTeamMember>([Select Id, AccountID, User.Name,TeamMemberRole From AccountTeamMember Where AccountID =: currentRecordId order by User.Name ASC] ); // only considering the CCN Record.
+        
+        System.debug('CSO === > '+CSO );
+        
+        for(AccountTeamMember atm : allHierarchyTeamMembers.values()){
+            
+            if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'Assigned CSO' && CSO == null){
+                CSO = new AccountTeamMember();
+                CSO = atm;
+            }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'Treasury' && TSO == null){ // old
+                TSO = new AccountTeamMember();
+                TSO = atm;
+            }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'TS - TSA (Treasury Solutions Associate)' && TSA ==null){
+                TSA = new AccountTeamMember();
+                TSA = atm;
+                
+            }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'PCA' && PWA == null){
+                PWA = new AccountTeamMember();
+                PWA = atm;
+            }else {
+                
+                if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'IB' && IB == null){
+                    IB = new AccountTeamMember();
+                    IB = atm;
+                    
+                }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'IB - M&A' && IB_M_A == null && IB == null){
+                    IB_M_A = new AccountTeamMember();
+                    IB_M_A = atm;
+                }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'IB - Syndications' && IB_Syndications == null && IB == null && IB_M_A == null ){
+                    IB_Syndications = new AccountTeamMember();
+                    IB_Syndications = atm;
+                }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'IB - Sponsorship' && IB_Sponsor_Coverage == null && IB == null && IB_M_A == null && IB_Syndications == null){
+                    IB_Sponsor_Coverage = new AccountTeamMember();
+                    IB_Sponsor_Coverage = atm;
+                }else if(atm.TeamMemberRole != null && atm.TeamMemberRole == 'IB - ABL Credit' && IB_ABL_Credit == null && IB_Sponsor_Coverage == null && IB == null && IB_M_A == null && IB_Syndications == null){
+                    IB_ABL_Credit = new AccountTeamMember();
+                    IB_ABL_Credit = atm;
+                }
+                
+            }
+            
+        }
+        
+        // || IB_M_A != null || IB_Syndications != null || IB_Sponsor_Coverage != null || IB_ABL_Credit !=null)
+        
+        if(IB != null){
+            IBTeamMember = new AccountTeamMember();
+            IBTeamMember = IB;
+        }else if(IB_M_A != null){
+            IBTeamMember = new AccountTeamMember();
+            IBTeamMember = IB_M_A;
+        }else if(IB_Syndications != null){
+            IBTeamMember = new AccountTeamMember();
+            IBTeamMember = IB_Syndications;
+        }else if(IB_Sponsor_Coverage != null){
+            IBTeamMember = new AccountTeamMember();
+            IBTeamMember = IB_Sponsor_Coverage;
+        }else if(IB_ABL_Credit != null){
+            IBTeamMember = new AccountTeamMember();
+            IBTeamMember = IB_ABL_Credit;
+        }
+    }
+    
 }
