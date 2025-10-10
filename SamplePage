@@ -1,7 +1,14 @@
-<apex:page showHeader="false" standardStylesheets="false" sidebar="false" docType="html-5.0">
+<apex:page applyHtmlTag="false"
+           applyBodyTag="false"
+           showHeader="false"
+           sidebar="false"
+           standardStylesheets="false"
+           standardController="Account"
+           docType="html-5.0"
+           extensions="RelationshipTeamController"> <apex:form >
     <html>
         <head>
-            <style>
+            <style type="text/css">
                 body {
                     font-family: Arial, sans-serif;
                 }
@@ -52,6 +59,9 @@
             <table class="rt-main-layout">
                 <tr>
                     <td class="rt-left-column">
+		     <div class="section-header">
+                            <h2>Relationship Team</h2>
+                     </div><br/><br/>
 
                         <table class="rt-data-table">
                             <tr>
@@ -140,6 +150,33 @@
                     </td>
                 </tr>
             </table>
+<!-- Updated Button Section -->
+            <div class="pdfButton" style="float: right">
+                <!-- When form is read-only: Just open PDF without saving -->
+                <apex:outputPanel rendered="{!isFormReadOnly}">
+                    <button onclick="openPDFDirectly()" type="button">Open PDF</button>
+                </apex:outputPanel>
+                
+                <script>
+                // Function called directly when form is read-only
+                function openPDFDirectly() {
+                    var recId = '{!currentRecordId}';
+                    var apId = '{!apExist.Id}'; // Account Planning record ID
+                    var pageName = 'RelationshipTeamPDF';
+                    
+                    console.log('Opening PDF directly for record: ' + recId);
+                    
+                    // Build URL with multiple parameters
+                    var url = '/apex/' + pageName + '?Id=' + recId + '&apId=' + apId + '&mode=readonly';
+                    window.open(url, '_blank');
+                }
+                </script>
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer">
+                <!-- <img class="logo-bottom" src="{!URLFOR($Resource.TexasCapitalBottomLogo)}" /> -->
+            </div>
 
         </body>
     </html>
