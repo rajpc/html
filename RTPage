@@ -8,166 +8,93 @@
            extensions="RelationshipTeamController">
     <html>
         <head>
-            <style type="text/css">
-                body {
-                font-family: Arial, sans-serif;
-                }
-                
-                .rt-main-layout {
-                width: 100%;
-                }
-                .rt-left-column {
-                width: 50%;
-                vertical-align: top;
-                padding-right: 15px;
-                }
-                .rt-right-column {
-                width: 50%;
-                vertical-align: top;
-                }
-                
-                .rt-data-table {
-                border-collapse: collapse;
-                }
-                
-                .rt-label-cell {
-                background-color: #001f4d; 
-                color: white;
-                padding: 6px 8px;
-                border: 1px solid #D3D3D3; 
-                white-space: nowrap;
-                font-size: 12px;
-                width: 140px; 
-                }
-                
-                .rt-value-cell {
-                background-color: white;
-                padding: 6px 8px;
-                border: 1px solid #D3D3D3; 
-                width: 140px; 
-                font-size: 12px;
-                }
-                
-                .rt-ib-list-table {
-                margin-top: 20px;
-                }
-                .rt-section-header {
-                	background-color: #f2f2f2;
-                	padding: 6px;
-                	border-left: 3px solid #c8102e;
-                	margin: 8px 0 10px 0;
-                }
-                .rt-section-header h2 {
-                	margin: 0;
-                	color: #001f4d;
-                	font-size: 10pt;
-                }
-                
+            <style>
+              /* Your CSS remains the same */
+              body { font-family: Arial, sans-serif; }
+              .rt-main-layout { width: 100%; }
+              .rt-left-column { width: 50%; vertical-align: top; padding-right: 15px; }
+              .rt-right-column { width: 50%; vertical-align: top; }
+              .rt-data-table { border-collapse: collapse; }
+              .rt-label-cell { background-color: #001f4d; color: white; padding: 6px 8px; border: 1px solid #D3D3D3; white-space: nowrap; font-size: 12px; width: 140px; }
+              .rt-value-cell { background-color: white; padding: 6px 8px; border: 1px solid #D3D3D3; width: 140px; font-size: 12px; }
+              .rt-ib-list-table { margin-top: 20px; }
+              .rt-section-header { background-color: #f2f2f2; padding: 6px; border-left: 3px solid #c8102e; margin: 8px 0 10px 0; }
+              .rt-section-header h2 { margin: 0; color: #001f4d; font-size: 10pt; }
             </style>
         </head>
         <body>
             <div class="rt-section-header">
                 <h2>Relationship Team</h2>
             </div>
+            
             <table class="rt-main-layout">
                 <tr>
                     <td class="rt-left-column">
                         
-                        
                         <table class="rt-data-table">
                             <tr>
                                 <td class="rt-label-cell">RM</td>
-                                <td class="rt-value-cell">Todd Hardy</td>
+                                <td class="rt-value-cell">{!Account.Owner.Name}</td>
                             </tr>
-                            <tr>
-                                <td class="rt-label-cell">CSO</td>
-                                <td class="rt-value-cell">Lorrie Martinez</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">TSO</td>
-                                <td class="rt-value-cell">Beth Martin</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">TSA</td>
-                                <td class="rt-value-cell">Annalin Martin</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">PB</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
+
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(CSO.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">CSO</td>
+                                    <td class="rt-value-cell">{!CSO.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(TSO.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">TSO</td>
+                                    <td class="rt-value-cell">{!TSO.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+
+                             <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(TSA.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">TSA</td>
+                                    <td class="rt-value-cell">{!TSA.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(PWA.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">PB</td>
+                                    <td class="rt-value-cell">{!PWA.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
                         </table>
                         
                         <table class="rt-data-table rt-ib-list-table">
-                            <tr>
-                                <td class="rt-label-cell">IB</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - ABL</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - ABL Credit</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - Capital Solutions</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - Coverage</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - EFL</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - ETF</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - Leveraged Finance</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - M&amp;A</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - Operations</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - Public Finance</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - Sales &amp; Trading</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - Sponsor Coverage</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="rt-label-cell">IB - Syndications</td>
-                                <td class="rt-value-cell">&nbsp;</td>
-                            </tr>
+                             <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB</td>
+                                    <td class="rt-value-cell">{!IB.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_M_A.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - M&amp;A</td>
+                                    <td class="rt-value-cell">{!IB_M_A.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Syndications.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Syndications</td>
+                                    <td class="rt-value-cell">{!IB_Syndications.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+
                         </table>
                         
                     </td>
                     <td class="rt-right-column">
-                    </td>
+                        </td>
                 </tr>
             </table>
-
-        
-        <!-- Footer -->
-        <div class="footer">
-            <!-- <img class="logo-bottom" src="{!URLFOR($Resource.TexasCapitalBottomLogo)}" /> -->
-        </div>
-        
-    </body>
-</html>
+        </body>
+    </html>
 </apex:page>
