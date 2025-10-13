@@ -3,83 +3,36 @@ public with sharing class RelationshipTeamController {
     public AccountTeamMember CSO {get; private set;}
     public AccountTeamMember TSO {get; private set;}
     public AccountTeamMember TSA {get; private set;}
-    public AccountTeamMember IBTeamMember {get; private set;}
     public AccountTeamMember PWA {get; private set;}
 
+    public AccountTeamMember IB {get; private set;}
+    public AccountTeamMember IB_M_A {get; private set;}
+    public AccountTeamMember IB_Syndications {get; private set;}
+    public AccountTeamMember IB_Sponsor_Coverage {get; private set;}
+    public AccountTeamMember IB_ABL_Credit {get; private set;}    
+    
+    public AccountTeamMember IB_ABL {get; private set;}
+    public AccountTeamMember IB_Capital_Solutions {get; private set;}
+    public AccountTeamMember IB_Coverage {get; private set;}
+    public AccountTeamMember IB_EFL {get; private set;}
+    public AccountTeamMember IB_ETF {get; private set;}
+    public AccountTeamMember IB_Leveraged_Finance {get; private set;}
+    
+    public AccountTeamMember IB_Operations {get; private set;}
+    public AccountTeamMember IB_Public_Finance {get; private set;}
+    public AccountTeamMember IB_Sales_Trading {get; private set;}
+
     public String currentRecordId {get; set;}
-    public Account_Planning__c apExist {get; set;}
-    public Boolean isFormReadOnly {get; set;}
 
     public RelationshipTeamController(ApexPages.StandardController controller) {
         this.currentRecordId = controller.getId();
         initializeEmptyObjects();
-        
-        AccountPlanning_Period__c validPeriod = validateAccountPlanningPeriod();
-        isFormReadOnly = (validPeriod == null);
-        
         loadTeamMembers();
-
-        try {
-            apExist = [
-                SELECT Id, Name FROM Account_Planning__c
-                WHERE Account__c = :currentRecordId 
-                AND Account_Planning_Period__c = :validPeriod.Id
-                LIMIT 1
-            ];
-        } catch (Exception e) {
-            apExist = new Account_Planning__c();
-        }
-    }
-    
-    public PageReference handleSave() {
-        AccountPlanning_Period__c validPeriod = validateAccountPlanningPeriod();
-        if (validPeriod == null) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'No active Account Planning Period found.'));
-            return null;
-        }
-
-        try {
-            if (apExist.Id == null) {
-                apExist = new Account_Planning__c(
-                    Account__c = this.currentRecordId,
-                    Account_Planning_Period__c = validPeriod.Id,
-                    Name = validPeriod.Name
-                );
-            }
-
-            if (CSO != null) apExist.CSO__c = CSO.User.Name;
-            if (TSO != null) apExist.TSO__c = TSO.User.Name;
-            if (TSA != null) apExist.TSA__c = TSA.User.Name;
-            if (IBTeamMember != null) apExist.IBTeamMemberUserName__c = IBTeamMember.User.Name;
-            if (PWA != null) apExist.PWATeamMemberUserName__c = PWA.User.Name;
-
-            upsert apExist;
-            
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 'Relationship Team saved successfully.'));
-
-        } catch (Exception e) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Error saving: ' + e.getMessage()));
-        }
-        return null;
     }
 
-    private AccountPlanning_Period__c validateAccountPlanningPeriod() {
-        List<AccountPlanning_Period__c> periods = [
-            SELECT Id, Name FROM AccountPlanning_Period__c
-            WHERE StartDate__c <= TODAY AND EndDate__c >= TODAY
-            LIMIT 1
-        ];
-        return periods.isEmpty() ? null : periods[0];
-    }
 
     private void loadTeamMembers() {
         if (this.currentRecordId == null) return;
-
-        AccountTeamMember IB;
-        AccountTeamMember IB_M_A;
-        AccountTeamMember IB_Syndications;
-        AccountTeamMember IB_Sponsor_Coverage;
-        AccountTeamMember IB_ABL_Credit;
 
         Map<Id, AccountTeamMember> teamMembers = new Map<Id, AccountTeamMember>(
             [SELECT Id, AccountID, User.Name, User.IsActive, TeamMemberRole 
@@ -107,21 +60,38 @@ public with sharing class RelationshipTeamController {
                 IB_Sponsor_Coverage = atm;
             } else if (atm.TeamMemberRole == 'IB - ABL Credit') {
                 IB_ABL_Credit = atm;
-            }
+            }else if ( atm.TeamMemberRole == 'IB - ABL'){ IB_ABL = atm;}
+                else if ( atm.TeamMemberRole == 'IB - Capital Solutions'){ IB_Capital_Solutions = atm;}
+                else if ( atm.TeamMemberRole == 'IB - Coverage'){ IB_Coverage = atm;}
+                else if ( atm.TeamMemberRole == 'IB - EFL'){ IB_EFL = atm;}
+                else if ( atm.TeamMemberRole == 'IB - ETF'){ IB_ETF = atm;}
+                else if ( atm.TeamMemberRole == 'IB - Leveraged Finance'){ IB_Leveraged_Finance = atm;}
+                else if ( atm.TeamMemberRole == 'IB - Operations'){ IB_Operations = atm;}
+                else if ( atm.TeamMemberRole == 'IB - Public Finance'){ IB_Public_Finance = atm;}
+                else if ( atm.TeamMemberRole == 'IB - Sales & Trading'){ IB_Sales_Trading = atm;}
         }
-        
-        if (IB != null) IBTeamMember = IB;
-        else if (IB_M_A != null) IBTeamMember = IB_M_A;
-        else if (IB_Syndications != null) IBTeamMember = IB_Syndications;
-        else if (IB_Sponsor_Coverage != null) IBTeamMember = IB_Sponsor_Coverage;
-        else if (IB_ABL_Credit != null) IBTeamMember = IB_ABL_Credit;
+
     }
     
     private void initializeEmptyObjects() {
         CSO = new AccountTeamMember(User = new User());
         TSO = new AccountTeamMember(User = new User());
         TSA = new AccountTeamMember(User = new User());
-        IBTeamMember = new AccountTeamMember(User = new User());
         PWA = new AccountTeamMember(User = new User());
+        
+        IB = new AccountTeamMember(User = new User());
+        IB_ABL = new AccountTeamMember(User = new User());
+        IB_ABL_Credit = new AccountTeamMember(User = new User());
+        IB_Capital_Solutions = new AccountTeamMember(User = new User());
+        IB_Coverage = new AccountTeamMember(User = new User());
+        IB_EFL = new AccountTeamMember(User = new User());
+        IB_ETF = new AccountTeamMember(User = new User());
+        IB_Leveraged_Finance = new AccountTeamMember(User = new User());
+        IB_M_A = new AccountTeamMember(User = new User());
+        IB_Operations = new AccountTeamMember(User = new User());
+        IB_Public_Finance = new AccountTeamMember(User = new User());
+        IB_Sales_Trading = new AccountTeamMember(User = new User());
+        IB_Sponsor_Coverage = new AccountTeamMember(User = new User());
+        IB_Syndications = new AccountTeamMember(User = new User());
     }
 }
