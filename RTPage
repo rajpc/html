@@ -1,114 +1,173 @@
-<apex:page standardController="Account" extensions="RelationshipTeamController" docType="html-5.0">
-    <apex:slds />
-    
-    <style>
-        .rcrt-team-table { width: 100%; margin: 20px 0; border-collapse: collapse; }
-        .rcrt-team-row { display: table-row; }
-        .rcrt-team-cell { display: table-cell; width: 50%; padding: 8px; border: 1px solid #ddd; min-height: 2em; }
-        .rcrt-role-label { font-weight: bold; }
-        .rcrt-role-name { margin-left: 10px; }
-        .rcrt-read-only-notice {
-            background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404;
-            padding: 12px; margin: 10px 0; border-radius: 4px;
-            font-weight: bold; text-align: center;
-        }
-    </style>
-
-    <div class="slds-scope slds-p-around_medium">
-        <apex:form >
-            <apex:pageMessages id="messages"/>
-
-            <apex:outputPanel rendered="{!isFormReadOnly}">
-                <div class="rcrt-read-only-notice">
-                    This form is currently read-only. An Account Planning Period is not active for today's date.
-                </div>
-            </apex:outputPanel>
-        
-            <h2>Relationship Team for {!Account.Name}</h2>
-            <div class="rcrt-team-table">
-                <div class="rcrt-team-row">
-                    <div class="rcrt-team-cell">
-                        <span class="rcrt-role-label">RM</span>
-                        <span class="rcrt-role-name">{!Account.Owner.Name}</span>
-                    </div>
-                    <div class="rcrt-team-cell">
-                        <apex:outputPanel rendered="{!CSO.User.IsActive}">
-                            <span class="rcrt-role-label">CSO</span>
-                            <span class="rcrt-role-name">{!CSO.User.Name}</span>
-                        </apex:outputPanel>
-                    </div>
-                </div>
-                <div class="rcrt-team-row">
-                    <div class="rcrt-team-cell">
-                        <apex:outputPanel rendered="{!TSO.User.IsActive}">
-                            <span class="rcrt-role-label">TSO</span>
-                            <span class="rcrt-role-name">{!TSO.User.Name}</span>
-                        </apex:outputPanel>
-                    </div>
-                    <div class="rcrt-team-cell">
-                        <apex:outputPanel rendered="{!IBTeamMember.User.IsActive}">
-                            <span class="rcrt-role-label">IB</span>
-                            <span class="rcrt-role-name">{!IBTeamMember.User.Name}</span>
-                        </apex:outputPanel>
-                    </div>
-                </div>
-                <div class="rcrt-team-row">
-                    <div class="rcrt-team-cell">
-                        <apex:outputPanel rendered="{!TSA.User.IsActive}">
-                            <span class="rcrt-role-label">TSA</span>
-                            <span class="rcrt-role-name">{!TSA.User.Name}</span>
-                        </apex:outputPanel>
-                    </div>
-                    <div class="rcrt-team-cell">
-                        <apex:outputPanel rendered="{!PWA.User.IsActive}">
-                            <span class="rcrt-role-label">PWA</span>
-                            <span class="rcrt-role-name">{!PWA.User.Name}</span>
-                        </apex:outputPanel>
-                    </div>
-                </div>
+<apex:page applyHtmlTag="false"
+           applyBodyTag="false"
+           showHeader="false"
+           sidebar="false"
+           standardStylesheets="false"
+           standardController="Account"
+           docType="html-5.0"
+           extensions="RelationshipTeamController">
+    <html>
+        <head>
+            <style type="text/css">
+                body {
+                font-family: Arial, sans-serif;
+                }
+                
+                .rt-main-layout {
+                width: 100%;
+                }
+                .rt-left-column {
+                width: 50%;
+                vertical-align: top;
+                padding-right: 15px;
+                }
+                .rt-right-column {
+                width: 50%;
+                vertical-align: top;
+                }
+                
+                .rt-data-table {
+                border-collapse: collapse;
+                }
+                
+                .rt-label-cell {
+                background-color: #001f4d; 
+                color: white;
+                padding: 6px 8px;
+                border: 1px solid #D3D3D3; 
+                white-space: nowrap;
+                font-size: 12px;
+                width: 140px; 
+                }
+                
+                .rt-value-cell {
+                background-color: white;
+                padding: 6px 8px;
+                border: 1px solid #D3D3D3; 
+                width: 140px; 
+                font-size: 12px;
+                }
+                
+                .rt-ib-list-table {
+                margin-top: 20px;
+                }
+                .rt-section-header {
+                	background-color: #f2f2f2;
+                	padding: 6px;
+                	border-left: 3px solid #c8102e;
+                	margin: 8px 0 10px 0;
+                }
+                .rt-section-header h2 {
+                	margin: 0;
+                	color: #001f4d;
+                	font-size: 10pt;
+                }
+                
+            </style>
+        </head>
+        <body>
+            <div class="rt-section-header">
+                <h2>Relationship Team</h2>
             </div>
-    
-            <div style="float: right; margin-top: 20px;">
-                <apex:outputPanel rendered="{!!isFormReadOnly}">
-                    <apex:commandButton value="Save" action="{!handleSave}" rerender="messages" styleClass="sds-button slds-button_brand"/> 
-                </apex:outputPanel>
-                
-                <apex:actionFunction name="saveAndOpenPDF" action="{!handleSave}" oncomplete="openPDFAfterSave()" rerender="messages"/>
-                
-                <apex:outputPanel rendered="{!!isFormReadOnly}">
-                    <button onclick="saveAndOpenPDF(); return false;" type="button" class="slds-button slds-button_neutral">Open PDF</button>
-                </apex:outputPanel>
-                
-                <apex:outputPanel rendered="{!isFormReadOnly}">
-                    <button onclick="openPDFDirectly()" type="button" class="slds-button slds-button_neutral">Open PDF</button>
-                </apex:outputPanel>
-            </div>
-        </apex:form>
-    </div>
+            <table class="rt-main-layout">
+                <tr>
+                    <td class="rt-left-column">
+                        
+                        
+                        <table class="rt-data-table">
+                            <tr>
+                                <td class="rt-label-cell">RM</td>
+                                <td class="rt-value-cell">Todd Hardy</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">CSO</td>
+                                <td class="rt-value-cell">Lorrie Martinez</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">TSO</td>
+                                <td class="rt-value-cell">Beth Martin</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">TSA</td>
+                                <td class="rt-value-cell">Annalin Martin</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">PB</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                        </table>
+                        
+                        <table class="rt-data-table rt-ib-list-table">
+                            <tr>
+                                <td class="rt-label-cell">IB</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - ABL</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - ABL Credit</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - Capital Solutions</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - Coverage</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - EFL</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - ETF</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - Leveraged Finance</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - M&amp;A</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - Operations</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - Public Finance</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - Sales &amp; Trading</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - Sponsor Coverage</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="rt-label-cell">IB - Syndications</td>
+                                <td class="rt-value-cell">&nbsp;</td>
+                            </tr>
+                        </table>
+                        
+                    </td>
+                    <td class="rt-right-column">
+                    </td>
+                </tr>
+            </table>
 
-    <script>
-    function openPDFAfterSave() {
-        var recId = '{!Account.Id}';
-        var apId = '{!apExist.Id}'; 
-        var pageName = 'RelationshipTeamPDF'; 
         
-        if (apId) {
-            var url = '/apex/' + pageName + '?Id=' + recId + '&apId=' + apId;
-            window.open(url, '_blank');
-        }
-    }
-    
-    function openPDFDirectly() {
-        var recId = '{!Account.Id}';
-        var apId = '{!apExist.Id}';
-        var pageName = 'RelationshipTeamPDF';
+        <!-- Footer -->
+        <div class="footer">
+            <!-- <img class="logo-bottom" src="{!URLFOR($Resource.TexasCapitalBottomLogo)}" /> -->
+        </div>
         
-        if (apId) {
-             var url = '/apex/' + pageName + '?Id=' + recId + '&apId=' + apId;
-             window.open(url, '_blank');
-        } else {
-            alert('No saved record to display in PDF.');
-        }
-    }
-    </script>
+    </body>
+</html>
 </apex:page>
