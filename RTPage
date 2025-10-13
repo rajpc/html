@@ -8,8 +8,7 @@
            extensions="RelationshipTeamController">
     <html>
         <head>
-            <style>
-              /* Your CSS remains the same */
+            <style type="text/css">
               body { font-family: Arial, sans-serif; }
               .rt-main-layout { width: 100%; }
               .rt-left-column { width: 50%; vertical-align: top; padding-right: 15px; }
@@ -51,7 +50,7 @@
                                 </tr>
                             </apex:outputPanel>
 
-                             <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(TSA.User.Name))}">
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(TSA.User.Name))}">
                                 <tr>
                                     <td class="rt-label-cell">TSA</td>
                                     <td class="rt-value-cell">{!TSA.User.Name}</td>
@@ -67,13 +66,62 @@
                         </table>
                         
                         <table class="rt-data-table rt-ib-list-table">
-                             <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB.User.Name))}">
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB.User.Name))}">
                                 <tr>
                                     <td class="rt-label-cell">IB</td>
                                     <td class="rt-value-cell">{!IB.User.Name}</td>
                                 </tr>
                             </apex:outputPanel>
+
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_ABL.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - ABL</td>
+                                    <td class="rt-value-cell">{!IB_ABL.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
                             
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_ABL_Credit.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - ABL Credit</td>
+                                    <td class="rt-value-cell">{!IB_ABL_Credit.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Capital_Solutions.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Capital Solutions</td>
+                                    <td class="rt-value-cell">{!IB_Capital_Solutions.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Coverage.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Coverage</td>
+                                    <td class="rt-value-cell">{!IB_Coverage.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_EFL.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - EFL</td>
+                                    <td class="rt-value-cell">{!IB_EFL.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_ETF.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - ETF</td>
+                                    <td class="rt-value-cell">{!IB_ETF.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Leveraged_Finance.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Leveraged Finance</td>
+                                    <td class="rt-value-cell">{!IB_Leveraged_Finance.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+
                             <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_M_A.User.Name))}">
                                 <tr>
                                     <td class="rt-label-cell">IB - M&amp;A</td>
@@ -81,13 +129,40 @@
                                 </tr>
                             </apex:outputPanel>
                             
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Operations.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Operations</td>
+                                    <td class="rt-value-cell">{!IB_Operations.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Public_Finance.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Public Finance</td>
+                                    <td class="rt-value-cell">{!IB_Public_Finance.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Sales_Trading.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Sales &amp; Trading</td>
+                                    <td class="rt-value-cell">{!IB_Sales_Trading.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Sponsor_Coverage.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Sponsor Coverage</td>
+                                    <td class="rt-value-cell">{!IB_Sponsor_Coverage.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+
                             <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Syndications.User.Name))}">
                                 <tr>
                                     <td class="rt-label-cell">IB - Syndications</td>
                                     <td class="rt-value-cell">{!IB_Syndications.User.Name}</td>
                                 </tr>
                             </apex:outputPanel>
-
                         </table>
                         
                     </td>
@@ -95,6 +170,7 @@
                         </td>
                 </tr>
             </table>
+            
         </body>
     </html>
 </apex:page>
