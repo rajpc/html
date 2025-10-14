@@ -1,9 +1,6 @@
+
 <apex:page standardController="Account" extensions="CompanyDescriptionController" standardStylesheets="false" showHeader="false" sidebar="false" renderAs="{!$CurrentPage.parameters.renderAs}">
     
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
     <apex:slds />
 
     <style type="text/css">
@@ -281,7 +278,8 @@
                                             <apex:outputText value="{!tw.taskRec.Description}" rendered="{!NOT(tw.isEditMode)}"/>
                                         </td>
                                         <td>
-                                            <apex:inputField styleClass="date-picker-input" value="{!tw.taskRec.ActivityDate}" rendered="{!tw.isEditMode}"/>
+                                            <apex:input type="date" value="{!proxyActivityDate}" rendered="{!tw.isEditMode}"/>
+                                            
                                             <apex:outputText value="{0,date,MM/dd/yyyy}" rendered="{!NOT(tw.isEditMode)}">
                                                  <apex:param value="{!tw.taskRec.ActivityDate}" /> 
                                             </apex:outputText>
@@ -310,7 +308,7 @@
                         <div class="right-buttons">
                             <apex:commandButton styleClass="rc-button" 
                                 value="Open PDF" 
-                                onclick="window.open('/apex/CompanyDescriptionPDF?id={!Account.Id}', '_blank');"
+                                onclick="window.open('/apex/CompanyDescriptionView?id={!Account.Id}&renderAs=pdf', '_blank');"
                                 reRender="none"
                             />
                         </div>
@@ -324,24 +322,4 @@
             </apex:form>
         </div>
     </div>
-
-    <script>
-        var j$ = jQuery.noConflict();
-        j$(document).ready(function() {
-            // Re-initialize datepicker after any part of the page is re-rendered
-            function initializeDatepicker() {
-                j$('.date-picker-input').datepicker({
-                    dateFormat: 'mm/dd/yy'
-                });
-            }
-
-            // Initial call
-            initializeDatepicker();
-
-            // Add a completion event handler for re-rendering to re-apply the datepicker
-            Apex.afterUpdate(function() {
-                initializeDatepicker();
-            });
-        });
-    </script>
 </apex:page>
