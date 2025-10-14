@@ -1,0 +1,140 @@
+public class CompanyDescriptionController {
+
+    // Properties to hold the records and state for the page
+    public Account acc { get; private set; }
+    public Account_Plan__c accPlan { get; set; }
+    public List<TaskWrapper> taskList { get; set; }
+    public Date proxyActivityDate { get; set; } // For the native date picker
+    
+    // Properties to control button state and page rendering
+    public Boolean isPeriodActive { get; private set; }
+    public Boolean isActionPlanDisabled { get; private set; }
+
+    // This property is set by the <apex:param> tag when a user clicks a button in a row
+    public Integer rowIndex { get; set; }
+
+    // Constructor gets the Account record from the standard controller
+    public CompanyDescriptionController(ApexPages.StandardController stdCtrl) {
+        this.acc = (Account)stdCtrl.getRecord();
+        this.isPeriodActive = true; // Placeholder: Add your own logic to determine if the planning period is active
+        
+        loadAccountPlan();
+        loadTasks();
+    }
+
+    // Method to load the associated Account Plan
+    private void loadAccountPlan() {
+        // Try to find an existing Account Plan for this Account
+        List<Account_Plan__c> plans = [SELECT Id, Name, Tier__c, Primary_NAICS__c, TOP_Prospect__c, 
+                                              Primary_NAICS_Description__c, TOP_Client__c, ABL__c, 
+                                              Ownership__c, Business_Description__c, Strategic_Opportunity__c
+                                       FROM Account_Plan__c 
+                                       WHERE Account__c = :acc.Id 
+                                       ORDER BY CreatedDate DESC LIMIT 1];
+        
+        if (!plans.isEmpty()) {
+            this.accPlan = plans[0];
+            this.isActionPlanDisabled = false; // A plan exists, so enable the action plan section
+        } else {
+            // If no plan exists, create a new one in memory
+            this.accPlan = new Account_Plan__c(Account__c = acc.Id);
+            this.isActionPlanDisabled = true; // No plan is saved yet, so disable the action plan section
+        }
+    }
+
+    // Method to load the tasks related to the Account Plan
+    private void loadTasks() {
+        this.taskList = new List<TaskWrapper>();
+        if (accPlan.Id != null) {
+            Integer i = 0;
+            for (Task t : [SELECT Id, Subject, Description, ActivityDate, WhatId 
+                           FROM Task 
+                           WHERE WhatId = :accPlan.Id 
+                           ORDER BY ActivityDate, CreatedDate]) {
+                taskList.add(new TaskWrapper(i++, t));
+            }
+        }
+    }
+
+    // Action method to save the main Account Plan details
+    public PageReference saveAccountDetails() {
+        try {
+            upsert accPlan;
+            // After saving, reload the plan and re-enable the action plan section
+            loadAccountPlan(); 
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 'Company Description Saved.'));
+        } catch (Exception e) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Error saving details: ' + e.getMessage()));
+        }
+        return null; // Return null to stay on the same page (AJAX update)
+    }
+    
+    // Action method to put a specific row into edit mode
+    public PageReference editRow() {
+        TaskWrapper wrapper = taskList.get(rowIndex);
+        wrapper.isEditMode = true;
+        // IMPORTANT: Populate the proxy variable for the native date picker
+        this.proxyActivityDate = wrapper.taskRec.ActivityDate;
+        return null;
+    }
+
+    // Action method to save a single Task row
+    public PageReference saveRow() {
+        TaskWrapper wrapper = taskList.get(rowIndex);
+        
+        // IMPORTANT: Move the date from the proxy variable back to the record before saving
+        wrapper.taskRec.ActivityDate = this.proxyActivityDate;
+        
+        try {
+            upsert wrapper.taskRec;
+            wrapper.isEditMode = false;
+        } catch (Exception e) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Error saving row: ' + e.getMessage()));
+        }
+        return null;
+    }
+
+    // Action method to add a new, blank row to the action plan
+    public PageReference addRow() {
+        // Create a new Task linked to the Account Plan
+        Task newTask = new Task(
+            WhatId = accPlan.Id,
+            ActivityDate = System.today() // Default the date to today
+        );
+        
+        // Add the new task to the list and put it straight into edit mode
+        Integer newIndex = taskList.size();
+        TaskWrapper newWrapper = new TaskWrapper(newIndex, newTask);
+        newWrapper.isEditMode = true;
+        taskList.add(newWrapper);
+        
+        // Set the proxy date for the new row
+        this.proxyActivityDate = newTask.ActivityDate;
+        
+        return null;
+    }
+    
+    // Public property to check if the 'Add New Row' button should be disabled
+    public Boolean getIsAddDisabled() {
+        // You can't add a new row if another row is already being edited.
+        for(TaskWrapper tw : taskList) {
+            if(tw.isEditMode) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Inner Wrapper Class to handle the state of each Task row on the page.
+     */
+    public class TaskWrapper {
+        public Integer rowIndex { get; set; }
+        public Task taskRec { get; set; }
+        public Boolean isEditMode { get; set; }
+
+        public TaskWrapper(Integer index, Task task) {
+            this.rowIndex = index;
+            this.taskRec = task;
+            this.isEditMode = false;
+        }
+    }
+}
