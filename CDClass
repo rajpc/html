@@ -79,21 +79,26 @@ public class CompanyDescriptionController {
     public PageReference saveRow() {
         TaskWrapper wrapper = taskList.get(rowIndex);
         
+        // Clear previous error messages
+        wrapper.subjectError = '';
+        wrapper.descriptionError = '';
+        wrapper.dateError = '';
+        
         // Validate required fields
         Boolean hasErrors = false;
         
         if (String.isBlank(wrapper.taskRec.Subject)) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Subject is required.'));
+            wrapper.subjectError = 'Subject is required.';
             hasErrors = true;
         }
         
         if (String.isBlank(wrapper.taskRec.Description)) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Description is required.'));
+            wrapper.descriptionError = 'Description is required.';
             hasErrors = true;
         }
         
         if (wrapper.taskRec.ActivityDate == null) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Date is required.'));
+            wrapper.dateError = 'Date is required.';
             hasErrors = true;
         }
         
@@ -145,11 +150,17 @@ public class CompanyDescriptionController {
         public Integer rowIndex { get; set; }
         public Task taskRec { get; set; }
         public Boolean isEditMode { get; set; }
+        public String subjectError { get; set; }
+        public String descriptionError { get; set; }
+        public String dateError { get; set; }
 
         public TaskWrapper(Integer index, Task task) {
             this.rowIndex = index;
             this.taskRec = task;
             this.isEditMode = false;
+            this.subjectError = '';
+            this.descriptionError = '';
+            this.dateError = '';
         }
     }
 }
