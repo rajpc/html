@@ -1,4 +1,3 @@
-
 <apex:page standardController="Account" extensions="CompanyDescriptionController" standardStylesheets="false" showHeader="false" sidebar="false" renderAs="{!$CurrentPage.parameters.renderAs}">
     
     <apex:slds />
@@ -278,7 +277,7 @@
                                             <apex:outputText value="{!tw.taskRec.Description}" rendered="{!NOT(tw.isEditMode)}"/>
                                         </td>
                                         <td>
-                                            <apex:input type="date" value="{!proxyActivityDate}" rendered="{!tw.isEditMode}"/>
+                                            <apex:inputField value="{!tw.taskRec.ActivityDate}" rendered="{!tw.isEditMode}" style="width: 100%;"/>
                                             
                                             <apex:outputText value="{0,date,MM/dd/yyyy}" rendered="{!NOT(tw.isEditMode)}">
                                                  <apex:param value="{!tw.taskRec.ActivityDate}" /> 
