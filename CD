@@ -217,6 +217,16 @@
             align-items: center;
             margin-top: 20px;
         }
+        /* Required field indicator */
+        #vfPageContainer .rc-action-plan-table th span {
+            color: #c8102e;
+            font-weight: bold;
+        }
+        /* Style for required input fields */
+        #vfPageContainer input[required],
+        #vfPageContainer textarea[required] {
+            border-left: 3px solid #c8102e;
+        }
     </style>
     
     <div id="vfPageContainer">
@@ -298,9 +308,9 @@
                         <table class="rc-action-plan-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 25%;">Subject</th>
-                                    <th>Description</th>
-                                    <th style="width: 15%;">Date</th>
+                                    <th style="width: 25%;">Subject <span style="color: #c8102e;">*</span></th>
+                                    <th>Description <span style="color: #c8102e;">*</span></th>
+                                    <th style="width: 15%;">Date <span style="color: #c8102e;">*</span></th>
                                     <th style="width: 10%">Action</th>
                                 </tr>
                             </thead>
@@ -308,15 +318,15 @@
                                 <apex:repeat value="{!taskList}" var="tw">
                                     <tr>
                                         <td>
-                                            <apex:inputText value="{!tw.taskRec.Subject}" rendered="{!tw.isEditMode}" />
+                                            <apex:inputText value="{!tw.taskRec.Subject}" rendered="{!tw.isEditMode}" required="false" html-required="required"/>
                                             <apex:outputText value="{!tw.taskRec.Subject}" rendered="{!NOT(tw.isEditMode)}"/>
                                         </td>
                                         <td>
-                                            <apex:inputTextarea value="{!tw.taskRec.Description}" rendered="{!tw.isEditMode}" rows="1"/>
+                                            <apex:inputTextarea value="{!tw.taskRec.Description}" rendered="{!tw.isEditMode}" rows="1" required="false" html-required="required"/>
                                             <apex:outputText value="{!tw.taskRec.Description}" rendered="{!NOT(tw.isEditMode)}"/>
                                         </td>
                                         <td>
-                                            <apex:inputField value="{!tw.taskRec.ActivityDate}" rendered="{!tw.isEditMode}"/>
+                                            <apex:inputField value="{!tw.taskRec.ActivityDate}" rendered="{!tw.isEditMode}" required="false" html-required="required"/>
                                             
                                             <apex:outputText value="{0,date,MM/dd/yyyy}" rendered="{!NOT(tw.isEditMode)}">
                                                  <apex:param value="{!tw.taskRec.ActivityDate}" /> 
