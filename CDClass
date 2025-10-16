@@ -79,9 +79,33 @@ public class CompanyDescriptionController {
     public PageReference saveRow() {
         TaskWrapper wrapper = taskList.get(rowIndex);
         
+        // Validate required fields
+        Boolean hasErrors = false;
+        
+        if (String.isBlank(wrapper.taskRec.Subject)) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Subject is required.'));
+            hasErrors = true;
+        }
+        
+        if (String.isBlank(wrapper.taskRec.Description)) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Description is required.'));
+            hasErrors = true;
+        }
+        
+        if (wrapper.taskRec.ActivityDate == null) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Date is required.'));
+            hasErrors = true;
+        }
+        
+        // If validation fails, keep the row in edit mode
+        if (hasErrors) {
+            return null;
+        }
+        
         try {
             upsert wrapper.taskRec;
             wrapper.isEditMode = false;
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 'Task saved successfully.'));
         } catch (Exception e) {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Error saving row: ' + e.getMessage()));
         }
