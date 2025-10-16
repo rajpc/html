@@ -4,6 +4,7 @@ public class CompanyDescriptionController {
     public Account acc { get; private set; }
     public Account_Plan__c accPlan { get; set; }
     public List<TaskWrapper> taskList { get; set; }
+    public Date proxyActivityDate { get; set; } // For the native date picker
     
     // Properties to control button state and page rendering
     public Boolean isPeriodActive { get; private set; }
@@ -23,12 +24,12 @@ public class CompanyDescriptionController {
 
     // Method to load the associated Account Plan
     private void loadAccountPlan() {
-        // Try to find an existing Account Plan for this Account
+        // ==> IMPORTANT: Replace 'Parent_Account__c' with your actual field name
         List<Account_Plan__c> plans = [SELECT Id, Name, Tier__c, Primary_NAICS__c, TOP_Prospect__c, 
                                               Primary_NAICS_Description__c, TOP_Client__c, ABL__c, 
                                               Ownership__c, Business_Description__c, Strategic_Opportunity__c
                                        FROM Account_Plan__c 
-                                       WHERE Account__c = :acc.Id 
+                                       WHERE Parent_Account__c = :acc.Id 
                                        ORDER BY CreatedDate DESC LIMIT 1];
         
         if (!plans.isEmpty()) {
@@ -36,7 +37,8 @@ public class CompanyDescriptionController {
             this.isActionPlanDisabled = false; // A plan exists, so enable the action plan section
         } else {
             // If no plan exists, create a new one in memory
-            this.accPlan = new Account_Plan__c(Account__c = acc.Id);
+            // ==> IMPORTANT: Replace 'Parent_Account__c' with your actual field name
+            this.accPlan = new Account_Plan__c(Parent_Account__c = acc.Id);
             this.isActionPlanDisabled = true; // No plan is saved yet, so disable the action plan section
         }
     }
@@ -72,6 +74,8 @@ public class CompanyDescriptionController {
     public PageReference editRow() {
         TaskWrapper wrapper = taskList.get(rowIndex);
         wrapper.isEditMode = true;
+        // Populate the proxy variable for the native date picker
+        this.proxyActivityDate = wrapper.taskRec.ActivityDate;
         return null;
     }
 
@@ -79,38 +83,12 @@ public class CompanyDescriptionController {
     public PageReference saveRow() {
         TaskWrapper wrapper = taskList.get(rowIndex);
         
-        // Clear previous error messages
-        wrapper.subjectError = '';
-        wrapper.descriptionError = '';
-        wrapper.dateError = '';
-        
-        // Validate required fields
-        Boolean hasErrors = false;
-        
-        if (String.isBlank(wrapper.taskRec.Subject)) {
-            wrapper.subjectError = 'Subject is required.';
-            hasErrors = true;
-        }
-        
-        if (String.isBlank(wrapper.taskRec.Description)) {
-            wrapper.descriptionError = 'Description is required.';
-            hasErrors = true;
-        }
-        
-        if (wrapper.taskRec.ActivityDate == null) {
-            wrapper.dateError = 'Date is required.';
-            hasErrors = true;
-        }
-        
-        // If validation fails, keep the row in edit mode
-        if (hasErrors) {
-            return null;
-        }
+        // Move the date from the proxy variable back to the record before saving
+        wrapper.taskRec.ActivityDate = this.proxyActivityDate;
         
         try {
             upsert wrapper.taskRec;
             wrapper.isEditMode = false;
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 'Task saved successfully.'));
         } catch (Exception e) {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Error saving row: ' + e.getMessage()));
         }
@@ -131,6 +109,9 @@ public class CompanyDescriptionController {
         newWrapper.isEditMode = true;
         taskList.add(newWrapper);
         
+        // Set the proxy date for the new row
+        this.proxyActivityDate = newTask.ActivityDate;
+        
         return null;
     }
     
@@ -150,17 +131,11 @@ public class CompanyDescriptionController {
         public Integer rowIndex { get; set; }
         public Task taskRec { get; set; }
         public Boolean isEditMode { get; set; }
-        public String subjectError { get; set; }
-        public String descriptionError { get; set; }
-        public String dateError { get; set; }
 
         public TaskWrapper(Integer index, Task task) {
             this.rowIndex = index;
             this.taskRec = task;
             this.isEditMode = false;
-            this.subjectError = '';
-            this.descriptionError = '';
-            this.dateError = '';
         }
     }
 }
