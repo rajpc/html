@@ -1,5 +1,4 @@
-<apex:page standardController="Account" extensions="CompanyDescriptionController" standardStylesheets="false" showHeader="false" sidebar="false" renderAs="{!$CurrentPage.parameters.renderAs}">
-    
+<apex:page standardController="Account" extensions="CompanyDescriptionController" showHeader="false" sidebar="false" renderAs="{!$CurrentPage.parameters.renderAs}">
     <apex:slds />
 
     <style type="text/css">
@@ -153,9 +152,9 @@
             font-size: 10px;
         }
         #vfPageContainer .rc-button {
-            background-color: #001f4d;
+            background: #001f4d !important;
             color: white !important;
-            border: none;
+            border: 1px solid #001f4d !important;
             padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
@@ -166,7 +165,8 @@
             width: 100px;
         }
         #vfPageContainer .rc-button:hover {
-            background-color: #00367a;
+            background: #00367a !important;
+        	border-color: #00367a !important;
         }
         #vfPageContainer .rc-button:disabled {
             background-color: #cccccc;
@@ -177,6 +177,9 @@
             justify-content: space-between;
             align-items: center;
             margin-top: 20px;
+        }
+        #vfPageContainer .date-picker-input {
+            width: 120px !important;
         }
     </style>
     
@@ -204,8 +207,8 @@
                         <tr>
                             <td class="field-label">VIP Prospect</td>
                             <td class="field-value value-centered">
-                                <apex:outputField value="{!accPlan.TOP_Prospect__c}"/>
-                                <apex:inputHidden value="{!accPlan.TOP_Prospect__c}" />
+                                <apex:outputField value="{!accPlan.VIP_Prospect__c}"/>
+                                <apex:inputHidden value="{!accPlan.VIP_Prospect__c}" />
                             </td>
                             <td class="field-label">Primary NAICS Description</td>
                             <td class="field-value value-left"><apex:inputField value="{!accPlan.Primary_NAICS_Description__c}"/></td>
@@ -213,8 +216,8 @@
                         <tr>
                             <td class="field-label">VIP Client</td>
                             <td class="field-value value-centered">
-                                <apex:outputField value="{!accPlan.TOP_Client__c}"/>
-                                <apex:inputHidden value="{!accPlan.TOP_Client__c}" />
+                               <apex:outputField value="{!accPlan.VIP_Client__c}"/>
+                               <apex:inputHidden value="{!accPlan.VIP_Client__c}" />
                             </td>
                             <td class="field-label">ABL Account</td>
                             <td class="field-value value-centered"><apex:inputField value="{!accPlan.ABL__c}"/></td>
@@ -261,8 +264,8 @@
                                 <tr>
                                     <th style="width: 25%;">Subject</th>
                                     <th>Description</th>
-                                    <th style="width: 15%;">Date</th>
-                                    <th style="width: 10%">Action</th>
+                                    <th style="width: 20%;">Date</th>
+                                    <th style="width: 15%">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -277,8 +280,7 @@
                                             <apex:outputText value="{!tw.taskRec.Description}" rendered="{!NOT(tw.isEditMode)}"/>
                                         </td>
                                         <td>
-                                            <apex:input type="date" value="{!proxyActivityDate}" rendered="{!tw.isEditMode}"/>
-                                            
+                                            <apex:inputField styleClass="date-picker-input" value="{!tw.taskRec.ActivityDate}" rendered="{!tw.isEditMode}"/>
                                             <apex:outputText value="{0,date,MM/dd/yyyy}" rendered="{!NOT(tw.isEditMode)}">
                                                  <apex:param value="{!tw.taskRec.ActivityDate}" /> 
                                             </apex:outputText>
@@ -307,7 +309,7 @@
                         <div class="right-buttons">
                             <apex:commandButton styleClass="rc-button" 
                                 value="Open PDF" 
-                                onclick="window.open('/apex/CompanyDescriptionView?id={!Account.Id}&renderAs=pdf', '_blank');"
+                                onclick="window.open('/apex/CompanyDescriptionPDF?id={!Account.Id}', '_blank');"
                                 reRender="none"
                             />
                         </div>
