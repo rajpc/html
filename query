@@ -1,0 +1,4 @@
+SELECT Id, StageName, RecordType.DeveloperName, Deal_ID__c,  Total_TCB_Final_Allocation__c, FAS_91_Fees_Skim_Current__c, TCB_Funded_Amount__c,Estimated_Operating_Deposits__c, Estimated_IB_Deposit_Amount__c, Merchant_Services_Revenue__c, Yearly_Income__c, FX_Spread__c,Average_Spend__c, Swap__c, Expected_Revenue__c  from Opportunity where 
+RecordType.DeveloperName in ('Credit_Renew','Credit_New','Treasury_Acquire_Deepen','Investment_Banking') 
+and AccountId IN (SELECT Id FROM Account where Id = '0014v00002wD1XeAAK' OR ParentId='0014v00002wD1XeAAK') 
+AND CloseDate < :(SELECT CutOffDate__c FROM AccountPlanning_Period__c WHERE StartDate__c >= TODAY AND EndDate__c <= TODAY LIMIT 1)
