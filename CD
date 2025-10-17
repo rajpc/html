@@ -166,7 +166,7 @@
         }
         #vfPageContainer .rc-button:hover {
             background: #00367a !important;
-        	border-color: #00367a !important;
+            border-color: #00367a !important;
         }
         #vfPageContainer .rc-button:disabled {
             background-color: #cccccc;
@@ -250,7 +250,7 @@
                             value="Save" 
                             action="{!saveAccountDetails}" 
                             rerender="msgs, buttonPanel"
-                            onclick="this.disabled=true; setTimeout(function(){document.getElementById('{!$Component.saveBtn}').disabled=false;}, 2000);"
+                            onclick="this.disabled=true; setTimeout(function(){document.getElementById('{!$Component.saveBtn}').disabled=false;}, 3000);"
                         />
                     </div>
                 
