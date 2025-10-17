@@ -1,0 +1,775 @@
+<apex:page standardController="Account" extensions="CompanyDescriptionController,RelationshipTeamController,ExistingBusinessController" showHeader="false" sidebar="false" renderAs="{!$CurrentPage.parameters.renderAs}">
+    <apex:slds />
+    
+    <style type="text/css">
+        /* --- General and Company Description Styles --- */
+        #vfPageContainer {
+        font-family: "Arial Unicode MS", Arial, sans-serif;
+        padding: 10px 20px !important;
+        font-size: 8pt;
+        color: #000000;
+        background-color: #ffffff;
+        }
+        #vfPageContainer @page {
+        size: A4;
+        margin: 8mm;
+        }
+        #vfPageContainer .message {
+        padding: 15px;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        }
+        #vfPageContainer .section-header {
+        background-color: #f2f2f2;
+        padding: 6px;
+        border-left: 3px solid #c8102e;
+        margin: 20px 0 10px 0;
+        }
+        #vfPageContainer .section-header h3,
+        #vfPageContainer .section-header h2 {
+        margin: 0;
+        color: #001f4d;
+        font-size: 10pt;
+        }
+        
+        /* --- Company Description Table Styles --- */
+        .info-table, .description-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+        }
+        .info-table td, .description-table td {
+        border: 1px solid #808080;
+        padding: 6px;
+        vertical-align: middle;
+        }
+        .info-table .field-label, .description-table .field-label {
+        background-color: #001f4d;
+        color: white;
+        font-weight: bold;
+        text-align: left;
+        padding-left: 5px;
+        width: 20%;
+        }
+        .info-table .field-value, .description-table .field-value {
+        background-color: white;
+        color: black;
+        width: 30%;
+        }
+        .info-table .value-centered { text-align: center; }
+        .info-table .value-left { text-align: left; }
+        .description-table textarea { width: 100%; padding: 5px; resize: vertical; overflow: auto; box-sizing: border-box; border: 1px solid #ccc; font-size: 15px; }
+        .info-table input, .info-table textarea, .info-table select { width: 98%; box-sizing: border-box; }
+        .date-picker-input { width: 120px !important; }
+        
+        /* --- Action Plan Table Styles --- */
+        .rc-action-plan-table { width: 100%; border-collapse: collapse; background-color: white; margin-top: 10px; margin-bottom: 15px; border: 1px solid #d0d0d0; table-layout: fixed; }
+        .rc-action-plan-table th { background-color: #001f4d; color: white; font-weight: bold; padding: 8px; border: 1px solid #d0d0d0; text-align: left; font-size: 11px; }
+        .rc-action-plan-table td { border: 1px solid #d0d0d0; padding: 5px; text-align: left; vertical-align: top; font-size: 11px; position: relative; word-wrap: break-word; overflow: hidden; }
+        .rc-action-plan-table input, .rc-action-plan-table textarea { box-sizing: border-box; width: 100%; padding: 5px; margin: 0; border: 1px solid #ccc; font-size: 10px; }
+        
+        /* --- Button Styles --- */
+        .rc-button { background: #001f4d !important; color: white !important; border: 1px solid #001f4d !important; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .rc-button-save { font-size: 11px; width: 100px; }
+        .rc-button:hover { background: #00367a !important; border-color: #00367a !important; }
+        .rc-button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .bottom-button-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        
+        /* --- Relationship Team Styles --- */
+        .rt-main-layout { width: 100%; border-spacing: 0; border-collapse: collapse; }
+        .rt-left-column { width: 50%; vertical-align: top; padding-right: 15px; }
+        .rt-right-column { width: 50%; vertical-align: top; }
+        .rt-data-table { border-collapse: collapse; width: 100%; }
+        .rt-label-cell { background-color: #001f4d; color: white; padding: 6px 8px; border: 1px solid #D3D3D3; white-space: nowrap; font-size: 12px; width: 140px; }
+        .rt-value-cell { background-color: white; padding: 6px 8px; border: 1px solid #D3D3D3; font-size: 12px; }
+        .rt-ib-list-table { margin-top: 20px; }
+    </style>
+    <style type="text/css">
+        body {
+        font-family: "Arial Unicode MS", Arial, sans-serif;
+        margin: 0;
+        padding: 10px;
+        font-size: 8pt;
+        color: #000000;
+        background-color: #ffffff;
+        }
+        .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #001f4d;
+        }
+        .header-title {
+        font-size: 14pt;
+        color: #001f4d;
+        font-weight: bold;
+        }
+        
+        .header-draft {
+        color: #c8102e;
+        font-weight: bold;
+        margin-left: 5px;
+        }
+        
+        .header-logo {
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 30px;
+        }
+        .footer {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-top: 20px;
+        }
+        .footer-logo {
+        width: 100px;
+        height: auto;
+        }
+        .section-header {
+        background-color: #f2f2f2;
+        padding: 6px;
+        border-left: 3px solid #c8102e;
+        margin: 8px 0 10px 0;
+        }
+        .section-header h2 {
+        margin: 0;
+        color: #001f4d;
+        font-size: 10pt;
+        }
+        .label-arrow {
+        display: inline-block;
+        background-color: #001f4d;
+        color: white !important;
+        font-weight: bold;
+        padding: 8px 10px 4px 8px;
+        margin-right: 15px;
+        font-size: 8pt;
+        line-height: 1.2;
+        position: relative;
+        }
+        .label-arrow:after {
+        content: "";
+        position: absolute;
+        right: -10px;
+        top: 0;
+        width: 0;
+        height: 0;
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        border-left: 10px solid #001f4d;
+        }
+        .value {
+        display: contents;
+        color: #001f4d;
+        font-size: 8pt;
+        margin-left: 6px;
+        vertical-align: middle;
+        }
+        
+        .table-container {
+        padding: 0.5rem;
+        background-color: white;
+        }
+        
+        .styled-table {
+        border-collapse: collapse;
+        background-color: white;
+        table-layout: fixed;
+        }
+        
+        .styled-table th,
+        .styled-table td {
+        border: 1px solid #001f4d;
+        padding: 6px 8px;
+        text-align: left;
+        vertical-align: top;
+        font-size: 7pt;
+        }
+        
+        .first-col {
+        background-color: #001f4d !important;
+        color: white !important;
+        font-weight: bold !important;
+        text-align: left;
+        padding: 6px 8px;
+        }
+        
+        .open-label {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        font-weight: bold;
+        font-size: 10pt;
+        margin-right: 6px;
+        padding-top: 0.5rem;
+        }
+        .row-label {
+        font-weight: bold;
+        background-color: white;
+        text-align: left;
+        font-size: 7pt;
+        }
+        .container, .potentialcontainer {
+        display: flex;
+        align-items: flex-start;
+        width: 100%;
+        margin-bottom: 0.5rem;
+        }
+        
+        /* Optional: if you still use these */
+        .category-label {
+        background-color: #001f4d;
+        color: white;
+        font-weight: bold;
+        padding: 6px 10px;
+        font-size: 7pt;
+        clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0% 100%);
+        margin-right: 8px;
+        }
+        
+        
+        .open-toggle {
+        font-weight: bold;
+        background-color: #f4f4f4;
+        padding: 10px;
+        font-size: 10pt;
+        cursor: pointer;
+        user-select: none;
+        display: inline-block;
+        margin-bottom: 10px;
+        }
+        
+        
+        #opportunityWrapper {
+        display: none;
+        }
+        
+        @page {
+        size: A4;
+        margin: 8mm;
+        }
+    </style>
+    <!-- Formats input with $ symbol, commas, and always 2 decimal places on load and blur; strips formatting before submit -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const inputs = document.querySelectorAll(".decimal-input");
+        
+        // Format on page load
+        inputs.forEach(input => {
+            formatCurrency(input);
+            
+            // Format on blur
+            input.addEventListener("blur", function () {
+            formatCurrency(input);
+        });
+        });
+            
+            // Strip formatting before submit
+            document.querySelector('form').addEventListener('submit', function () {
+            inputs.forEach(input => {
+            input.value = input.value.replace(/[^0-9.]/g, ''); // Remove $ and commas
+        });
+        });
+            
+            // Formatting function
+            function formatCurrency(input) {
+            let rawValue = input.value.replace(/[^0-9.]/g, '').trim(); // Remove $ and commas
+            let number = parseFloat(rawValue);
+            if (!isNaN(number)) {
+            input.value =  '$' + number.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+                              }
+                              });
+    </script>
+    
+    <div id="vfPageContainer">
+        <div class="slds-scope">
+            <apex:form>
+                <apex:pageMessages id="msgs"/>
+                
+                <apex:outputPanel rendered="{!isPeriodActive}">
+                    <div class="section-header">
+                        <h3>Company Description</h3>
+                    </div>
+                    
+                    <table class="info-table">
+                        <tr>
+                            <td class="field-label">Tier</td>
+                            <td class="field-value value-centered"><apex:outputField value="{!accPlan.Tier__c}"/></td>
+                            <td class="field-label">Primary NAICS</td>
+                            <td class="field-value value-left"><apex:inputText value="{!accPlan.Primary_NAICS__c}"/></td>
+                        </tr>
+                        <tr>
+                            <td class="field-label">VIP Prospect</td>
+                            <td class="field-value value-centered"><apex:outputField value="{!accPlan.VIP_Prospect__c}"/></td>
+                            <td class="field-label">Primary NAICS Description</td>
+                            <td class="field-value value-left"><apex:inputField value="{!accPlan.Primary_NAICS_Description__c}"/></td>
+                        </tr>
+                        <tr>
+                            <td class="field-label">VIP Client</td>
+                            <td class="field-value value-centered"><apex:outputField value="{!accPlan.VIP_Client__c}"/></td>
+                            <td class="field-label">ABL Account</td>
+                            <td class="field-value value-centered"><apex:inputField value="{!accPlan.ABL__c}"/></td>
+                        </tr>
+                    </table>
+                    
+                    <table class="description-table">
+                        <tr>
+                            <td class="field-label">Ownership</td>
+                            <td class="field-value" colspan="3"><apex:inputTextarea value="{!accPlan.Ownership__c}" rows="2"/></td>
+                        </tr>
+                        <tr>
+                            <td class="field-label">Business Description</td>
+                            <td class="field-value"><apex:inputTextarea value="{!accPlan.Business_Description__c}" rows="2"/></td>
+                            <td class="field-label">Strategic Opportunity</td>
+                            <td class="field-value"><apex:inputTextarea value="{!accPlan.Strategic_Opportunity__c}" rows="2"/></td>
+                        </tr>
+                    </table>
+                    
+                    <div style="padding: 10px; text-align: center;">
+                        <apex:commandButton id="saveBtn" styleClass="rc-button rc-button-save" value="Save" action="{!saveAccountDetails}" rerender="msgs, buttonPanel" onclick="this.disabled=true; setTimeout(function(){document.getElementById('{!$Component.saveBtn}').disabled=false;}, 3000);" />
+                    </div>
+                    
+                    <div class="section-header">
+                        <h2>Next Steps / Action Plan</h2>
+                    </div>
+                    
+                    <apex:outputPanel id="tablePanel">
+                        <table class="rc-action-plan-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Subject</th>
+                                    <th>Description</th>
+                                    <th style="width: 20%;">Date</th>
+                                    <th style="width: 15%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <apex:repeat value="{!taskList}" var="tw">
+                                    <tr>
+                                        <td>
+                                            <apex:inputText value="{!tw.taskRec.Subject}" rendered="{!tw.isEditMode}" />
+                                            <apex:outputText value="{!tw.taskRec.Subject}" rendered="{!NOT(tw.isEditMode)}"/>
+                                        </td>
+                                        <td>
+                                            <apex:inputTextarea value="{!tw.taskRec.Description}" rendered="{!tw.isEditMode}" rows="1"/>
+                                            <apex:outputText value="{!tw.taskRec.Description}" rendered="{!NOT(tw.isEditMode)}"/>
+                                        </td>
+                                        <td>
+                                            <apex:inputField styleClass="date-picker-input" value="{!tw.taskRec.ActivityDate}" rendered="{!tw.isEditMode}"/>
+                                            <apex:outputText value="{0,date,MM/dd/yyyy}" rendered="{!NOT(tw.isEditMode)}">
+                                                <apex:param value="{!tw.taskRec.ActivityDate}" /> 
+                                            </apex:outputText>
+                                        </td>
+                                        <td>
+                                            <apex:commandButton styleClass="rc-button" value="Save" action="{!saveRow}" rerender="tablePanel, msgs, buttonPanel" rendered="{!tw.isEditMode}">
+                                                <apex:param name="rowIndexParam" value="{!tw.rowIndex}" assignTo="{!rowIndex}"/>
+                                            </apex:commandButton>
+                                            <apex:commandButton styleClass="rc-button" value="Edit" action="{!editRow}" rerender="tablePanel" rendered="{!NOT(tw.isEditMode)}" immediate="true">
+                                                <apex:param name="rowIndexParam" value="{!tw.rowIndex}" assignTo="{!rowIndex}"/>
+                                            </apex:commandButton>
+                                        </td>
+                                    </tr>
+                                </apex:repeat>
+                            </tbody>
+                        </table>
+                    </apex:outputPanel>
+                    
+                    <div class="bottom-button-bar">
+                        <div class="left-buttons">
+                            <apex:outputPanel id="buttonPanel">
+                                <apex:commandButton styleClass="rc-button" value="Add New Row" action="{!addRow}" rerender="tablePanel, buttonPanel" disabled="{!isAddDisabled || isActionPlanDisabled}"/>
+                                <apex:outputText value=" (Save the plan to enable)" style="font-style: italic; color: #555; margin-left: 5px;" rendered="{!isActionPlanDisabled}"/>
+                            </apex:outputPanel>
+                        </div>
+                        <div class="right-buttons">
+                            <apex:commandButton styleClass="rc-button" value="Open PDF" onclick="window.open('/apex/CompanyDescriptionPDF?id={!Account.Id}', '_blank');" reRender="none"/>
+                        </div>
+                    </div>
+                </apex:outputPanel>
+                
+                <apex:outputPanel rendered="{!NOT(isPeriodActive)}" style="text-align:center; padding: 20px; font-size: 14px; color: #555;">
+                    There is no active Account Planning Period at this time.
+                </apex:outputPanel>
+                
+                <div class="section-header">
+                    <h2>Relationship Team</h2>
+                </div>
+                
+                <table class="rt-main-layout">
+                    <tr>
+                        <td class="rt-left-column">
+                            <table class="rt-data-table">
+                                <tr>
+                                    <td class="rt-label-cell">RM</td>
+                                    <td class="rt-value-cell">{!Account.Owner.Name}</td>
+                                </tr>
+                                <apex:repeat value="{!coreTeam}" var="member">
+                                    <tr>
+                                        <td class="rt-label-cell">{!roleDisplayLabels[member.TeamMemberRole]}</td>
+                                        <td class="rt-value-cell">{!member.User.Name}</td>
+                                    </tr>
+                                </apex:repeat>
+                            </table>
+                            
+                            <apex:outputPanel layout="none" rendered="{!investmentBankingRoles.size > 0}">
+                                <table class="rt-data-table rt-ib-list-table">
+                                    <apex:repeat value="{!investmentBankingRoles}" var="role">
+                                        <apex:repeat value="{!investmentBankingTeamByRole[role]}" var="member">
+                                            <tr>
+                                                <td class="rt-label-cell">{!roleDisplayLabels[role]}</td>
+                                                <td class="rt-value-cell">{!member.User.Name}</td>
+                                            </tr>
+                                        </apex:repeat>
+                                    </apex:repeat>
+                                </table>
+                            </apex:outputPanel>
+                        </td>
+                        <td class="rt-right-column">
+                        </td>
+                    </tr>
+                </table>
+                
+            </apex:form>
+        </div>
+    </div>
+    <!-- Existing Business -->
+    <div class="section-header">
+        <h2>Existing Business</h2>
+    </div>
+    
+    <!-- Company Facilities -->
+    <div class="table-container">
+        <apex:form>
+            <table class="styled-table" style="table-layout: fixed;">
+                <thead>
+                    <tr>
+                        <th class="first-col" style="width: 120px;">Company Financials</th>
+                        <th class="first-col" style="width: 120px;">Revenue</th>
+                        <th class="first-col" style="width: 120px;">Debt</th>
+                        <th class="first-col" style="width: 80px;">EBITDA</th>
+                        <th class="first-col" style="width: 120px;">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="first-col" style="width: 120px;"></td>
+                        <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!revenueValue}" styleClass="decimal-input" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td>
+                        <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!debtValue}" styleClass="decimal-input" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td>
+                        <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!ebidtdaValue}" styleClass="decimal-input" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td>
+                        <td style="width: 120px;"><apex:inputText id="notesInput" value="{!notesInputValue}" maxlength="255"/></td>
+                        
+                    </tr>
+                </tbody>
+            </table>
+            <!-- Current Wallet , Total Wallet, Percentage and Notes Input fields for PxV, Card, Deposit, IB, PB-->
+            <div class="table-container">
+                <table class="styled-table" style="table-layout: fixed;">
+                    <thead>
+                        <tr>
+                            <th class="first-col" style="width: 120px;"></th>
+                            <th class="first-col" style="width: 120px;">Current Wallet </th>
+                            <th class="first-col" style="width: 120px;">Total Wallet </th>
+                            <th class="first-col" style="width: 120px;">Total Wallet %</th>
+                            <th class="first-col" style="width: 120px;">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>  
+                            <td class="first-col"> TS - PxV </td>
+                            <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!pxvCurrentWalletValue}" styleClass="decimal-input" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td>  
+                            <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!pxvTotalWalletValue}" styleClass="decimal-input" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td>  
+                            <td style="width: 120px;"><apex:outputText value="{!pxvTotalWalletPercentValue}%" /></td>
+                            <td style="width: 120px;"><apex:inputText id="PxVNotes" value="{!PxVNotes}" maxlength="255"/></td>
+                        </tr>
+                        <tr>  
+                            <td class="first-col"> Ts - Card </td>
+                            <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!cardCurrentVallue}" styleClass="decimal-input" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td>  
+                            <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!cardTotalWalletVallue}" styleClass="decimal-input" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td> 
+                            <td style="width: 120px;"><apex:outputText value="{!cardTotalWalletPercentVallue}%" /></td>
+                            <td style="width: 120px;"><apex:inputText id="cardNotes" value="{!cardNotes}" maxlength="255"/></td>
+                        </tr>  
+                        <tr>  
+                            <td class="first-col"> TS - Deposits </td>
+                            <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!depositsCurrentWalletValue}" styleClass="decimal-input" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td>
+                            <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!depositsTotalWalletValue}" styleClass="decimal-input" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td>
+                            <td style="width: 120px;"><apex:outputText value="{!depositsTotalWalletPercentValue}%" /></td>
+                            <td style="width: 120px;"><apex:inputText id="depositNotes" value="{!DepositsNotes}" maxlength="255"/></td>
+                        </tr>
+                        <tr>  
+                            <td class="first-col"> IB </td>
+                            <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!ibCurrentWalletValue}" styleClass="decimal-input"  onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td>   
+                            <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!ibTotakWalletValue}" styleClass="decimal-input"  onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td>    
+                            <td style="width: 120px;"><apex:outputText value="{!ibTotakWalletPercentValue}%" /></td>
+                            <td style="width: 120px;"><apex:inputText id="IBNotes" value="{!IBNotes}" maxlength="255"/></td>
+                        </tr>
+                        <tr>  
+                            <td class="first-col"> PB </td>
+                            <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!pbCurrentWalletValue}" styleClass="decimal-input"   onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td>    
+                            <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!pbTotalWalletValue}" styleClass="decimal-input"   onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></div></td>    
+                            <td style="width: 120px;">
+                                <apex:outputText value="{0,number,#,##0.00}%">
+                                    <apex:param value="{!pbTotalWalletPercentValue}" />
+                                </apex:outputText>
+                            </td>
+                            <td style="width: 120px;"><apex:inputText id="PBNotes" value="{!PBNotes}" maxlength="255"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Fetch Active facilities linked to the account hierarchy-->
+            <div class="table-container">
+                <table class="styled-table" style="table-layout: fixed;">
+                    <thead>
+                        <tr>
+                            <th class="first-col" style="width: 120px;"></th>
+                            <th class="first-col" style="width: 120px;">Current Wallet</th>
+                            <th class="first-col" style="width: 120px;">Total Wallet</th>
+                            <th class="first-col" style="width: 120px;">Total Wallet %</th>
+                            <th class="first-col"  style="width: 120px;">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="first-col" style="width: 125px;"></td>
+                            <td style="width: 120px;"><div class="input-with-dollar"><apex:inputText value="{!creditCurrentVallue}" styleClass="decimal-input" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46" /></div></td>
+                            <td style="width: 120px;"><div class="input-with-dollar"> <apex:inputText value="{!creditTotalWalletVallue}" styleClass="decimal-input" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46" /> </div> </td>
+                            <!-- <td style="width: 120px;"><apex:inputText value="{!creditCurrentVallue}" styleClass="decimal-input" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></td>   
+<td style="width: 120px;"><apex:inputText value="{!creditTotalWalletVallue}" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"/></td> -->  
+                            <td style="width: 120px;"><apex:outputText value="{!creditTotalWalletPercentVallue}%" /></td>
+                            <td style="width: 120px;"><apex:inputText id="CreditNotesInput" value="{!CreditNotes}" maxlength="255" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="styled-table" style="table-layout: fixed;">    
+                    <thead>
+                        <tr>
+                            <th class="first-col" style="width: 120px;"></th>
+                            <th class="first-col" style="width: 120px;">Facility Type Description</th>
+                            <th class="first-col" style="width: 120px;">Name</th>
+                            <th class="first-col" style="width: 120px;">Commitments</th>
+                            <th class="first-col" style="width: 120px;">Outstanding</th>
+                            <th class="first-col" style="width: 120px;">Facility Grade</th>
+                            <th class="first-col" style="width: 120px;">Maturity Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <apex:repeat value="{!facilities}" var="facility">
+                            <tr>
+                                <apex:outputPanel rendered="{!facility['IsFirstRow']}">
+                                    <td class="first-col" rowspan="{!facilities.size}" style="text-align: center; vertical-align: middle; padding: 12px; border: 1px solid #ddd; width: 120px;">
+                                        Credit
+                                    </td>
+                                </apex:outputPanel>
+                                
+                                <td style="padding: 12px; border: 1px solid #ddd;">{!facility['Facility_Type_Description__c']}</td>
+                                <td style="padding: 12px; border: 1px solid #ddd;">{!facility['Name']}</td>
+                                
+                                <td style="padding: 12px; border: 1px solid #ddd;">
+                                    <apex:outputText value="{0,number,currency}">
+                                        <apex:param value="{!facility['Commitment_Balance__c']}" />
+                                    </apex:outputText>
+                                </td>
+                                
+                                <td style="padding: 12px; border: 1px solid #ddd;">
+                                    <apex:outputText value="{0,number,currency}">
+                                        <apex:param value="{!facility['Used_Balance__c']}" />
+                                    </apex:outputText>
+                                </td>
+                                
+                                <td style="padding: 12px; border: 1px solid #ddd;">{!facility['Risk_Rating__c']}</td>
+                                <td style="padding: 12px; border: 1px solid #ddd;">{!facility['Maturity_Date__c']}</td>
+                            </tr>
+                        </apex:repeat>
+                        
+                        
+                    </tbody>
+                </table>
+            </div>
+        </apex:form>
+    </div>
+    <!-- Opportunities-->      
+    <div class="section-header opportunities-header">
+        <h2>Opportunities</h2>
+    </div>
+    <!-- Open IB Opps Summary -->
+    <div class="section-content">
+        <div class="container">
+            <div class="open-label">Open IB</div>
+            <table class="opportunities-table">
+                <apex:outputPanel layout="block">
+                    
+                    <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 50%;">
+                        <thead>
+                            <tr class="first-col">
+                                <th>Expected Revenue</th>
+                                <th>Probability Weighted Fee</th>
+                                <th>FAS91</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="width: 120px;"><apex:outputText value="{!summary['ExpectedRevenue']}" /></td>
+                                <td style="width: 120px;"><apex:outputText value="{!summary['WeightedFee']}" /></td>
+                                <td style="width: 120px;"><apex:outputText value="{!summary['FAS91']}" /></td>
+                                
+                            </tr>
+                        </tbody>
+                    </table>
+                </apex:outputPanel>  
+            </table>
+        </div>         
+    </div>      
+    <!-- Open Opportunities -->
+    <apex:includeScript value="//ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"/>
+    <script>
+    $(document).ready(function() {
+        $(".open-toggle").click(function() {
+            const label = $(this).text().trim();
+            if (label.includes("Open Opportunities")) {
+                $("#opportunityWrapper").slideToggle();
+            } else if (label.includes("Potential Opportunities")) {
+                $("#potentialWrapper").slideToggle();
+            }
+            $(this).find(".arrow").toggleClass("expanded");
+        });
+    });
+    </script>
+    
+    <div style="width: 100%; display: block; margin-bottom: 15px;">
+        <!-- Horizontal "Open ⇒" toggle -->
+        <div class="open-toggle">
+            Open Opportunities <span class="arrow">&gt;</span> <!-- > arrow -->
+        </div>
+        <!-- Entire table hidden by default -->
+        <div id="opportunityWrapper">
+            <table class="styled-table" style="table-layout: fixed; width: 100%;">
+                <thead>
+                    <tr class="first-col">
+                        <th style="width: 120px;">CIF-level Account Name</th>
+                        <th style="width: 120px;">Opportunity Record Type</th>
+                        <th style="width: 120px;">Deal ID</th>
+                        <th style="width: 120px;">Opportunity Name</th>
+                        <th style="width: 120px;">Opportunity Owner</th>
+                        <th style="width: 120px;">Deal Stage</th>
+                        <th style="width: 120px;">Projected Close Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <apex:repeat value="{!openOpportunities}" var="opp">
+                        <tr>
+                            <td>{!opp['AccountName']}</td>
+                            <td>{!opp['RecordTypeName']}</td>
+                            <td>{!opp['Deal_ID__c']}</td>
+                            <td>{!opp['Name']}</td>
+                            <td>{!opp['OwnerName']}</td>
+                            <td>{!opp['StageName']}</td>
+                            <td>{!opp['CloseDate']}</td>
+                        </tr>
+                    </apex:repeat>
+                </tbody>
+            </table>
+        </div>
+    </div>  
+    
+    <!-- Potential IB Opps Summary -->
+    <div class="section-content">
+        <div class="container">
+            <div class="open-label">Potential IB</div>
+            <table class="opportunities-table">
+                <apex:outputPanel layout="block">
+                    <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 50%;">
+                        <thead>
+                            <tr class="first-col">
+                                <th>Expected Revenue</th>
+                                <th>Probability Weighted Fee</th>
+                                <th>FAS91</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="width: 120px;"><apex:outputText value="{!potentialSummary['ExpectedRevenue']}" /></td>
+                                <td style="width: 120px;"><apex:outputText value="{!potentialSummary['WeightedFee']}" /></td>
+                                <td style="width: 120px;"><apex:outputText value="{!potentialSummary['FAS91']}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </apex:outputPanel> 
+            </table>
+        </div>         
+    </div>     
+    <!-- Potential Opportunities -->
+    <div style="width: 100%; display: block;">
+        <!-- Horizontal "Potential >" toggle -->
+        <div class="open-toggle">
+            Potential Opportunities <span class="arrow">&gt;</span> <!-- > arrow -->
+        </div>
+        
+        <!-- Entire table hidden by default -->
+        <div id="potentialWrapper" style="display: none;">
+            <table class="styled-table" style="table-layout: fixed; width: 100%;">
+                <thead>
+                    <tr class="first-col">
+                        <th style="width: 120px;">CIF-level Account Name</th>
+                        <th style="width: 120px;">Opportunity Record Type</th>
+                        <th style="width: 120px;">Deal ID</th>
+                        <th style="width: 120px;">Opportunity Name</th>
+                        <th style="width: 120px;">Opportunity Owner</th>
+                        <th style="width: 120px;">Deal Stage</th>
+                        <th style="width: 120px;">Projected Close Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <apex:repeat value="{!potentialOpportunities}" var="opp">
+                        <tr>
+                            <td>{!opp['AccountName']}</td>
+                            <td>{!opp['RecordTypeName']}</td>
+                            <td>{!opp['Deal_ID__c']}</td>
+                            <td>{!opp['Name']}</td>
+                            <td>{!opp['OwnerName']}</td>
+                            <td>{!opp['StageName']}</td>
+                            <td>{!opp['CloseDate']}</td>
+                        </tr>
+                    </apex:repeat>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="pdfButton" style="float: right">
+        <apex:form>
+            <!-- Show Save button only when form is not read-only -->
+            <apex:outputPanel rendered="{!!isFormReadOnly}">
+                <apex:commandButton value="Save" action="{!handleSave}"/> 
+            </apex:outputPanel>
+            
+            <apex:outputPanel rendered="{!!isFormReadOnly}">
+                <button onclick="handleClick()">Open PDF</button>
+            </apex:outputPanel>
+            
+            
+            <script>
+            function handleClick() {
+                var recId = '{!IF(ISBLANK(currentRecordId), '', currentRecordId)}';
+                var pageName = 'ExistingBusinessPDF';
+                
+                if (recId) {
+                    var url = '/apex/' + pageName + '?Id=' + recId;
+                    window.open(url, '_blank');
+                } else {
+                    alert('Record ID is missing. Please save the form before generating the PDF.');
+                }
+            }
+            </script>
+        </apex:form>
+    </div>
+</apex:page>
