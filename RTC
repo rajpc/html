@@ -1,97 +1,176 @@
-public with sharing class RelationshipTeamController {
-    
-    public AccountTeamMember CSO {get; private set;}
-    public AccountTeamMember TSO {get; private set;}
-    public AccountTeamMember TSA {get; private set;}
-    public AccountTeamMember PWA {get; private set;}
+<apex:page applyHtmlTag="false"
+           applyBodyTag="false"
+           showHeader="false"
+           sidebar="false"
+           standardStylesheets="false"
+           standardController="Account"
+           docType="html-5.0"
+           extensions="RelationshipTeamController">
+    <html>
+        <head>
+            <style type="text/css">
+              body { font-family: Arial, sans-serif; }
+              .rt-main-layout { width: 100%; }
+              .rt-left-column { width: 50%; vertical-align: top; padding-right: 15px; }
+              .rt-right-column { width: 50%; vertical-align: top; }
+              .rt-data-table { border-collapse: collapse; }
+              .rt-label-cell { background-color: #001f4d; color: white; padding: 6px 8px; border: 1px solid #D3D3D3; white-space: nowrap; font-size: 12px; width: 140px; }
+              .rt-value-cell { background-color: white; padding: 6px 8px; border: 1px solid #D3D3D3; width: 140px; font-size: 12px; }
+              .rt-ib-list-table { margin-top: 20px; }
+              .rt-section-header { background-color: #f2f2f2; padding: 6px; border-left: 3px solid #c8102e; margin: 8px 0 10px 0; }
+              .rt-section-header h2 { margin: 0; color: #001f4d; font-size: 10pt; }
+            </style>
+        </head>
+        <body>
+            <div class="rt-section-header">
+                <h2>Relationship Team</h2>
+            </div>
+            
+            <table class="rt-main-layout">
+                <tr>
+                    <td class="rt-left-column">
+                        
+                        <table class="rt-data-table">
+                            <tr>
+                                <td class="rt-label-cell">RM</td>
+                                <td class="rt-value-cell">{!Account.Owner.Name}</td>
+                            </tr>
 
-    public AccountTeamMember IB {get; private set;}
-    public AccountTeamMember IB_M_A {get; private set;}
-    public AccountTeamMember IB_Syndications {get; private set;}
-    public AccountTeamMember IB_Sponsor_Coverage {get; private set;}
-    public AccountTeamMember IB_ABL_Credit {get; private set;}    
-    
-    public AccountTeamMember IB_ABL {get; private set;}
-    public AccountTeamMember IB_Capital_Solutions {get; private set;}
-    public AccountTeamMember IB_Coverage {get; private set;}
-    public AccountTeamMember IB_EFL {get; private set;}
-    public AccountTeamMember IB_ETF {get; private set;}
-    public AccountTeamMember IB_Leveraged_Finance {get; private set;}
-    
-    public AccountTeamMember IB_Operations {get; private set;}
-    public AccountTeamMember IB_Public_Finance {get; private set;}
-    public AccountTeamMember IB_Sales_Trading {get; private set;}
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(CSO.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">CSO</td>
+                                    <td class="rt-value-cell">{!CSO.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
 
-    public String currentRecordId {get; set;}
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(TSO.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">TSO</td>
+                                    <td class="rt-value-cell">{!TSO.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
 
-    public RelationshipTeamController(ApexPages.StandardController controller) {
-        this.currentRecordId = controller.getId();
-        initializeEmptyObjects();
-        loadTeamMembers();
-    }
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(TSA.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">TSA</td>
+                                    <td class="rt-value-cell">{!TSA.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
 
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(PWA.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">PB</td>
+                                    <td class="rt-value-cell">{!PWA.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                        </table>
+                        
+                        <table class="rt-data-table rt-ib-list-table">
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB</td>
+                                    <td class="rt-value-cell">{!IB.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
 
-    private void loadTeamMembers() {
-        if (this.currentRecordId == null) return;
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_ABL.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - ABL</td>
+                                    <td class="rt-value-cell">{!IB_ABL.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_ABL_Credit.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - ABL Credit</td>
+                                    <td class="rt-value-cell">{!IB_ABL_Credit.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Capital_Solutions.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Capital Solutions</td>
+                                    <td class="rt-value-cell">{!IB_Capital_Solutions.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Coverage.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Coverage</td>
+                                    <td class="rt-value-cell">{!IB_Coverage.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_EFL.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - EFL</td>
+                                    <td class="rt-value-cell">{!IB_EFL.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_ETF.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - ETF</td>
+                                    <td class="rt-value-cell">{!IB_ETF.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Leveraged_Finance.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Leveraged Finance</td>
+                                    <td class="rt-value-cell">{!IB_Leveraged_Finance.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
 
-        Map<Id, AccountTeamMember> teamMembers = new Map<Id, AccountTeamMember>(
-            [SELECT Id, AccountID, User.Name, User.IsActive, TeamMemberRole 
-             FROM AccountTeamMember 
-             WHERE AccountID = :this.currentRecordId 
-             ORDER BY User.Name ASC]
-        );
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_M_A.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - M&amp;A</td>
+                                    <td class="rt-value-cell">{!IB_M_A.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Operations.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Operations</td>
+                                    <td class="rt-value-cell">{!IB_Operations.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Public_Finance.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Public Finance</td>
+                                    <td class="rt-value-cell">{!IB_Public_Finance.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Sales_Trading.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Sales &amp; Trading</td>
+                                    <td class="rt-value-cell">{!IB_Sales_Trading.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Sponsor_Coverage.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Sponsor Coverage</td>
+                                    <td class="rt-value-cell">{!IB_Sponsor_Coverage.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
 
-        for (AccountTeamMember atm : teamMembers.values()) {
-            if (atm.TeamMemberRole == 'Assigned CSO') {
-                CSO = atm;
-            } else if (atm.TeamMemberRole == 'Treasury') {
-                TSO = atm;
-            } else if (atm.TeamMemberRole == 'TS - TSA (Treasury Solutions Associate)') {
-                TSA = atm;
-            } else if (atm.TeamMemberRole == 'PCA') {
-                PWA = atm;
-            } else if (atm.TeamMemberRole == 'IB') {
-                IB = atm;
-            } else if (atm.TeamMemberRole == 'IB - M&A') {
-                IB_M_A = atm;
-            } else if (atm.TeamMemberRole == 'IB - Syndications') {
-                IB_Syndications = atm;
-            } else if (atm.TeamMemberRole == 'IB - Sponsorship') {
-                IB_Sponsor_Coverage = atm;
-            } else if (atm.TeamMemberRole == 'IB - ABL Credit') {
-                IB_ABL_Credit = atm;
-            }else if ( atm.TeamMemberRole == 'IB - ABL'){ IB_ABL = atm;}
-                else if ( atm.TeamMemberRole == 'IB - Capital Solutions'){ IB_Capital_Solutions = atm;}
-                else if ( atm.TeamMemberRole == 'IB - Coverage'){ IB_Coverage = atm;}
-                else if ( atm.TeamMemberRole == 'IB - EFL'){ IB_EFL = atm;}
-                else if ( atm.TeamMemberRole == 'IB - ETF'){ IB_ETF = atm;}
-                else if ( atm.TeamMemberRole == 'IB - Leveraged Finance'){ IB_Leveraged_Finance = atm;}
-                else if ( atm.TeamMemberRole == 'IB - Operations'){ IB_Operations = atm;}
-                else if ( atm.TeamMemberRole == 'IB - Public Finance'){ IB_Public_Finance = atm;}
-                else if ( atm.TeamMemberRole == 'IB - Sales & Trading'){ IB_Sales_Trading = atm;}
-        }
-
-    }
-    
-    private void initializeEmptyObjects() {
-        CSO = new AccountTeamMember(User = new User());
-        TSO = new AccountTeamMember(User = new User());
-        TSA = new AccountTeamMember(User = new User());
-        PWA = new AccountTeamMember(User = new User());
-        
-        IB = new AccountTeamMember(User = new User());
-        IB_ABL = new AccountTeamMember(User = new User());
-        IB_ABL_Credit = new AccountTeamMember(User = new User());
-        IB_Capital_Solutions = new AccountTeamMember(User = new User());
-        IB_Coverage = new AccountTeamMember(User = new User());
-        IB_EFL = new AccountTeamMember(User = new User());
-        IB_ETF = new AccountTeamMember(User = new User());
-        IB_Leveraged_Finance = new AccountTeamMember(User = new User());
-        IB_M_A = new AccountTeamMember(User = new User());
-        IB_Operations = new AccountTeamMember(User = new User());
-        IB_Public_Finance = new AccountTeamMember(User = new User());
-        IB_Sales_Trading = new AccountTeamMember(User = new User());
-        IB_Sponsor_Coverage = new AccountTeamMember(User = new User());
-        IB_Syndications = new AccountTeamMember(User = new User());
-    }
-}
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Syndications.User.Name))}">
+                                <tr>
+                                    <td class="rt-label-cell">IB - Syndications</td>
+                                    <td class="rt-value-cell">{!IB_Syndications.User.Name}</td>
+                                </tr>
+                            </apex:outputPanel>
+                        </table>
+                        
+                    </td>
+                    <td class="rt-right-column">
+                        </td>
+                </tr>
+            </table>
+            
+        </body>
+    </html>
+</apex:page>
