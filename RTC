@@ -1,176 +1,82 @@
-<apex:page applyHtmlTag="false"
-           applyBodyTag="false"
-           showHeader="false"
-           sidebar="false"
-           standardStylesheets="false"
-           standardController="Account"
-           docType="html-5.0"
-           extensions="RelationshipTeamController">
-    <html>
-        <head>
-            <style type="text/css">
-              body { font-family: Arial, sans-serif; }
-              .rt-main-layout { width: 100%; }
-              .rt-left-column { width: 50%; vertical-align: top; padding-right: 15px; }
-              .rt-right-column { width: 50%; vertical-align: top; }
-              .rt-data-table { border-collapse: collapse; }
-              .rt-label-cell { background-color: #001f4d; color: white; padding: 6px 8px; border: 1px solid #D3D3D3; white-space: nowrap; font-size: 12px; width: 140px; }
-              .rt-value-cell { background-color: white; padding: 6px 8px; border: 1px solid #D3D3D3; width: 140px; font-size: 12px; }
-              .rt-ib-list-table { margin-top: 20px; }
-              .rt-section-header { background-color: #f2f2f2; padding: 6px; border-left: 3px solid #c8102e; margin: 8px 0 10px 0; }
-              .rt-section-header h2 { margin: 0; color: #001f4d; font-size: 10pt; }
-            </style>
-        </head>
-        <body>
-            <div class="rt-section-header">
-                <h2>Relationship Team</h2>
-            </div>
-            
-            <table class="rt-main-layout">
-                <tr>
-                    <td class="rt-left-column">
-                        
-                        <table class="rt-data-table">
-                            <tr>
-                                <td class="rt-label-cell">RM</td>
-                                <td class="rt-value-cell">{!Account.Owner.Name}</td>
-                            </tr>
+public with sharing class RelationshipTeamController {
+    
+    public List<AccountTeamMember> coreTeam { get; private set; }
+    public Map<String, List<AccountTeamMember>> investmentBankingTeamByRole { get; private set; }
+    
+    // A map to hold the display labels for each role
+    public Map<String, String> roleDisplayLabels { get; private set; }
 
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(CSO.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">CSO</td>
-                                    <td class="rt-value-cell">{!CSO.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
+    private String currentRecordId;
 
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(TSO.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">TSO</td>
-                                    <td class="rt-value-cell">{!TSO.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
+    public RelationshipTeamController(ApexPages.StandardController controller) {
+        this.currentRecordId = controller.getId();
+        initializeCollections();
+        loadTeamMembers();
+    }
 
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(TSA.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">TSA</td>
-                                    <td class="rt-value-cell">{!TSA.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
+    public List<String> getInvestmentBankingRoles() {
+        if (investmentBankingTeamByRole == null) {
+            return new List<String>();
+        }
+        List<String> roles = new List<String>(investmentBankingTeamByRole.keySet());
+        roles.sort();
+        return roles;
+    }
 
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(PWA.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">PB</td>
-                                    <td class="rt-value-cell">{!PWA.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-                        </table>
-                        
-                        <table class="rt-data-table rt-ib-list-table">
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB</td>
-                                    <td class="rt-value-cell">{!IB.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
+    private void initializeCollections() {
+        coreTeam = new List<AccountTeamMember>();
+        investmentBankingTeamByRole = new Map<String, List<AccountTeamMember>>();
+        
+        // This map remains the same
+        roleDisplayLabels = new Map<String, String> {
+            'Assigned CSO' => 'CSO',
+            'Treasury' => 'TSO',
+            'TS - TSA (Treasury Solutions Associate)' => 'TSA',
+            'PCA' => 'PB',
+            'IB' => 'IB',
+            'IB - M&A' => 'IB - M&A',
+            'IB - Syndications' => 'IB - Syndications',
+            'IB - Sponsorship' => 'IB - Sponsor Coverage',
+            'IB - ABL Credit' => 'IB - ABL Credit',
+            'IB - ABL' => 'IB - ABL',
+            'IB - Capital Solutions' => 'IB - Capital Solutions',
+            'IB - Coverage' => 'IB - Coverage',
+            'IB - EFL' => 'IB - EFL',
+            'IB - ETF' => 'IB - ETF',
+            'IB - Leveraged Finance' => 'IB - Leveraged Finance',
+            'IB - Operations' => 'IB - Operations',
+            'IB - Public Finance' => 'IB - Public Finance',
+            'IB - Sales & Trading' => 'IB - Sales & Trading'
+        };
+    }
 
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_ABL.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - ABL</td>
-                                    <td class="rt-value-cell">{!IB_ABL.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-                            
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_ABL_Credit.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - ABL Credit</td>
-                                    <td class="rt-value-cell">{!IB_ABL_Credit.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-                            
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Capital_Solutions.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - Capital Solutions</td>
-                                    <td class="rt-value-cell">{!IB_Capital_Solutions.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-                            
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Coverage.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - Coverage</td>
-                                    <td class="rt-value-cell">{!IB_Coverage.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-                            
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_EFL.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - EFL</td>
-                                    <td class="rt-value-cell">{!IB_EFL.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-                            
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_ETF.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - ETF</td>
-                                    <td class="rt-value-cell">{!IB_ETF.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-                            
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Leveraged_Finance.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - Leveraged Finance</td>
-                                    <td class="rt-value-cell">{!IB_Leveraged_Finance.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
+    private void loadTeamMembers() {
+        if (this.currentRecordId == null) return;
+        
+        Set<String> coreRoles = new Set<String>{'Assigned CSO', 'Treasury', 'TS - TSA (Treasury Solutions Associate)', 'PCA'};
 
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_M_A.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - M&amp;A</td>
-                                    <td class="rt-value-cell">{!IB_M_A.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-                            
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Operations.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - Operations</td>
-                                    <td class="rt-value-cell">{!IB_Operations.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-                            
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Public_Finance.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - Public Finance</td>
-                                    <td class="rt-value-cell">{!IB_Public_Finance.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-                            
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Sales_Trading.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - Sales &amp; Trading</td>
-                                    <td class="rt-value-cell">{!IB_Sales_Trading.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-                            
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Sponsor_Coverage.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - Sponsor Coverage</td>
-                                    <td class="rt-value-cell">{!IB_Sponsor_Coverage.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(IB_Syndications.User.Name))}">
-                                <tr>
-                                    <td class="rt-label-cell">IB - Syndications</td>
-                                    <td class="rt-value-cell">{!IB_Syndications.User.Name}</td>
-                                </tr>
-                            </apex:outputPanel>
-                        </table>
-                        
-                    </td>
-                    <td class="rt-right-column">
-                        </td>
-                </tr>
-            </table>
-            
-        </body>
-    </html>
-</apex:page>
+        List<AccountTeamMember> allMembers = [
+            SELECT User.Name, TeamMemberRole 
+            FROM AccountTeamMember 
+            WHERE AccountID = :this.currentRecordId 
+            AND TeamMemberRole IN :roleDisplayLabels.keySet()
+            ORDER BY User.Name ASC
+        ];
+        
+        for (AccountTeamMember member : allMembers) {
+            if (coreRoles.contains(member.TeamMemberRole)) {
+                coreTeam.add(member);
+            } else {
+                String role = member.TeamMemberRole;
+                
+                // If the role isn't in our map yet, create a new list for it
+                if (!investmentBankingTeamByRole.containsKey(role)) {
+                    investmentBankingTeamByRole.put(role, new List<AccountTeamMember>());
+                }
+                
+                // Add the current member to the list for their role
+                investmentBankingTeamByRole.get(role).add(member);
+            }
+        }
+    }
+}
