@@ -1,141 +1,168 @@
 public class CompanyDescriptionController {
 
-    // Properties to hold the records and state for the page
-    public Account acc { get; private set; }
-    public Account_Plan__c accPlan { get; set; }
+    public Account acc { get; set; } 
+    public Account_Planning__c accPlan { get; set; } 
     public List<TaskWrapper> taskList { get; set; }
-    public Date proxyActivityDate { get; set; } // For the native date picker
-    
-    // Properties to control button state and page rendering
-    public Boolean isPeriodActive { get; private set; }
-    public Boolean isActionPlanDisabled { get; private set; }
-
-    // This property is set by the <apex:param> tag when a user clicks a button in a row
     public Integer rowIndex { get; set; }
-
-    // Constructor gets the Account record from the standard controller
-    public CompanyDescriptionController(ApexPages.StandardController stdCtrl) {
-        this.acc = (Account)stdCtrl.getRecord();
-        this.isPeriodActive = true; // Placeholder: Add your own logic to determine if the planning period is active
+    
+    private AccountPlanning_Period__c currentPeriod;
+    public Date planningPeriodStartDate { get; set; }
+    public Date planningPeriodEndDate { get; set; }
+    public Boolean isPeriodActive { get; private set; }
+    private Id taskRecordTypeId;
+    
+    public CompanyDescriptionController(ApexPages.StandardController stdController) {
+        this.isPeriodActive = false;
+        stdController.addFields(new List<String>{'Name',
+            'OwnerId', 'Tier_Level__c', 'VIP_Prospect__c', 'VIP_Client__c',
+            'Primary_NAICS__c', 'Primary_NAICS_Description__c', 'ABL__c',
+            'Business_Description__c'
+        });
+        this.acc = (Account)stdController.getRecord();
         
-        loadAccountPlan();
-        loadTasks();
-    }
-
-    // Method to load the associated Account Plan
-    private void loadAccountPlan() {
-        // ==> IMPORTANT: Replace 'Parent_Account__c' with your actual field name
-        List<Account_Plan__c> plans = [SELECT Id, Name, Tier__c, Primary_NAICS__c, TOP_Prospect__c, 
-                                              Primary_NAICS_Description__c, TOP_Client__c, ABL__c, 
-                                              Ownership__c, Business_Description__c, Strategic_Opportunity__c
-                                       FROM Account_Plan__c 
-                                       WHERE Parent_Account__c = :acc.Id 
-                                       ORDER BY CreatedDate DESC LIMIT 1];
         
-        if (!plans.isEmpty()) {
-            this.accPlan = plans[0];
-            this.isActionPlanDisabled = false; // A plan exists, so enable the action plan section
-        } else {
-            // If no plan exists, create a new one in memory
-            // ==> IMPORTANT: Replace 'Parent_Account__c' with your actual field name
-            this.accPlan = new Account_Plan__c(Parent_Account__c = acc.Id);
-            this.isActionPlanDisabled = true; // No plan is saved yet, so disable the action plan section
+        try {
+            taskRecordTypeId = [SELECT Id FROM RecordType WHERE SObjectType = 'Task' AND Name = 'Task' LIMIT 1].Id;
+        } catch (QueryException e) {
+            taskRecordTypeId = null;
         }
-    }
+        
+        Date today = Date.today();
+        List<AccountPlanning_Period__c> periods = [
+            SELECT Name, startdate__c, enddate__c 
+            FROM AccountPlanning_Period__c 
+            WHERE startdate__c <= :today AND enddate__c >= :today 
+            LIMIT 1
+        ];
+        
+        if(!periods.isEmpty()){
+            this.isPeriodActive = true;
+            currentPeriod = periods[0];
+            planningPeriodStartDate = currentPeriod.startdate__c;
+            planningPeriodEndDate = currentPeriod.enddate__c;
 
-    // Method to load the tasks related to the Account Plan
-    private void loadTasks() {
+            List<Account_Planning__c> existingPlans = [
+                SELECT Id, Tier__c, Vip_Prospect__c, Vip_Client__c, Name, Account_Planning_Period__c,
+                       Primary_NAICS__c, Primary_NAICS_Description__c, ABL__c,
+                       Ownership__c, Business_Description__c, Strategic_Opportunity__c
+                FROM Account_Planning__c
+                WHERE Account__c = :acc.Id AND Account_Planning_Period__c = :currentPeriod.Id
+                LIMIT 1
+            ];
+
+            if (!existingPlans.isEmpty()) {
+                this.accPlan = existingPlans[0];
+                this.accPlan.Business_Description__c = acc.Business_Description__c;
+            } else {
+                this.accPlan = new Account_Planning__c();
+                this.accPlan.Tier__c = acc.Tier_Level__c;
+                this.accPlan.Vip_Prospect__c = acc.Vip_Prospect__c;
+                this.accPlan.Vip_Client__c = acc.Vip_Client__c;
+                this.accPlan.Primary_NAICS__c = Integer.valueOf(acc.Primary_NAICS__c);
+                this.accPlan.Primary_NAICS_Description__c = acc.Primary_NAICS_Description__c;
+                this.accPlan.ABL__c = acc.ABL__c;
+                this.accPlan.Business_Description__c = acc.Business_Description__c;
+            }
+        } else {
+            this.accPlan = new Account_Planning__c();
+        }
+        
         this.taskList = new List<TaskWrapper>();
-        if (accPlan.Id != null) {
-            Integer i = 0;
-            for (Task t : [SELECT Id, Subject, Description, ActivityDate, WhatId 
-                           FROM Task 
-                           WHERE WhatId = :accPlan.Id 
-                           ORDER BY ActivityDate, CreatedDate]) {
-                taskList.add(new TaskWrapper(i++, t));
+        if(this.isPeriodActive && this.accPlan.Id != null) {
+            List<Task> relatedTasks = [
+                SELECT Subject, Description, ActivityDate 
+                FROM Task 
+                WHERE WhatId = :accPlan.Id 
+                AND ActivityDate >= :planningPeriodStartDate 
+                AND ActivityDate <= :planningPeriodEndDate
+            ];
+            for (Task t : relatedTasks) {
+                TaskWrapper wrapper = new TaskWrapper(taskList.size());
+                wrapper.taskRec = t;
+                wrapper.isEditMode = false; 
+                this.taskList.add(wrapper);
             }
         }
     }
 
-    // Action method to save the main Account Plan details
-    public PageReference saveAccountDetails() {
-        try {
-            upsert accPlan;
-            // After saving, reload the plan and re-enable the action plan section
-            loadAccountPlan(); 
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 'Company Description Saved.'));
-        } catch (Exception e) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Error saving details: ' + e.getMessage()));
+    public void saveAccountDetails() {
+        if (!isPeriodActive) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Cannot save: There is no active Account Planning Period.'));
+            return;
         }
-        return null; // Return null to stay on the same page (AJAX update)
+        try {
+            if (accPlan.Id == null) {
+                //accPlan.Name = currentPeriod.Name+' '+acc.Name;
+                accPlan.Name = currentPeriod.Name;
+            }
+            accPlan.Account_Planning_Period__c = currentPeriod.Id;
+            accPlan.Account__c = acc.Id;
+            acc.Business_Description__c = accPlan.Business_Description__c;
+            upsert accPlan; 
+            update acc;
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 'Account Plan was saved successfully.'));
+        } catch (DmlException e) {
+            ApexPages.addMessages(e);
+        }
     }
     
-    // Action method to put a specific row into edit mode
-    public PageReference editRow() {
-        TaskWrapper wrapper = taskList.get(rowIndex);
-        wrapper.isEditMode = true;
-        // Populate the proxy variable for the native date picker
-        this.proxyActivityDate = wrapper.taskRec.ActivityDate;
-        return null;
-    }
-
-    // Action method to save a single Task row
-    public PageReference saveRow() {
-        TaskWrapper wrapper = taskList.get(rowIndex);
-        
-        // Move the date from the proxy variable back to the record before saving
-        wrapper.taskRec.ActivityDate = this.proxyActivityDate;
-        
-        try {
-            upsert wrapper.taskRec;
-            wrapper.isEditMode = false;
-        } catch (Exception e) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Error saving row: ' + e.getMessage()));
+    public void saveRow() {
+        if (rowIndex != null && rowIndex < taskList.size()) {
+            TaskWrapper wrapper = taskList.get(rowIndex);
+            if (!isPeriodActive) {
+                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Cannot save task: There is no active Account Planning Period.'));
+                return;
+            }
+            wrapper.taskRec.WhatId = accPlan.Id;
+            wrapper.taskRec.OwnerId = acc.OwnerId;
+            wrapper.taskRec.Status = 'Open';
+            wrapper.taskRec.RecordTypeId = taskRecordTypeId;
+            wrapper.taskRec.Type = 'Account Planning';
+            Date dueDate = wrapper.taskRec.ActivityDate;
+            if (dueDate != null && (dueDate < planningPeriodStartDate || dueDate > planningPeriodEndDate)) {
+                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Due Date must be within the active planning period (' + planningPeriodStartDate.format() + ' to ' + planningPeriodEndDate.format() + ').'));
+                return;
+            }
+            if (String.isBlank(wrapper.taskRec.Subject) || 
+                String.isBlank(wrapper.taskRec.Description) || 
+                dueDate == null) {
+                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Subject, Description, and Date are all required.'));
+                return;
+            }
+            try {
+                upsert wrapper.taskRec;
+                wrapper.isEditMode = false;
+            } catch (DmlException e) {
+                ApexPages.addMessages(e);
+            }
         }
-        return null;
     }
 
-    // Action method to add a new, blank row to the action plan
-    public PageReference addRow() {
-        // Create a new Task linked to the Account Plan
-        Task newTask = new Task(
-            WhatId = accPlan.Id,
-            ActivityDate = System.today() // Default the date to today
-        );
-        
-        // Add the new task to the list and put it straight into edit mode
-        Integer newIndex = taskList.size();
-        TaskWrapper newWrapper = new TaskWrapper(newIndex, newTask);
-        newWrapper.isEditMode = true;
-        taskList.add(newWrapper);
-        
-        // Set the proxy date for the new row
-        this.proxyActivityDate = newTask.ActivityDate;
-        
-        return null;
+    public Boolean getIsActionPlanDisabled() {
+        return accPlan.Id == null; 
     }
-    
-    // Public property to check if the 'Add New Row' button should be disabled
+
+    public void addRow() {
+        if (taskList.size() < 5) {
+            taskList.add(new TaskWrapper(taskList.size()));
+        }
+    }
+    public void editRow() {
+        if (rowIndex != null && rowIndex < taskList.size()) {
+            taskList.get(rowIndex).isEditMode = true;
+        }
+    }
     public Boolean getIsAddDisabled() {
-        // You can't add a new row if another row is already being edited.
-        for(TaskWrapper tw : taskList) {
-            if(tw.isEditMode) return true;
-        }
-        return false;
+        return taskList.size() >= 5;
     }
-
-    /**
-     * Inner Wrapper Class to handle the state of each Task row on the page.
-     */
     public class TaskWrapper {
-        public Integer rowIndex { get; set; }
         public Task taskRec { get; set; }
         public Boolean isEditMode { get; set; }
-
-        public TaskWrapper(Integer index, Task task) {
+        public Integer rowIndex { get; set; }
+        public TaskWrapper(Integer index) {
+            this.taskRec = new Task();
+            this.isEditMode = true;
             this.rowIndex = index;
-            this.taskRec = task;
-            this.isEditMode = false;
         }
     }
 }
